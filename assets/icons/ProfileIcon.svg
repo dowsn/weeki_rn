@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="10" y="10" width="80" height="80" rx="10" ry="10" fill="white" />
+</svg>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Background rectangle -->
+  <rect x="0" y="0" width="1024" height="1024" rx="205" ry="205" fill="#2C2C2C"/>
+
+  <!-- First column (green) -->
+  <rect x="102" y="348" width="225" height="625" rx="112.5" ry="112.5" fill="#00D448"/>
+
+  <!-- Middle column (purple) -->
+  <rect x="399" y="348" width="225" height="625" rx="112.5" ry="112.5" fill="#8F00FF"/>
+
+  <!-- Last column (yellow) with dot -->
+  <rect x="696" y="348" width="225" height="625" rx="112.5" ry="112.5" fill="#FDB600"/>
+  <circle cx="808.5" cy="164" r="112.5" fill="white"/>
+</svg>

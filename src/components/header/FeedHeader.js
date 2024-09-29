@@ -1,16 +1,16 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
-import React, { useContext, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
+import React, { useContext, useState } from 'react';
 import {
   Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  // View,
-} from "react-native";
-import { UserContext } from "../../contexts/UserContext";
+} from 'react-native';
+import { UserContext } from '../../contexts/UserContext';
+
 // import CitySelector from "../main/CitySelectorView";
 
 const FeedHeader = () => {
@@ -20,16 +20,17 @@ const FeedHeader = () => {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={safeArea}>
-      <TouchableOpacity
-        onPress={() => navigation.navigate("CitySelectorView")}
-        style={container}
-        activeOpacity={0.5}
-      >
-        <Ionicons style={arrowDown} name="chevron-down" />
-        <Text style={text}>{user["selectedCityShortName"]}</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    <></>
+    // <SafeAreaView style={safeArea}>
+    //   {/* <TouchableOpacity
+    //     onPress={() => navigation.navigate("CitySelectorView")}
+    //     style={container}
+    //     activeOpacity={0.5}
+    //   >
+    //     <Ionicons style={arrowDown} name="chevron-down" />
+    //     <Text style={text}>{user["selectedCityShortName"]}</Text>
+    //   </TouchableOpacity> */}
+    // </SafeAreaView>
   );
 };
 

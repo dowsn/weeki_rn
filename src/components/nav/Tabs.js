@@ -1,15 +1,15 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import React, { useState } from "react";
-import { Image, SafeAreaView, StyleSheet, View } from "react-native";
-import ExhibitionDetail from "../details/ExhibitionDetail";
-import BackHeader from "../header/BackHeader";
-import FeedHeader from "../header/FeedHeader";
-import CitySelectorViewHeader from "../header/CitySelectorViewHeader";
-import CitySelectorView from "../main/CitySelectorView";
-import FeedView from "../main/FeedView";
-import MapView from "../main/MapView";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import React, { useState } from 'react';
+import { Image, SafeAreaView, StyleSheet, View } from 'react-native';
+import ExhibitionDetail from '../details/ExhibitionDetail';
+import BackHeader from '../header/BackHeader';
+import CitySelectorViewHeader from '../header/CitySelectorViewHeader';
+import FeedHeader from '../header/FeedHeader';
+import CitySelectorView from '../main/CitySelectorView';
+import FeedView from '../main/FeedView';
+import MapView from '../main/MapView';
 
 const Tab = createBottomTabNavigator();
 const FeedStack = createStackNavigator();
@@ -56,51 +56,110 @@ const Tabs = ({ user }) => {
     <Tab.Navigator
       screenOptions={{
         header: () => <FeedHeader />,
-        tabBarActiveTintColor: "white",
-        tabBarInactiveTintColor: "grey",
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'grey',
         tabBarStyle: {
-          backgroundColor: "black",
+          backgroundColor: 'black',
         },
         animationEnabled: true,
       }}
     >
       <Tab.Screen
-        name={"Exhibitionary"}
+        name={'Ma'}
         component={FeedStackScreen}
         options={({ route }) => ({
           animationEnabled: true,
           lazy: false,
+          tabBarShowLabel: false, // This hides the label
           header: () => {
-            const routeName = getFocusedRouteNameFromRoute(route) ?? "FeedView";
-            if (routeName == "FeedView") {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? 'FeedView';
+            if (routeName == 'FeedView') {
               return <FeedHeader />;
-            } else if (routeName == "CitySelectorView") {
+            } else if (routeName == 'CitySelectorView') {
               return <CitySelectorViewHeader />;
             } else {
               return <BackHeader />;
             }
           },
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({ focused, color, size }) => (
             <Image
-              source={require("../../../assets/icons/ExhibitionsButton2525.png")}
-              style={[tabIcon, focused ? selectedTab : unselectedTab]}
+              source={require('../../../assets/icons/WeekIcon.png')}
+              style={[
+                {
+                  width: size,
+                  height: size,
+                  tintColor: color, // This will use the active/inactive colors from tabBarActiveTintColor and tabBarInactiveTintColor
+                },
+                focused ? selectedTab : unselectedTab,
+              ]}
             />
           ),
         })}
       />
       <Tab.Screen
-        name={"MapView"}
-        options={{
-          tabBarIcon: ({ focused }) => (
+        name={'Exhibitionary'}
+        component={FeedStackScreen}
+        options={({ route }) => ({
+          animationEnabled: true,
+          lazy: false,
+          tabBarShowLabel: false, // This hides the label
+          header: () => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? 'FeedView';
+            if (routeName == 'FeedView') {
+              return <FeedHeader />;
+            } else if (routeName == 'CitySelectorView') {
+              return <CitySelectorViewHeader />;
+            } else {
+              return <BackHeader />;
+            }
+          },
+          tabBarIcon: ({ focused, color, size }) => (
             <Image
-              source={require("../../../assets/icons/locate_48x48_Mini.png")}
-              style={[tabIcon, focused ? selectedTab : unselectedTab]}
+              source={require('../../../assets/icons/YearIcon.png')}
+              style={[
+                {
+                  width: size,
+                  height: size,
+                  tintColor: color, // This will use the active/inactive colors from tabBarActiveTintColor and tabBarInactiveTintColor
+                },
+                focused ? selectedTab : unselectedTab,
+              ]}
             />
           ),
-        }}
-      >
-        {() => <MapView user={user} />}
-      </Tab.Screen>
+        })}
+      />
+      <Tab.Screen
+        name={'Map'}
+        component={FeedStackScreen}
+        options={({ route }) => ({
+          animationEnabled: true,
+          lazy: false,
+          tabBarShowLabel: false, // This hides the label
+          header: () => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? 'FeedView';
+            if (routeName == 'FeedView') {
+              return <FeedHeader />;
+            } else if (routeName == 'CitySelectorView') {
+              return <CitySelectorViewHeader />;
+            } else {
+              return <BackHeader />;
+            }
+          },
+          tabBarIcon: ({ focused, color, size }) => (
+            <Image
+              source={require('../../../assets/icons/ProfileIcon.png')}
+              style={[
+                {
+                  width: size,
+                  height: size,
+                  tintColor: color, // This will use the active/inactive colors from tabBarActiveTintColor and tabBarInactiveTintColor
+                },
+                focused ? selectedTab : unselectedTab,
+              ]}
+            />
+          ),
+        })}
+      />
     </Tab.Navigator>
   );
 };
