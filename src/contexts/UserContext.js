@@ -1,35 +1,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
+import { useColorScheme } from 'react-native';
+import {
+  borderRadii,
+  darkColors,
+  fontSizes,
+  lightColors,
+  spacing,
+} from '../constants/theme';
 import { usePersistedState } from '../utilities/context';
 
 export const UserContext = createContext();
 
-const storeData = async (value) => {
+const storeData = async (key, value) => {
   try {
     const jsonValue = JSON.stringify(value);
-    await AsyncStorage.setItem('@user', jsonValue);
+    await AsyncStorage.setItem(key, jsonValue);
   } catch (e) {
     // saving error
   }
 };
 
-const clearAll = async () => {
-  try {
-    await AsyncStorage.clear();
-  } catch (e) {
-    // clear error
-  }
-
-  console.log('Done.');
-};
-
-
-
 export const UserProvider = ({ children }) => {
-
-  // delete this line
-  // clearAll();
-
   const defaultUser = {
     userId: '0',
     selectedCityId: 1,
@@ -39,12 +31,34 @@ export const UserProvider = ({ children }) => {
     long: null,
   };
 
-
   const [user, setUser] = usePersistedState('user', defaultUser);
+  const colorScheme = useColorScheme();
+  const [isDark, setIsDark] = usePersistedState(
+    'isDark',
+    colorScheme === 'dark',
+  );
+
+  const toggleTheme = () => {
+    setIsDark((prev) => !prev);
+    storeData('@isDark', !isDark);
+  };
+
+  const theme = {
+    isDark,
+    colors: isDark ? darkColors : lightColors,
+    spacing,
+    fontSizes,
+    borderRadii,
+    toggleTheme,
+  };
+
+  const contextValue = {
+    user,
+    setUser,
+    theme,
+  };
 
   return (
-    <UserContext.Provider value={[user, setUser]}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 };
