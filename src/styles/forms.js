@@ -16,4 +16,6 @@ export default (theme) =>
       marginBottom: theme.spacing.small,
       color: theme.colors.text,
     },
+
+
   });

@@ -1,15 +1,15 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import moment from "moment";
-import React, { useState } from "react";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import moment from 'moment';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  ImageBackground,
   SafeAreaView,
   StyleSheet,
-  ImageBackground,
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
 import {
   BallIndicator,
   BarIndicator,
@@ -21,7 +21,7 @@ import {
   UIActivityIndicator,
   WaveIndicator,
 } from 'react-native-indicators';
-import useImageLoader from "../../hooks/useImageLoader";
+import useImageLoader from '../../../hooks/useImageLoader';
 
 const ExhibitionDetail = ({ route }) => {
   const { item } = route.params;

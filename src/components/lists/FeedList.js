@@ -1,10 +1,10 @@
-import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { FlatList, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import FeedSeparator from "../divs/FeedSeparator";
-import EmptyFeedList from "../empty/EmptyFeedList";
-import FeedElement from "../list_elements/FeedElement";
+import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { FlatList, Text, View } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import EmptyFeedList from '../common/EmptyFeedList';
+import FeedSeparator from '../common/FeedSeparator';
+import FeedElement from '../list_elements/FeedElement';
 
 const FeedList = ({ data }) => {
   const navigation = useNavigation();

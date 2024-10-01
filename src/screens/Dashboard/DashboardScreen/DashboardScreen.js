@@ -1,11 +1,12 @@
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../../constants/theme';
-import { createStyles } from '../../styles';
-import createScreenStyles from './SampleScreen.styles';
+import { useTheme } from '../../../constants/theme';
+import { createStyles } from '../../../styles';
+import createScreenStyles from './DashboardScreen.styles';
+import { useUserContext } from '../../../hooks/useUserContext';
 
-const SampleScreen = () => {
-  const theme = useTheme();
+const DashboardScreen = () => {
+  const { user, setUser, theme } = useUserContext();
   const styles = createStyles(theme);
   const screenStyles = createScreenStyles(theme);
 
@@ -38,4 +39,4 @@ const SampleScreen = () => {
   );
 };
 
-export default SampleScreen;
+export default DashboardScreen;

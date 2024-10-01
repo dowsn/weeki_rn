@@ -3,7 +3,7 @@ export const lightColors = {
   text: '#000000',
   primary: '#3498db',
   secondary: '#2ecc71',
-  border: '#E0E0E0',
+  border: '#E5E5EA',
 };
 
 export const darkColors = {
@@ -29,5 +29,5 @@ export const fontSizes = {
 export const borderRadii = {
   small: 4,
   medium: 8,
-  large: 12,
+  large: 20,
 };

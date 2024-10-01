@@ -5,9 +5,9 @@ import { NavigationContainer } from '@react-navigation/native';
 //   TransitionPresets,
 // } from "@react-navigation/stack";
 import React from 'react';
-// import CitySelectorView from "./src/components/main/CitySelectorView";
-import Tabs from './src/components/nav/Tabs';
 import { UserProvider } from './src/contexts/UserContext';
+// import CitySelectorView from "./src/components/main/CitySelectorView";
+import Tabs from './src/navigation/Tabs';
 
 // import "react-native-gesture-handler";
 

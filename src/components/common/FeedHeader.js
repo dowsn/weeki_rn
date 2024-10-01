@@ -20,7 +20,8 @@ const FeedHeader = () => {
   const navigation = useNavigation();
 
   return (
-    <></>
+    <>
+    </>
     // <SafeAreaView style={safeArea}>
     //   {/* <TouchableOpacity
     //     onPress={() => navigation.navigate("CitySelectorView")}

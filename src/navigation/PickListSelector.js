@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -6,9 +6,9 @@ import {
   StyleSheet,
   Text,
   View,
-} from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { UserContext } from "../../contexts/UserContext";
+} from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { UserContext } from '../contexts/UserContext';
 
 const PickListSelector = ({ data }) => {
   const {

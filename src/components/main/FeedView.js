@@ -22,9 +22,9 @@ import {
   WaveIndicator,
 } from 'react-native-indicators';
 import { useFeed } from '../../hooks/useFeed';
-import Error from '../divs/Error';
+import PickListSelector from '../../navigation/PickListSelector';
+import Error from '../common/Error';
 import FeedList from '../lists/FeedList';
-import PickListSelector from '../nav/PickListSelector';
 
 const FeedView = ({ navigation }) => {
   // const [pickLists, feeds, isLoading, error] = useFeed();
@@ -59,7 +59,7 @@ const FeedView = ({ navigation }) => {
               style={{ width: 200, height: 200, alignSelf: 'center' }}
             />
 <Text style={{ fontFamily: 'VarelaRound-Regular', textAlign: 'center', fontSize: 20 * 3, margin: 10 }}>
-    Weeki
+    Week
 </Text>
           </View>
           {/* <PickListSelector data={pickLists} />

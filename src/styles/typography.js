@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 export default (theme) =>
   StyleSheet.create({
     h1: {
-      fontSize: 32,
+      fontSize: theme.fontSizes.big,
       fontWeight: 'bold',
       color: theme.colors.text,
       marginBottom: theme.spacing.medium,
