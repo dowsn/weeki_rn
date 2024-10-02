@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -7,26 +7,52 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
+import { Message, NewMessage } from '../../types/message';
+import { fetchData } from '../../utils/api';
 import createScreenStyles from './ChatScreen.styles';
 
-const ChatScreen = () => {
+const ChatScreen: React.FC = () => {
   const { user, setUser, theme } = useUserContext();
-   const styles = createStyles(theme);
-   const screenStyles = createScreenStyles(theme);
+  const styles = createStyles(theme);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
 
-  const messages = [
-    { id: 1, text: 'Hey there!', sender: 'me' },
-    { id: 2, text: 'Hi! How are you?', sender: 'other' },
-    { id: 3, text: "I'm doing great, thanks for asking!", sender: 'me' },
-    { id: 4, text: "That's wonderful to hear!", sender: 'other' },
-    { id: 5, text: 'How about you?', sender: 'me' },
-  ];
+  useEffect(() => {
+    fetchMessages();
+  }, []);
 
-  const renderMessage = (message) => (
+  const fetchMessages = async () => {
+    try {
+      const data = await fetchData<Message[]>('/api/messages', 'GET');
+      setMessages(data);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (newMessage.trim() === '') return;
+
+    const messageToSend: NewMessage = {
+      text: newMessage,
+      sender: 'me',
+    };
+
+    try {
+      const data = await fetchData<Message>('/api/messages', 'POST', messageToSend);
+      setMessages([...messages, data]);
+      setNewMessage('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
+  const renderMessage = (message: Message) => (
     <View
       key={message.id}
       style={[
@@ -75,19 +101,16 @@ const ChatScreen = () => {
             style={styles.chat.oneLineInput}
             placeholder="Type a message..."
             placeholderTextColor="#999"
+            value={newMessage}
+            onChangeText={setNewMessage}
           />
+          <TouchableOpacity style={styles.chat.sendButton} onPress={sendMessage}>
+            <Text style={styles.chat.sendButtonText}>Send</Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-
-});
 
 export default ChatScreen;

@@ -1,4 +1,4 @@
-const www = "https://www.exhibitionary.com/";
+const www = 'https://weeki-lukasmeinhart.replit.app/';
 export const globalUrl = `${www}api/`;
 const baseUrl = `${www}`;
 const profilePictures = baseUrl + "items/uploads/images/profilepictures/";
