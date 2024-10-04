@@ -1,9 +1,16 @@
 import React from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useTheme } from '../../../constants/theme';
+import { useUserContext } from '../../../hooks/useUserContext';
 import { createStyles } from '../../../styles';
 import createScreenStyles from './DashboardScreen.styles';
-import { useUserContext } from '../../../hooks/useUserContext';
 
 const DashboardScreen = () => {
   const { user, setUser, theme } = useUserContext();
@@ -40,3 +47,63 @@ const DashboardScreen = () => {
 };
 
 export default DashboardScreen;
+
+// export default function Component() {
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.username}>@johndoe</Text>
+//       <Image
+//         source={{ uri: 'https://github.com/shadcn.png' }}
+//         style={styles.profileImage}
+//       />
+//       <View style={styles.buttonContainer}>
+//         <TouchableOpacity style={styles.button}>
+//           <Text style={styles.buttonText}>Week</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.button}>
+//           <Text style={styles.buttonText}>Year</Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity style={styles.button}>
+//           <Text style={styles.buttonText}>Life</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   )
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     alignItems: 'center',
+//     justifyContent: 'flex-start',
+//     paddingTop: 50,
+//     backgroundColor: '#f0f0f0',
+//   },
+//   username: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     marginBottom: 20,
+//   },
+//   profileImage: {
+//     width: 150,
+//     height: 150,
+//     borderRadius: 75,
+//     marginBottom: 30,
+//   },
+//   buttonContainer: {
+//     width: '100%',
+//     paddingHorizontal: 20,
+//   },
+//   button: {
+//     backgroundColor: '#007AFF',
+//     padding: 15,
+//     borderRadius: 10,
+//     alignItems: 'center',
+//     marginBottom: 15,
+//   },
+//   buttonText: {
+//     color: 'white',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//   },
+// })
