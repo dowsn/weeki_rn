@@ -1,6 +1,8 @@
 import { useTheme } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, TextInput } from 'react-native';
+import { useUserContext } from '../../hooks/useUserContext';
+import { createStyles } from '../../styles';
 
 const CustomTextInput = ({
   placeholder,
@@ -8,21 +10,19 @@ const CustomTextInput = ({
   style,
   ...props
 }) => {
-
   const { user, setUser, theme } = useUserContext();
-  const styles = createStyles(theme);
-  const { textInput } = customStyles;
+  const { colors } = useTheme();
 
-    const customStyles = StyleSheet.create({
-      textInput: {
-        height: theme.spacing.large,
-        padding: theme.spacing.small,
-        fontSize: theme.fontSizes.medium,
-        borderRadius: theme.borderRadii.large,
-        color: theme.colors.dark,
-        backgroundColor: theme.colors.lightest,
-      },
-    });
+  const customStyles = StyleSheet.create({
+    textInput: {
+      height: theme.spacing.large,
+      padding: theme.spacing.small,
+      fontSize: theme.fontSizes.medium,
+      borderRadius: theme.borderRadii.large,
+      color: theme.colors.dark,
+      backgroundColor: theme.colors.lightest,
+    },
+  });
 
   return (
     <TextInput
@@ -30,11 +30,10 @@ const CustomTextInput = ({
       placeholder={placeholder}
       placeholderTextColor={colors.text}
       secureTextEntry={secureTextEntry}
+      autoCapitalize="none"
       {...props}
     />
   );
 };
-
-
 
 export default CustomTextInput;

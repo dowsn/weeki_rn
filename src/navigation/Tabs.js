@@ -4,7 +4,6 @@ import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '../components/common/BackHeader';
-import CitySelectorViewHeader from '../components/common/CitySelectorViewHeader';
 import ChatScreen from '../screens/Create/ChatScreen';
 import DashboardScreen from '../screens/Dashboard/DashboardScreen/DashboardScreen';
 import WeekStack from '../screens/Dashboard/WeekScreen/WeekScreen';

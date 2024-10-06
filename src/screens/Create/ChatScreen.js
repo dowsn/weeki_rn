@@ -9,23 +9,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Message } from 'src/types/messages';
 import { fetchData } from 'src/utilities/api';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
 
-interface ChatScreenProps {
-  initialConversationSessionId?: string;
-}
-
-const ChatScreen: React.FC<ChatScreenProps> = ({ initialConversationSessionId }) => {
+const ChatScreen = ({ initialConversationSessionId }) => {
   const { user, setUser, theme } = useUserContext();
   const styles = createStyles(theme);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [conversationSessionId, setConversationSessionId] = useState<string | null>(initialConversationSessionId || null);
+  const [conversationSessionId, setConversationSessionId] = useState(initialConversationSessionId || null);
   const [isLoading, setIsLoading] = useState(true);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef(null);
 
   useEffect(() => {
     const initializeChat = async () => {
@@ -42,7 +37,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ initialConversationSessionId })
 
   const fetchMessages = async () => {
     try {
-      const data = await fetchData<Message[]>(`chat-sessions/${conversationSessionId}/`, 'GET');
+      const data = await fetchData(`chat-sessions/${conversationSessionId}/`, 'GET');
       setMessages(data);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -51,8 +46,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ initialConversationSessionId })
 
   const createConversationSession = async () => {
     try {
-      // check status, what about the object deconstruction
-      const response = await fetchData<{ conversationSessionId: string }>('/api/chat-sessions/', 'POST');
+      const response = await fetchData('/api/chat-sessions/', 'POST');
       setConversationSessionId(response.conversationSessionId);
     } catch (error) {
       console.error('Error creating conversation session:', error);
@@ -62,63 +56,66 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ initialConversationSessionId })
   const sendMessage = async () => {
     if (newMessage.trim() === '' || !conversationSessionId) return;
 
+    const date_created = new Date().toISOString();
+
     try {
-      const response = await fetchData<Message>(
+      const response = await fetchData(
         `/api/chat-sessions/${conversationSessionId}/messages/`,
         'POST',
-        { message: newMessage }
+        { content: newMessage, date_created, user_id: user.id }
       );
 
-      const userMessage: NewMessage = {
-        text: newMessage,
+      const userMessage = {
+        content: newMessage,
         sender: 'user',
+        date_created,
       };
 
-      const assistantMessage: Message = {
-        text: response.content,
+      const assistantMessage = {
+        content: response.content,
         sender: 'assistant',
+        date_created: response.date_created,
       };
 
       setMessages(prevMessages => [...prevMessages, userMessage, assistantMessage]);
       setNewMessage('');
 
-      // Scroll to the bottom after sending a message
       scrollViewRef.current?.scrollToEnd({ animated: true });
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
 
- const renderMessage = (message: Message) => (
-  <View
-    key={message.id.toString()}
-    style={[
-      styles.chat.messageContainer,
-      message.sender === 'user'
-        ? styles.chat.myMessageContainer
-        : styles.chat.otherMessageContainer
-    ]}
-  >
+  const renderMessage = (message) => (
     <View
+      key={message.id || message.date_created}
       style={[
-        styles.chat.messageBubble,
+        styles.chat.messageContainer,
         message.sender === 'user'
-          ? styles.chat.myMessageBubble
-          : styles.chat.otherMessageBubble,
+          ? styles.chat.myMessageContainer
+          : styles.chat.otherMessageContainer
       ]}
     >
-      <Text
-        style={
+      <View
+        style={[
+          styles.chat.messageBubble,
           message.sender === 'user'
-            ? styles.chat.myMessageText
-            : styles.chat.otherMessageText
-        }
+            ? styles.chat.myMessageBubble
+            : styles.chat.otherMessageBubble,
+        ]}
       >
-        {message.text}
-      </Text>
+        <Text
+          style={
+            message.sender === 'user'
+              ? styles.chat.myMessageText
+              : styles.chat.otherMessageText
+          }
+        >
+          {message.content}
+        </Text>
+      </View>
     </View>
-  </View>
-);
+  );
 
   if (isLoading) {
     return (

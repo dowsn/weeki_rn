@@ -21,7 +21,7 @@ const DashboardScreen = () => {
       <Text style={screenStyles.title}>Welcome to My App</Text>
 
       <View style={screenStyles.formContainer}>
-        <Text style={styles.forms.label}>Enter your name:</Text>
+        <Text style={styles.forms.label}>Enter your name:{user.userId}</Text>
         <TextInput style={styles.forms.input} placeholder="John Doe" />
 
         <Text style={styles.forms.label}>Enter your email:</Text>

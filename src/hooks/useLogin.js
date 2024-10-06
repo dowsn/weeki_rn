@@ -1,29 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import fetchFromApi from '../utilities/api';
 
-export const useFeedHeader = () => {
-  const [pickList, setPickList] = useState([]);
+export const useLogin = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isLoading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchFromApi('login', {
-          list_id: 9,
-          city_id: 1,
-        });
-        setFeeds(data.response.feeditems);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const login = async (username, password) => {
+    setIsLoading(true);
+    setError(null);
 
-    fetchData();
-  }, []);
+    try {
+      const response = await fetchFromApi('login/', {
+        method: 'POST',
+        body: { username, password },
+      });
 
-  return [pickList, isLoading, error];
+      console.log('Login response:', response);
+
+      // You might want to do something with the response here,
+      // like storing a token in localStorage or updating a global state
+
+      setIsLoading(false);
+      return response.content;
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message);
+      setIsLoading(false);
+      throw err;
+    }
+  };
+
+  return { login, isLoading, error };
 };

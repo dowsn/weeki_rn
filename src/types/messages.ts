@@ -2,12 +2,13 @@ export type MessageSender = 'user' | 'assistant';
 
 export interface Message {
   id: string;
-  text: string;
+  content: string;
   sender: MessageSender;
   data_created: string; // Unix timestamp
 }
 
 export interface NewMessage {
-  text: string;
+  content: string;
+  date_created: string;
   sender: MessageSender;
 }

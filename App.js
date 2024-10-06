@@ -1,25 +1,23 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useContext } from 'react';
-import { UserContext, UserProvider } from 'src/contexts/UserContext';
+import React from 'react';
+import { UserProvider } from 'src/contexts/UserContext';
+import { useUserContext } from 'src/hooks/useUserContext';
 import Tabs from 'src/navigation/Tabs';
-import LoginScreen from 'src/screens/LoginRegister/LoginScreen';
+import AuthStack from 'src/stacks/AuthStack';
 
 const Stack = createStackNavigator();
 
 const MainNavigator = () => {
-  const { user } = useContext(UserContext);
+  const { user } = useUserContext();
 
   return (
     <Stack.Navigator>
-      {user.userId === '0' ? (
+      {user.userId == '0' || user.userId == '1' ? (
         <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{
-          headerShown: true,
-          headerTitle: "Sign In / Sign Up"
-          }}
+          name="Auth"
+          component={AuthStack}
+          options={{ headerShown: false }}
         />
       ) : (
         <Stack.Screen
