@@ -2,11 +2,11 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { FlatList, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import EmptyFeedList from '../common/EmptyFeedList';
 import FeedSeparator from '../common/FeedSeparator';
-import FeedElement from '../list_elements/FeedElement';
+import NoteElement from '../list_elements/NoteElement';
+import EmptyFeedList from './EmptyList';
 
-const FeedList = ({ data }) => {
+const NoteList = ({ data }) => {
   const navigation = useNavigation();
   const { feedList } = styles;
 
@@ -14,9 +14,9 @@ const FeedList = ({ data }) => {
     return (
       <TouchableOpacity
         activeOpacity={0.5}
-        onPress={() => navigation.navigate("ExhibitionDetail", { item: item })}
+        onPress={() => navigation.navigate("NoteDetail", { item: item })}
       >
-        <FeedElement title={item.title} images={item.images} />
+        <NoteElement title={item.title} images={item.images} />
       </TouchableOpacity>
     );
   };
@@ -27,7 +27,7 @@ const FeedList = ({ data }) => {
       data={data}
       renderItem={renderItem}
       keyExtractor={(item) => item.id}
-      ItemSeparatorComponent={FeedSeparator}
+      ItemSeparatorComponent={NoteSeparator}
       ListEmptyComponent={EmptyFeedList}
     />
   );

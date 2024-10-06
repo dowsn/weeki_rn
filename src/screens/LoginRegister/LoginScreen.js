@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomTextInput from 'src/components/forms/CustomTextInput';
 import { UserContext } from 'src/contexts/UserContext';
 
 const LoginScreen = () => {
@@ -32,14 +33,17 @@ const LoginScreen = () => {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <Text style={[styles.title, { color: theme.colors.text }]}>Welcome</Text>
+      <CustomTextInput placeholder="Username" secureTextEntry="true" />
+      <CustomTextInput placeholder="Password" secureTextEntry="true" />
+
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
+      <TouchableOpacity style={styles.smallButton} onPress={handleRegister}>
+        <Text style={styles.smallButtonText}>Register</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleWebsiteLink}>
-        <Text style={styles.buttonText}>Visit Website</Text>
+      <TouchableOpacity style={styles.smallButton} onPress={handleWebsiteLink}>
+        <Text style={styles.smallButtonText}>Visit Website</Text>
       </TouchableOpacity>
     </View>
   );

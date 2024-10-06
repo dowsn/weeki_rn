@@ -23,12 +23,7 @@ const storeData = async (key, value) => {
 
 export const UserProvider = ({ children }) => {
   const defaultUser = {
-    userId: '0',
-    selectedCityId: 1,
-    selectedCityShortName: 'VE',
-    selectedPickListIndex: 0,
-    lat: null,
-    long: null,
+    userId: 0,
   };
 
   const [user, setUser] = usePersistedState('user', defaultUser);

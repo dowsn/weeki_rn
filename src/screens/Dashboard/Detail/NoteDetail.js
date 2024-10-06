@@ -23,7 +23,7 @@ import {
 } from 'react-native-indicators';
 import useImageLoader from '../../../hooks/useImageLoader';
 
-const ExhibitionDetail = ({ route }) => {
+const NoteDetail = ({ route }) => {
   const { item } = route.params;
   const { title, opening_start, images } = item;
   // const [count, setCount] = useState(0);
@@ -118,4 +118,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ExhibitionDetail;
+export default NoteDetail;

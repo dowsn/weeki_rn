@@ -1,17 +1,33 @@
 export const lightColors = {
-  background: '#FFFFFF',
-  text: '#000000',
-  primary: '#3498db',
-  secondary: '#2ecc71',
-  border: '#E5E5EA',
+  main: '#FFFFFF',
+
+  light: '#000000',
+  lighter: '',
+  lightest: '#000000',
+
+  dark: '#3498db',
+  darker: '#90CAF9',
+  darkest: '#90CAF9',
+
+  gray: '#2ecc71',
+  green: 'green',
+  red: 'red',
 };
 
 export const darkColors = {
-  background: '#121212',
-  text: '#FFFFFF',
-  primary: '#90CAF9',
-  secondary: '#A5D6A7',
-  border: '#333333',
+  main: '#121212',
+
+  light: '#FFFFFF',
+  lighter: "",
+  lightest: '#000000',
+
+  dark: '#90CAF9',
+  darker: '#90CAF9',
+  darkest: "",
+
+  gray: '#A5D6A7',
+  green: 'green',
+  red: 'red',
 };
 
 export const spacing = {

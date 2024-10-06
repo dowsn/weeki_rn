@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
-import { Message } from '../../types/message';
+import { Message, NewMessage } from '../../types/message';
 import { fetchData } from '../../utils/api';
 
 interface ChatScreenProps {
@@ -51,6 +51,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ initialConversationSessionId })
 
   const createConversationSession = async () => {
     try {
+      // check status, what about the object deconstruction
       const response = await fetchData<{ conversationSessionId: string }>('/api/chat-sessions/', 'POST');
       setConversationSessionId(response.conversationSessionId);
     } catch (error) {
@@ -62,20 +63,18 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ initialConversationSessionId })
     if (newMessage.trim() === '' || !conversationSessionId) return;
 
     try {
-      const response = await fetchData<{ content: string }>(
+      const response = await fetchData<Message>(
         `/api/chat-sessions/${conversationSessionId}/messages/`,
         'POST',
         { message: newMessage }
       );
 
-      const userMessage: Message = {
-        id: Date.now().toString(),
+      const userMessage: NewMessage = {
         text: newMessage,
         sender: 'user',
       };
 
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
         text: response.content,
         sender: 'assistant',
       };

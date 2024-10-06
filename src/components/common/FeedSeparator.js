@@ -1,7 +1,7 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
-const FeedSeparator = () => {
+const NoteSeparator = () => {
   return <View style={styles.separator} />;
 };
 
@@ -13,4 +13,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FeedSeparator;
+export default NoteSeparator;

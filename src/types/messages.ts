@@ -1,10 +1,10 @@
-export type MessageSender = 'me' | 'other';
+export type MessageSender = 'me' | 'assistant';
 
 export interface Message {
   id: string;
   text: string;
   sender: MessageSender;
-  timestamp: number; // Unix timestamp
+  data_created: string; // Unix timestamp
 }
 
 export interface NewMessage {
