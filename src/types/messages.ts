@@ -1,4 +1,4 @@
-export type MessageSender = 'me' | 'other';
+export type MessageSender = 'user' | 'other';
 
 export interface Message {
   id: string;

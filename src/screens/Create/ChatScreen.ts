@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Message } from 'src/types/messages';
+import { fetchData } from 'src/utilities/api';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
-import { Message } from '../../types/message';
-import { fetchData } from '../../utils/api';
 
 interface ChatScreenProps {
   initialConversationSessionId?: string;
@@ -90,36 +90,36 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ initialConversationSessionId })
     }
   };
 
-  const renderMessage = (message: Message) => (
+ const renderMessage = (message: Message) => (
+  <View
+    key={message.id.toString()}
+    style={[
+      styles.chat.messageContainer,
+      message.sender === 'user'
+        ? styles.chat.myMessageContainer
+        : styles.chat.otherMessageContainer
+    ]}
+  >
     <View
-      key={message.id}
       style={[
-        styles.chat.messageContainer,
+        styles.chat.messageBubble,
         message.sender === 'user'
-          ? styles.chat.myMessageContainer
-          : styles.chat.otherMessageContainer,
+          ? styles.chat.myMessageBubble
+          : styles.chat.otherMessageBubble,
       ]}
     >
-      <View
-        style={[
-          styles.chat.messageBubble,
+      <Text
+        style={
           message.sender === 'user'
-            ? styles.chat.myMessageBubble
-            : styles.chat.otherMessageBubble,
-        ]}
+            ? styles.chat.myMessageText
+            : styles.chat.otherMessageText
+        }
       >
-        <Text
-          style={
-            message.sender === 'user'
-              ? styles.chat.myMessageText
-              : styles.chat.otherMessageText
-          }
-        >
-          {message.text}
-        </Text>
-      </View>
+        {message.text}
+      </Text>
     </View>
-  );
+  </View>
+);
 
   if (isLoading) {
     return (
