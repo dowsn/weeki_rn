@@ -32,5 +32,8 @@ export default (theme) =>
     section: {
       marginBottom: theme.spacing.large,
     },
+
+
+
     // Add more layout styles as needed
   });

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-const EmptyFeedList = () => {
+const EmptyList = () => {
   return (
     <View>
-      <Text>Nothing to show</Text>
+      <Text>Still nothing</Text>
     </View>
   );
 };
 
-export default EmptyFeedList;
+export default EmptyList;

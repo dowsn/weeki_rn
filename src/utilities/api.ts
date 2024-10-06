@@ -1,4 +1,4 @@
-import { globalUrl } from '../../config/constants';
+import { globalUrl } from '../constants/constants';
 
 export const fetchData = async <T>(
   endpoint: string,

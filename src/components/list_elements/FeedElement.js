@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
   StyleSheet,
   Text,
   View,
-} from "react-native";
+} from 'react-native';
 import {
   BallIndicator,
   BarIndicator,
@@ -16,10 +16,10 @@ import {
   SkypeIndicator,
   UIActivityIndicator,
   WaveIndicator,
-} from "react-native-indicators";
-import useImageLoader from "../../hooks/useImageLoader";
+} from 'react-native-indicators';
+import useImageLoader from '../../hooks/useImageLoader';
 
-const FeedElement = (props) => {
+const NoteElement = (props) => {
   const { item, background, titleText, activityIndicator } = styles;
   const { title, images } = props;
 
@@ -85,4 +85,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FeedElement;
+export default NoteElement;

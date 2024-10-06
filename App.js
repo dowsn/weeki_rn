@@ -16,7 +16,10 @@ const MainNavigator = () => {
         <Stack.Screen
           name="Login"
           component={LoginScreen}
-          options={{ headerShown: false }}
+          options={{
+          headerShown: true,
+          headerTitle: "Sign In / Sign Up"
+          }}
         />
       ) : (
         <Stack.Screen

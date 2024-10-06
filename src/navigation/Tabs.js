@@ -62,6 +62,7 @@ const Tabs = ({ user }) => {
           animationEnabled: true,
           lazy: false,
           tabBarShowLabel: false,
+
           header: () => {
             const routeName = getFocusedRouteNameFromRoute(route) ?? 'FeedView';
             if (routeName === 'CitySelectorView') {

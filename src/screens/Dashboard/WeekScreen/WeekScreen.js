@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../../../constants/theme';
 import { useUserContext } from '../../../hooks/useUserContext';
 import { createStyles } from '../../../styles';
 import createScreenStyles from './WeekScreen.styles';
 
-const WeekScreen = () => {
+const WeekScreen = (
+  weekId
+) => {
   const { user, setUser, theme } = useUserContext();
+  const { week, setWeek } = useState(""); // week info
+  // topics
+  // topics with notes type
+  // weeks for that year
+
+
   const styles = createStyles(theme);
   const screenStyles = createScreenStyles(theme);
+
+  useEffect(() => {
+    async function useWeek(weekId)
+  }, []);
+
 
   return (
     <View style={screenStyles.container}>

@@ -24,7 +24,7 @@ import {
 import { useFeed } from '../../hooks/useFeed';
 import PickListSelector from '../../navigation/PickListSelector';
 import Error from '../common/Error';
-import FeedList from '../lists/FeedList';
+import FeedList from '../lists/NoteList';
 
 const FeedView = ({ navigation }) => {
   // const [pickLists, feeds, isLoading, error] = useFeed();
@@ -37,7 +37,7 @@ const FeedView = ({ navigation }) => {
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({
-        'VarelaRound-Regular': require('../../../assets/fonts/VarelaRound-Regular.ttf'),
+        'VarelaRound-Regular': require('assets/fonts/VarelaRound-Regular.ttf'),
       });
     }
 

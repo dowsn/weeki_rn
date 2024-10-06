@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useTheme } from '../../../constants/theme';
 import { useUserContext } from '../../../hooks/useUserContext';
 import { createStyles } from '../../../styles';
 import createScreenStyles from './DashboardScreen.styles';
