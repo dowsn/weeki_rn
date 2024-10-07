@@ -15,13 +15,30 @@ import { createStyles } from '../../styles';
 
 const ChatScreen = ({ initialConversationSessionId }) => {
   const { user, setUser, theme } = useUserContext();
-  const styles = createStyles(theme);
+  const styles = createStyles(theme);``
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [conversationSessionId, setConversationSessionId] = useState(initialConversationSessionId || null);
   const [isLoading, setIsLoading] = useState(true);
   const scrollViewRef = useRef(null);
 
+  const ws = new WebSocket(`wss://api.hume.ai/v0/evi/chat?api_key=${apiKey}`);
+  ws.onopen = () => {
+    console.log('WebSocket connection opened');
+  };
+
+  ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };
+
+  ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+  };
+
+  ws.onclose = () => {
+    console.log('WebSocket connection closed');
+  };
   useEffect(() => {
     const initializeChat = async () => {
       if (conversationSessionId) {

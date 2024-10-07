@@ -1,37 +1,36 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-export const usePersistedState = (key, defaultValue) => {
-  const [state, setState] = useState(defaultValue);
+export const usePersistedState = (key, initialValue) => {
+  const [state, setState] = useState(initialValue);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load any saved state from AsyncStorage when the component mounts
   useEffect(() => {
-    const loadState = async () => {
+    const loadPersistedState = async () => {
       try {
-        const savedState = await AsyncStorage.getItem(key);
-        if (savedState !== null) {
-          setState(JSON.parse(savedState));
+        const value = await AsyncStorage.getItem(key);
+        if (value !== null) {
+          setState(JSON.parse(value));
         }
-      } catch (error) {
-        // Handle errors here
+      } catch (e) {
+        console.error(`Error loading persisted state for key "${key}":`, e);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    loadState();
+    loadPersistedState();
   }, [key]);
 
-  // Save state to AsyncStorage whenever it changes
-  useEffect(() => {
-    const saveState = async () => {
-      try {
-        await AsyncStorage.setItem(key, JSON.stringify(state));
-      } catch (error) {
-        // Handle errors here
-      }
-    };
+  const setPersistentState = useCallback(
+    (newState) => {
+      setState(newState);
+      AsyncStorage.setItem(key, JSON.stringify(newState)).catch((e) =>
+        console.error(`Error saving persisted state for key "${key}":`, e),
+      );
+    },
+    [key],
+  );
 
-    saveState();
-  }, [key, state]);
-
-  return [state, setState];
+  return [state, setPersistentState, isLoading];
 };

@@ -5,6 +5,7 @@ import { Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '../components/common/BackHeader';
 import ChatScreen from '../screens/Create/ChatScreen';
+import SpeechScreen from '../screens/Create/SpeechScreen';
 import DashboardScreen from '../screens/Dashboard/DashboardScreen/DashboardScreen';
 import WeekStack from '../screens/Dashboard/WeekScreen/WeekScreen';
 
@@ -56,7 +57,7 @@ const Tabs = ({ user }) => {
       />
       <Tab.Screen
         name={'Create'}
-        component={ChatScreen}
+        component={SpeechScreen}
         options={({ route }) => ({
           animationEnabled: true,
           lazy: false,

@@ -12,30 +12,35 @@ import { usePersistedState } from '../utilities/context';
 
 export const UserContext = createContext();
 
-const storeData = async (key, value) => {
+const storeData = async (key, value, setLoading) => {
   try {
+    setLoading(true);
     const jsonValue = JSON.stringify(value);
     await AsyncStorage.setItem(key, jsonValue);
   } catch (e) {
     // saving error
+  } finally {
+    setLoading(false);
   }
 };
 
-export const UserProvider = ({ children }) => {
+export const UserProvider = ({ children, initialUser }) => {
+
   const defaultUser = {
     userId: 0,
   };
 
-  const [user, setUser] = usePersistedState('user', defaultUser);
+  const [user, setUser] = usePersistedState('user', initialUser || defaultUser);
   const colorScheme = useColorScheme();
   const [isDark, setIsDark] = usePersistedState(
     'isDark',
     colorScheme === 'dark',
   );
+  const [loading, setLoading] = useState(false);
 
   const toggleTheme = () => {
     setIsDark((prev) => !prev);
-    storeData('@isDark', !isDark);
+    storeData('@isDark', !isDark, setLoading);
   };
 
   const theme = {
@@ -51,6 +56,7 @@ export const UserProvider = ({ children }) => {
     user,
     setUser,
     theme,
+    loading,
   };
 
   return (
