@@ -1,6 +1,4 @@
-import { createClient, LiveTranscriptionEvents } from '@deepgram/sdk';
 import { Audio } from 'expo-av';
-import Constants from 'expo-constants';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -14,12 +12,13 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { host } from 'src/constants/constants';
 import { fetchData } from 'src/utilities/api';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
 
 const SpeechScreen = ({ initialConversationSessionId }) => {
-  const { user, setUser, theme } = useUserContext();
+  const { user, theme } = useUserContext();
   const styles = createStyles(theme);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -31,26 +30,168 @@ const SpeechScreen = ({ initialConversationSessionId }) => {
   const [recordingInstance, setRecordingInstance] = useState(null);
   const [provisionalText, setProvisionalText] = useState('');
   const scrollViewRef = useRef(null);
-  const deepgramConnection = useRef(null);
-  const silenceTimeoutRef = useRef(null);
-  useEffect(() => {
-    setIsLoading(false);
-    ``;
+  const socketRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const silenceTimerRef = useRef(null);
 
+  useEffect(() => {
+    initializeWebSocket();
     return () => {
-      if (deepgramConnection.current) {
-        deepgramConnection.current.close();
+      if (socketRef.current) {
+        socketRef.current.close();
       }
     };
   }, []);
 
-    const toggleRecording = () => {
-      if (isRecording) {
-        stopRecording();
-      } else {
-        startRecording();
+  const initializeWebSocket = () => {
+
+    socketRef.current = new WebSocket(`wss://${host}/listen`);
+    console.log(`wss://${host}listen`);
+    socketRef.current.onopen = () => {
+      console.log('WebSocket connection opened');
+      setIsLoading(false);
+    };
+
+    socketRef.current.onmessage = (message) => {
+      const received = JSON.parse(message.data);
+      if (received.transcript) {
+        if (received.is_final) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              content: received.transcript,
+              sender: 'user',
+              date_created: new Date().toISOString(),
+            },
+          ]);
+          setProvisionalText('');
+        } else {
+          setProvisionalText(received.transcript);
+        }
+        updateLastTranscriptTime();
       }
     };
+
+    socketRef.current.onclose = () => {
+      console.log('WebSocket connection closed');
+      setTimeout(initializeWebSocket, 3000);
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+  };
+
+  const updateLastTranscriptTime = () => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+    }
+    silenceTimerRef.current = setTimeout(() => {
+      stopRecording();
+    }, 8000); // 8 seconds of silence
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+   const startRecording = async () => {
+     try {
+       const { status } = await Audio.requestPermissionsAsync();
+       if (status !== 'granted') {
+         Alert.alert(
+           'Permission Denied',
+           'Please grant microphone permissions to use this feature.',
+         );
+         return;
+       }
+
+       await Audio.setAudioModeAsync({
+         allowsRecordingIOS: true,
+         playsInSilentModeIOS: true,
+       });
+
+       const recording = new Audio.Recording();
+       await recording.prepareToRecordAsync(
+         Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY,
+       );
+       await recording.startAsync();
+       setRecordingInstance(recording);
+       setIsRecording(true);
+
+       if (
+         socketRef.current &&
+         socketRef.current.readyState === WebSocket.OPEN
+       ) {
+         socketRef.current.send(JSON.stringify({ action: 'start' }));
+       } else {
+         console.error('WebSocket is not open. Cannot send start signal.');
+       }
+
+       updateLastTranscriptTime();
+
+       // Start sending audio data
+       sendAudioData(recording);
+     } catch (error) {
+       console.error('Error starting recording:', error);
+       Alert.alert(
+         'Recording Error',
+         'An error occurred while starting the recording. Please try again.',
+       );
+     }
+   };
+
+   const sendAudioData = async (recording) => {
+     while (isRecording) {
+       if (recording.getStatusAsync().isRecording) {
+         const { sound, status } = await recording.createNewLoadedSoundAsync();
+         const audioBuffer = await sound.getStatusAsync();
+         if (
+           socketRef.current &&
+           socketRef.current.readyState === WebSocket.OPEN
+         ) {
+           socketRef.current.send(audioBuffer.uri);
+         } else {
+           console.log('WebSocket connection not ready, stopping recording');
+           await stopRecording();
+           break;
+         }
+       }
+       await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for 100ms before sending next chunk
+     }
+   };
+
+   const stopRecording = async () => {
+     if (recordingInstance) {
+       try {
+         await recordingInstance.stopAndUnloadAsync();
+       } catch (error) {
+         console.error('Error stopping recording:', error);
+       }
+       setRecordingInstance(null);
+     }
+
+     setIsRecording(false);
+     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+       socketRef.current.send(JSON.stringify({ action: 'stop' }));
+     } else {
+       console.error('WebSocket is not open. Cannot send stop signal.');
+     }
+
+     if (silenceTimerRef.current) {
+       clearTimeout(silenceTimerRef.current);
+     }
+
+     // Send the final transcript as a message
+     if (provisionalText.trim()) {
+       sendMessage(provisionalText.trim());
+     }
+   };
 
   const sendMessage = async (content) => {
     if (!content.trim() || !conversationSessionId) return;
@@ -88,135 +229,6 @@ const SpeechScreen = ({ initialConversationSessionId }) => {
     } catch (error) {
       console.error('Error sending message:', error);
       Alert.alert('Error', 'Failed to send message. Please try again.');
-    }
-  };
-
-  const startRecording = async () => {
-    try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(
-          'Permission Denied',
-          'Please grant microphone permissions to use this feature.',
-        );
-        return;
-      }
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY,
-      );
-      await recording.startAsync();
-      setRecordingInstance(recording);
-      setIsRecording(true);
-
-      const DEEPGRAM_API_KEY = Constants.expoConfig.extra.deepgramApiKey;
-      console.log('Deepgram API Key:', DEEPGRAM_API_KEY); // Make sure this logs correctly
-
-      try {
-
-        const deepgram = createClient(DEEPGRAM_API_KEY);
-        console.log("tady");
-         const connection = deepgram.listen.live({
-           model: 'nova-2',
-           language: 'en-US',
-           smart_format: true,
-            interim_results: true,
-         });
-
-        console.log('Deepgram connection created successfully');
-
-        connection.on(LiveTranscriptionEvents.Open, () => {
-          console.log('Deepgram connection opened');
-        });
-
-        connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-          const transcript = data.channel.alternatives[0].transcript;
-          setProvisionalText(transcript);
-
-          if (silenceTimeoutRef.current) {
-            clearTimeout(silenceTimeoutRef.current);
-          }
-          silenceTimeoutRef.current = setTimeout(() => {
-            stopRecording();
-          }, 4000);
-        });
-
-        connection.on(LiveTranscriptionEvents.Error, (error) => {
-          console.error('Deepgram error:', error);
-          Alert.alert(
-            'Transcription Error',
-            'An error occurred during transcription. Please try again.',
-          );
-          stopRecording();
-        });
-
-        // Start sending audio data to Deepgram
-        const sendAudioData = async () => {
-          while (isRecording) {
-            const { sound, status } =
-              await recording.createNewLoadedSoundAsync();
-            const audioBuffer = await sound.getStatusAsync();
-            if (
-              deepgramConnection.current &&
-              deepgramConnection.current.getReadyState() === 1
-            ) {
-              deepgramConnection.current.send(audioBuffer);
-            } else {
-              console.log('Deepgram connection not ready, stopping recording');
-              await stopRecording();
-              break;
-            }
-            await new Promise((resolve) => setTimeout(resolve, 100));
-          }
-        };
-
-        sendAudioData();
-      } catch (deepgramError) {
-        console.error('Failed to create Deepgram connection:', deepgramError);
-        Alert.alert(
-          'Connection Error',
-          'Failed to establish transcription service. Please try again later.',
-        );
-        await stopRecording();
-      }
-    } catch (error) {
-      console.error('Failed to start recording:', error);
-      Alert.alert(
-        'Recording Error',
-        'An error occurred while starting the recording. Please try again.',
-      );
-      setIsRecording(false);
-    }
-  };
-
-  const stopRecording = async () => {
-    setIsRecording(false);
-    if (recordingInstance) {
-      try {
-        await recordingInstance.stopAndUnloadAsync();
-      } catch (error) {
-        console.error('Error stopping recording:', error);
-      }
-      setRecordingInstance(null);
-    }
-    if (deepgramConnection.current) {
-      try {
-        await deepgramConnection.current.close();
-      } catch (error) {
-        console.error('Error closing Deepgram connection:', error);
-      }
-    }
-    if (silenceTimeoutRef.current) {
-      clearTimeout(silenceTimeoutRef.current);
-    }
-    if (provisionalText.trim()) {
-      sendMessage(provisionalText.trim());
     }
   };
 
