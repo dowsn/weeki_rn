@@ -128,6 +128,7 @@ const SpeechScreen = ({ initialConversationSessionId }) => {
          socketRef.current &&
          socketRef.current.readyState === WebSocket.OPEN
        ) {
+         console.log('working here');
          socketRef.current.send(JSON.stringify({ action: 'start' }));
        } else {
          console.error('WebSocket is not open. Cannot send start signal.');
@@ -146,25 +147,28 @@ const SpeechScreen = ({ initialConversationSessionId }) => {
      }
    };
 
-   const sendAudioData = async (recording) => {
-     while (isRecording) {
-       if (recording.getStatusAsync().isRecording) {
-         const { sound, status } = await recording.createNewLoadedSoundAsync();
-         const audioBuffer = await sound.getStatusAsync();
-         if (
-           socketRef.current &&
-           socketRef.current.readyState === WebSocket.OPEN
-         ) {
-           socketRef.current.send(audioBuffer.uri);
-         } else {
-           console.log('WebSocket connection not ready, stopping recording');
-           await stopRecording();
-           break;
-         }
-       }
-       await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for 100ms before sending next chunk
-     }
-   };
+    const sendAudioData = async (recording) => {
+      console.log('Starting to send audio data');
+      while (isRecording) {
+        if (recording.getStatusAsync().isRecording) {
+          const { sound, status } = await recording.createNewLoadedSoundAsync();
+          const audioBuffer = await sound.getStatusAsync();
+          if (
+            socketRef.current &&
+            socketRef.current.readyState === WebSocket.OPEN
+          ) {
+            console.log('Sending audio chunk to WebSocket');
+            socketRef.current.send(audioBuffer.uri);
+          } else {
+            console.log('WebSocket connection not ready, stopping recording');
+            await stopRecording();
+            break;
+          }
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      console.log('Finished sending audio data');
+    };
 
    const stopRecording = async () => {
      if (recordingInstance) {
@@ -178,6 +182,7 @@ const SpeechScreen = ({ initialConversationSessionId }) => {
 
      setIsRecording(false);
      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        console.log('Sending start signal to WebSocket');
        socketRef.current.send(JSON.stringify({ action: 'stop' }));
      } else {
        console.error('WebSocket is not open. Cannot send stop signal.');
