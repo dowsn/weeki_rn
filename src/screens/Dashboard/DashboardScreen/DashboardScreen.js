@@ -7,6 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import NormalButton from 'src/components/buttons/NormalButton';
+import FlexSpacer from 'src/components/common/FlexSpacer';
+import MainTitle from 'src/components/common/MainTitle';
+import CustomSafeView from 'src/components/layouts/CustomSafeArea';
+import { useLogin } from 'src/hooks/useLogin';
 import { useUserContext } from '../../../hooks/useUserContext';
 import { createStyles } from '../../../styles';
 import createScreenStyles from './DashboardScreen.styles';
@@ -16,12 +22,16 @@ const DashboardScreen = () => {
   const styles = createStyles(theme);
   const screenStyles = createScreenStyles(theme);
 
-  return (
-    <View style={screenStyles.container}>
-      <Text style={screenStyles.title}>Welcome to My App</Text>
+  const logoutHandler = async () => {
+    setUser({ userId: 0 });
+  }
 
+  return (
+    <CustomSafeView>
+      <MainTitle title={`Welcome ${user.username}`} />
+      <FlexSpacer />
       <View style={screenStyles.formContainer}>
-        <Text style={styles.forms.label}>Enter your name:{user.userId}</Text>
+        <Text style={styles.forms.label}>Enter your name: {user.userId}</Text>
         <TextInput style={styles.forms.input} placeholder="John Doe" />
 
         <Text style={styles.forms.label}>Enter your email:</Text>
@@ -32,77 +42,13 @@ const DashboardScreen = () => {
         />
       </View>
 
-      <TouchableOpacity
-        style={[
-          styles.buttons.base,
-          styles.buttons.primary,
-          screenStyles.submitButton,
-        ]}
-      >
-        <Text style={styles.buttons.text}>Submit</Text>
-      </TouchableOpacity>
-    </View>
+      <NormalButton
+        text="Submit"
+        onPress={() => console.log('Submit button pressed')}
+      />
+      <NormalButton text="Logout" onPress={logoutHandler} />
+    </CustomSafeView>
   );
 };
 
 export default DashboardScreen;
-
-// export default function Component() {
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.username}>@johndoe</Text>
-//       <Image
-//         source={{ uri: 'https://github.com/shadcn.png' }}
-//         style={styles.profileImage}
-//       />
-//       <View style={styles.buttonContainer}>
-//         <TouchableOpacity style={styles.button}>
-//           <Text style={styles.buttonText}>Week</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity style={styles.button}>
-//           <Text style={styles.buttonText}>Year</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity style={styles.button}>
-//           <Text style={styles.buttonText}>Life</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   )
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: 'center',
-//     justifyContent: 'flex-start',
-//     paddingTop: 50,
-//     backgroundColor: '#f0f0f0',
-//   },
-//   username: {
-//     fontSize: 24,
-//     fontWeight: 'bold',
-//     marginBottom: 20,
-//   },
-//   profileImage: {
-//     width: 150,
-//     height: 150,
-//     borderRadius: 75,
-//     marginBottom: 30,
-//   },
-//   buttonContainer: {
-//     width: '100%',
-//     paddingHorizontal: 20,
-//   },
-//   button: {
-//     backgroundColor: '#007AFF',
-//     padding: 15,
-//     borderRadius: 10,
-//     alignItems: 'center',
-//     marginBottom: 15,
-//   },
-//   buttonText: {
-//     color: 'white',
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//   },
-// })

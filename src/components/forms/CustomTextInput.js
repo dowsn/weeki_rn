@@ -16,19 +16,19 @@ const CustomTextInput = ({
   const customStyles = StyleSheet.create({
     textInput: {
       height: theme.spacing.large,
-      padding: theme.spacing.small,
+      padding: theme.spacing.medium,
       fontSize: theme.fontSizes.medium,
       borderRadius: theme.borderRadii.large,
-      color: theme.colors.dark,
-      backgroundColor: theme.colors.lightest,
+      color: theme.colors.onSurface,
+      backgroundColor: theme.colors.surface,
     },
   });
 
   return (
     <TextInput
-      style={[customStyles.textInput, style]}
+      style={customStyles.textInput}
       placeholder={placeholder}
-      placeholderTextColor={colors.text}
+      placeholderTextColor={colors.onSurfaceVariant}
       secureTextEntry={secureTextEntry}
       autoCapitalize="none"
       {...props}

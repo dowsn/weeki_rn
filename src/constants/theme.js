@@ -1,28 +1,67 @@
-export const lightColors = {
-  main: '#F5F5F0', // Very light moleskin-like color
-  light: '#E8E8E0', // Slightly darker moleskin-like color
-  lighter: '#F0F0E8',
-  lightest: '#FAFAF5',
-  dark: '#001F3F', // Dark marine blue
-  darker: '#00172D', // Darker marine blue
-  darkest: '#000F1F', // Darkest marine blue
-  gray: '#D0D0C8', // Light gray with a slight moleskin tint
-  green: '#4CAF50', // Kept as a standard green
-  red: '#F44336', // Kept as a standard red
+const baseColors = {
+  marineBlue: {
+    main: '#001F3F',
+    light: '#00172D',
+    dark: '#000F1F',
+    darkest: '#000A14',
+  },
+  moleskin: {
+    main: '#F5F5F0',
+    light: '#E8E8E0',
+    lighter: '#F0F0E8',
+    lightest: '#FAFAF5',
+  },
+  gray: {
+    light: '#D0D0C8',
+    dark: '#A0A096',
+  },
+  accent: {
+    green: '#4CAF50',
+    red: '#F44336',
+  },
 };
 
-export const darkColors = {
-  main: '#001F3F', // Dark marine blue as the main color for dark theme
-  light: '#F5F5F0', // Very light moleskin-like color
-  lighter: '#E8E8E0',
-  lightest: '#F0F0E8',
-  dark: '#00172D', // Darker marine blue
-  darker: '#000F1F', // Darkest marine blue
-  darkest: '#000A14', // Even darker marine blue
-  gray: '#A0A096', // Medium-light gray with a slight moleskin tint
-  green: '#4CAF50', // Kept as a standard green
-  red: '#F44336', // Kept as a standard red
+// Light mode colors
+export const lightColors = {
+  dark: baseColors.marineBlue.main,
+  light: baseColors.moleskin.light,
+
+  background: baseColors.moleskin.main,
+
+  surface: baseColors.moleskin.light,
+  surfaceVariant: baseColors.moleskin.lighter,
+
+  onBackground: baseColors.marineBlue.main,
+
+  onSurface: baseColors.marineBlue.light,
+  onSurfaceVariant: baseColors.marineBlue.dark,
+
+  primary: baseColors.marineBlue.main,
+  secondary: baseColors.marineBlue.light,
+  tertiary: baseColors.marineBlue.dark,
+
+  gray: baseColors.gray.light,
+  ...baseColors.accent,
 };
+
+// Dark mode colors
+export const darkColors = {
+  dark: baseColors.marineBlue.main,
+  light: baseColors.moleskin.light,
+
+  background: baseColors.marineBlue.main,
+  surface: baseColors.marineBlue.light,
+  surfaceVariant: baseColors.marineBlue.dark,
+  onBackground: baseColors.moleskin.main,
+  onSurface: baseColors.moleskin.light,
+  onSurfaceVariant: baseColors.moleskin.lighter,
+  primary: baseColors.moleskin.main,
+  secondary: baseColors.moleskin.light,
+  tertiary: baseColors.moleskin.lighter,
+  gray: baseColors.gray.dark,
+  ...baseColors.accent,
+};
+
 export const spacing = {
   small: 8,
   medium: 16,

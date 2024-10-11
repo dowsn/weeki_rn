@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import fetchFromApi from '../utilities/api';
+import { fetchFromApi } from '../utilities/api';
 
 export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -9,26 +9,34 @@ export const useLogin = () => {
     setIsLoading(true);
     setError(null);
 
+    if (!username || !password) {
+      setIsLoading(false);
+      setError('Username and password are required');
+      return { error: true, message: 'Username and password are required' };
+    }
+
     try {
       const response = await fetchFromApi('login/', {
         method: 'POST',
         body: { username, password },
       });
-
-      console.log('Login response:', response);
-
-      // You might want to do something with the response here,
-      // like storing a token in localStorage or updating a global state
-
       setIsLoading(false);
-      return response.content;
+      return response;
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message);
       setIsLoading(false);
-      throw err;
+      if (
+        err.message === 'Request timed out' ||
+        err.message === 'Network request failed'
+      ) {
+        setError(
+          'Unable to connect to the server. Please check your internet connection and try again.',
+        );
+      } else {
+        setError(err.data?.message || 'An unexpected error occurred');
+      }
+      return { error: true, message: error };
     }
   };
 
-  return { login, isLoading, error };
+  return { login, isLoading, error, setError };
 };

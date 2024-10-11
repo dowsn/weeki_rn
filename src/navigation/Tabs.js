@@ -3,6 +3,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useUserContext } from 'src/hooks/useUserContext';
 import BackHeader from '../components/common/BackHeader';
 import ChatScreen from '../screens/Create/ChatScreen';
 import SpeechScreen from '../screens/Create/SpeechScreen';
@@ -11,23 +12,24 @@ import WeekStack from '../screens/Dashboard/WeekScreen/WeekScreen';
 
 const Tab = createBottomTabNavigator();
 
-const Tabs = ({ user }) => {
+const Tabs = () => {
   const { selectedTab, unselectedTab } = styles;
+  const { user, setUser, theme } = useUserContext();
 
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: 'white',
-        tabBarInactiveTintColor: 'grey',
+        tabBarActiveTintColor: theme.colors.light,
+        tabBarInactiveTintColor: theme.colors.gray,
         tabBarStyle: {
-          backgroundColor: 'black',
+          backgroundColor: theme.colors.dark,
         },
         animationEnabled: true,
       }}
     >
       <Tab.Screen
         name={'Dashboard'}
-        component={WeekStack}
+        component={DashboardScreen}
         options={({ route }) => ({
           animationEnabled: true,
           lazy: false,

@@ -1,30 +1,47 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import WeekiLoading from 'src/components/common/WeekiLoading';
 import { UserProvider } from 'src/contexts/UserContext';
+import { useUserContext } from 'src/hooks/useUserContext';
 import Tabs from 'src/navigation/Tabs';
 import AuthStack from 'src/stacks/AuthStack';
-import { usePersistedState } from 'src/utilities/context';
 
-const MainNavigator = ({ user }) => {
-  if (user.userId === '0' || user.userId === '1') {
-    return <AuthStack />;
-  } else {
-    return <Tabs />;
-  }
-};
+const MainNavigator = () => {
+  const { user, setUser } = useUserContext();
+  const [isLoading, setIsLoading] = useState(true);
 
-const App = () => {
-  const [user, setUser, isLoading] = usePersistedState('user', { userId: '0' });
+  useEffect(() => {
+    const initializeUser = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        } else {
+          setUser({ userId: 0 });
+        }
+      } catch (error) {
+        console.error('Error initializing user:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeUser();
+  }, [setUser]);
 
   if (isLoading) {
     return <WeekiLoading />;
   }
 
+  return user.userId !== 0 ? <Tabs /> : <AuthStack />;
+};
+
+const App = () => {
   return (
-    <UserProvider initialUser={user} setUser={setUser}>
+    <UserProvider>
       <NavigationContainer>
-        <MainNavigator user={user} />
+        <MainNavigator />
       </NavigationContainer>
     </UserProvider>
   );

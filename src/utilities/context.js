@@ -22,15 +22,21 @@ export const usePersistedState = (key, initialValue) => {
     loadPersistedState();
   }, [key]);
 
-  const setPersistentState = useCallback(
-    (newState) => {
-      setState(newState);
-      AsyncStorage.setItem(key, JSON.stringify(newState)).catch((e) =>
-        console.error(`Error saving persisted state for key "${key}":`, e),
-      );
-    },
-    [key],
-  );
+ const setPersistentState = useCallback(
+   (newState) => {
+     setState(newState);
+     if (newState === null || newState === undefined) {
+       AsyncStorage.removeItem(key).catch((e) =>
+         console.error(`Error removing persisted state for key "${key}":`, e),
+       );
+     } else {
+       AsyncStorage.setItem(key, JSON.stringify(newState)).catch((e) =>
+         console.error(`Error saving persisted state for key "${key}":`, e),
+       );
+     }
+   },
+   [key],
+ );
 
   return [state, setPersistentState, isLoading];
 };

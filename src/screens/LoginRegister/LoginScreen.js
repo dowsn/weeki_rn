@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import {
   Alert,
@@ -7,44 +8,41 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import NormalButton from 'src/components/buttons/NormalButton';
+import TextLink from 'src/components/buttons/TextLink';
+import FlexSpacer from 'src/components/common/FlexSpacer';
+import MainTitle from 'src/components/common/MainTitle';
 import CustomTextInput from 'src/components/forms/CustomTextInput';
+import CustomSafeView from 'src/components/layouts/CustomSafeArea';
+import { www } from 'src/constants/constants';
 import { UserContext } from 'src/contexts/UserContext';
 import { useLogin } from 'src/hooks/useLogin'; // Import the new useLogin hook
 import { useUserContext } from 'src/hooks/useUserContext';
+import ForgotPasswordScreen from './ForgotPasswordScreen';
+import RegistrationScreen from './RegistrationScreen';
 
 const LoginScreen = () => {
-  const { setUser, theme } = useUserContext(UserContext);
-  const { login, isLoading, error } = useLogin(); // Use the new useLogin hook
+  const { setUser } = useUserContext();
+  const { login, isLoading, error, setError } = useLogin();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation();
 
   const handleLogin = async () => {
-    try {
-      const response = await login(username, password);
-      // Assuming the response includes a userId, update the user context
-      setUser((prevUser) => ({ ...prevUser, userId: response.content }));
-      // You might want to navigate to another screen here
+    const response = await login(username, password);
+
+    if (response.error) {
+      Alert.alert('Login Error', response.message);
+    } else {
+      console.log('Login successful:', response);
+      setUser(response.content);
       Alert.alert('Success', 'Login successful!');
-    } catch (err) {
-      Alert.alert('Error', error);
     }
   };
 
-  const handleRegister = () => {
-    // Implement your registration logic here
-    // For now, we'll just set a dummy user ID
-    setUser((prevUser) => ({ ...prevUser, userId: '1' }));
-  };
-
-  const handleWebsiteLink = () => {
-    Linking.openURL('https://your-website-url.com');
-  };
-
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <Text style={[styles.title, { color: theme.colors.text }]}>Welcome</Text>
+    <CustomSafeView>
+      <MainTitle title="Welcome to weeki" />
       <CustomTextInput
         placeholder="Username"
         value={username}
@@ -57,23 +55,30 @@ const LoginScreen = () => {
         onChangeText={setPassword}
         secureTextEntry={true}
       />
-      <TouchableOpacity
-        style={[styles.button, isLoading && styles.disabledButton]}
+      <NormalButton
+        text={isLoading ? 'Logging in...' : 'Login'}
         onPress={handleLogin}
-        disabled={isLoading}
-      >
-        <Text style={styles.buttonText}>
-          {isLoading ? 'Logging in...' : 'Login'}
-        </Text>
-      </TouchableOpacity>
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      <TouchableOpacity style={styles.smallButton} onPress={handleRegister}>
-        <Text style={styles.smallButtonText}>Register</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.smallButton} onPress={handleWebsiteLink}>
-        <Text style={styles.smallButtonText}>Visit Website</Text>
-      </TouchableOpacity>
-    </View>
+      />
+
+      <FlexSpacer />
+
+      <TextLink
+        text="Don't have an account? Sign Up"
+        onPress={() => navigation.navigate('Register')}
+      />
+      <TextLink
+        text="Forgot Password?"
+        onPress={() => navigation.navigate('ForgotPassword')}
+      />
+      <TextLink
+        text="Visit our website"
+        onPress={() =>
+          Linking.openURL('https://www.example.com').catch((err) =>
+            console.error('An error occurred', err),
+          )
+        }
+      />
+    </CustomSafeView>
   );
 };
 

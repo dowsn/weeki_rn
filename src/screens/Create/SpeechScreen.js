@@ -1,80 +1,64 @@
 import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { host } from 'src/constants/constants';
-import { fetchData } from 'src/utilities/api';
-import { useUserContext } from '../../hooks/useUserContext';
-import { createStyles } from '../../styles';
 
-const SpeechScreen = ({ initialConversationSessionId }) => {
-  const { user, theme } = useUserContext();
-  const styles = createStyles(theme);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [conversationSessionId, setConversationSessionId] = useState(
-    initialConversationSessionId || null,
-  );
-  const [isLoading, setIsLoading] = useState(true);
+const SpeechScreen = () => {
   const [isRecording, setIsRecording] = useState(false);
-  const [recordingInstance, setRecordingInstance] = useState(null);
-  const [provisionalText, setProvisionalText] = useState('');
-  const scrollViewRef = useRef(null);
+  const [transcript, setTranscript] = useState('');
+  const [interimTranscript, setInterimTranscript] = useState('');
   const socketRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const streamRef = useRef(null);
+  const recordingRef = useRef(null);
+  const lastTranscriptTimeRef = useRef(Date.now());
   const silenceTimerRef = useRef(null);
 
+  const SILENCE_THRESHOLD = 8000; // 8 seconds
+  const SILENCE_CHECK_INTERVAL = 1000; // Check every second
+
   useEffect(() => {
-    initializeWebSocket();
+    // initializeWebSocket();
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
       }
+      stopRecording();
     };
   }, []);
 
   const initializeWebSocket = () => {
-
     socketRef.current = new WebSocket(`wss://${host}/listen`);
-    console.log(`wss://${host}listen`);
+
     socketRef.current.onopen = () => {
-      console.log('WebSocket connection opened');
-      setIsLoading(false);
+      console.log('WebSocket connection established');
     };
 
-    socketRef.current.onmessage = (message) => {
-      const received = JSON.parse(message.data);
+    socketRef.current.onmessage = (event) => {
+      const received = JSON.parse(event.data);
       if (received.transcript) {
+        console.log(
+          'Received transcript:',
+          received.transcript,
+          'Is final:',
+          received.is_final,
+        );
         if (received.is_final) {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            {
-              content: received.transcript,
-              sender: 'user',
-              date_created: new Date().toISOString(),
-            },
-          ]);
-          setProvisionalText('');
+          setTranscript((prev) => prev + ' ' + received.transcript);
+          setInterimTranscript('');
         } else {
-          setProvisionalText(received.transcript);
+          setInterimTranscript(received.transcript);
         }
-        updateLastTranscriptTime();
+        lastTranscriptTimeRef.current = Date.now();
       }
     };
 
-    socketRef.current.onclose = () => {
-      console.log('WebSocket connection closed');
+    socketRef.current.onclose = (event) => {
+      console.log('WebSocket closed:', event.code, event.reason);
       setTimeout(initializeWebSocket, 3000);
     };
 
@@ -83,13 +67,118 @@ const SpeechScreen = ({ initialConversationSessionId }) => {
     };
   };
 
-  const updateLastTranscriptTime = () => {
-    if (silenceTimerRef.current) {
-      clearTimeout(silenceTimerRef.current);
+  const startRecording = async () => {
+    try {
+      console.log('Requesting permissions..');
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access microphone was denied');
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      console.log('Starting recording..');
+      const recording = new Audio.Recording();
+      await recording.prepareToRecordAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY,
+      );
+      await recording.startAsync();
+      recordingRef.current = recording;
+      setIsRecording(true);
+
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
+        console.log('Sending start signal to WebSocket');
+        socketRef.current.send(JSON.stringify({ action: 'start' }));
+      } else {
+        console.error('WebSocket is not open. Cannot send start signal.');
+      }
+
+      startSilenceDetection();
+      sendAudioData();
+    } catch (err) {
+      console.error('Failed to start recording', err);
     }
-    silenceTimerRef.current = setTimeout(() => {
-      stopRecording();
-    }, 8000); // 8 seconds of silence
+  };
+
+  const stopRecording = async () => {
+    if (recordingRef.current) {
+      console.log('Stopping recording..');
+      setIsRecording(false);
+      try {
+        await recordingRef.current.stopAndUnloadAsync();
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+      }
+      recordingRef.current = null;
+
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
+        console.log('Sending stop signal to WebSocket');
+        socketRef.current.send(JSON.stringify({ action: 'stop' }));
+      } else {
+        console.error('WebSocket is not open. Cannot send stop signal.');
+      }
+
+      clearInterval(silenceTimerRef.current);
+    }
+  };
+
+  const sendAudioData = async () => {
+    console.log('Starting to send audio data');
+    let chunkCounter = 0;
+    while (isRecording && recordingRef.current) {
+      try {
+        const status = await recordingRef.current.getStatusAsync();
+        if (status.isRecording) {
+          const uri = recordingRef.current.getURI();
+          const audioData = await Audio.getAudioDataAsync(uri);
+          const audioBuffer = audioData.audioBuffer;
+
+          if (
+            socketRef.current &&
+            socketRef.current.readyState === WebSocket.OPEN
+          ) {
+            chunkCounter++;
+            console.log(
+              `Sending audio chunk ${chunkCounter}. Size: ${audioBuffer.byteLength} bytes`,
+            );
+            socketRef.current.send(audioBuffer);
+          } else {
+            console.log('WebSocket not ready. Skipping chunk.');
+          }
+        } else {
+          console.log('Recording is not active');
+          break;
+        }
+      } catch (error) {
+        console.error('Error sending audio data:', error);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250)); // Send every 250ms
+    }
+    console.log(
+      `Finished sending audio data. Total chunks sent: ${chunkCounter}`,
+    );
+  };
+
+  const startSilenceDetection = () => {
+    silenceTimerRef.current = setInterval(() => {
+      if (
+        isRecording &&
+        Date.now() - lastTranscriptTimeRef.current >= SILENCE_THRESHOLD
+      ) {
+        console.log('Stopping recording due to silence');
+        stopRecording();
+      }
+    }, SILENCE_CHECK_INTERVAL);
   };
 
   const toggleRecording = () => {
@@ -100,231 +189,40 @@ const SpeechScreen = ({ initialConversationSessionId }) => {
     }
   };
 
-   const startRecording = async () => {
-     try {
-       const { status } = await Audio.requestPermissionsAsync();
-       if (status !== 'granted') {
-         Alert.alert(
-           'Permission Denied',
-           'Please grant microphone permissions to use this feature.',
-         );
-         return;
-       }
-
-       await Audio.setAudioModeAsync({
-         allowsRecordingIOS: true,
-         playsInSilentModeIOS: true,
-       });
-
-       const recording = new Audio.Recording();
-       await recording.prepareToRecordAsync(
-         Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY,
-       );
-       await recording.startAsync();
-       setRecordingInstance(recording);
-       setIsRecording(true);
-
-       if (
-         socketRef.current &&
-         socketRef.current.readyState === WebSocket.OPEN
-       ) {
-         console.log('working here');
-         socketRef.current.send(JSON.stringify({ action: 'start' }));
-       } else {
-         console.error('WebSocket is not open. Cannot send start signal.');
-       }
-
-       updateLastTranscriptTime();
-
-       // Start sending audio data
-       sendAudioData(recording);
-     } catch (error) {
-       console.error('Error starting recording:', error);
-       Alert.alert(
-         'Recording Error',
-         'An error occurred while starting the recording. Please try again.',
-       );
-     }
-   };
-
-    const sendAudioData = async (recording) => {
-      console.log('Starting to send audio data');
-      while (isRecording) {
-        if (recording.getStatusAsync().isRecording) {
-          const { sound, status } = await recording.createNewLoadedSoundAsync();
-          const audioBuffer = await sound.getStatusAsync();
-          if (
-            socketRef.current &&
-            socketRef.current.readyState === WebSocket.OPEN
-          ) {
-            console.log('Sending audio chunk to WebSocket');
-            socketRef.current.send(audioBuffer.uri);
-          } else {
-            console.log('WebSocket connection not ready, stopping recording');
-            await stopRecording();
-            break;
-          }
-        }
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-      console.log('Finished sending audio data');
-    };
-
-   const stopRecording = async () => {
-     if (recordingInstance) {
-       try {
-         await recordingInstance.stopAndUnloadAsync();
-       } catch (error) {
-         console.error('Error stopping recording:', error);
-       }
-       setRecordingInstance(null);
-     }
-
-     setIsRecording(false);
-     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        console.log('Sending start signal to WebSocket');
-       socketRef.current.send(JSON.stringify({ action: 'stop' }));
-     } else {
-       console.error('WebSocket is not open. Cannot send stop signal.');
-     }
-
-     if (silenceTimerRef.current) {
-       clearTimeout(silenceTimerRef.current);
-     }
-
-     // Send the final transcript as a message
-     if (provisionalText.trim()) {
-       sendMessage(provisionalText.trim());
-     }
-   };
-
-  const sendMessage = async (content) => {
-    if (!content.trim() || !conversationSessionId) return;
-
-    const date_created = new Date().toISOString();
-
-    try {
-      const response = await fetchData(
-        `/api/chat-sessions/${conversationSessionId}/messages/`,
-        'POST',
-        { content, date_created, user_id: user.id },
-      );
-
-      const userMessage = {
-        content,
-        sender: 'user',
-        date_created,
-      };
-
-      const assistantMessage = {
-        content: response.content,
-        sender: 'assistant',
-        date_created: response.date_created,
-      };
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        userMessage,
-        assistantMessage,
-      ]);
-      setNewMessage('');
-      setProvisionalText('');
-
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    } catch (error) {
-      console.error('Error sending message:', error);
-      Alert.alert('Error', 'Failed to send message. Please try again.');
-    }
-  };
-
-  const renderMessage = (message) => (
-    <View
-      key={message.id || message.date_created}
-      style={[
-        styles.chat.messageContainer,
-        message.sender === 'user'
-          ? styles.chat.myMessageContainer
-          : styles.chat.otherMessageContainer,
-      ]}
-    >
-      <View
-        style={[
-          styles.chat.messageBubble,
-          message.sender === 'user'
-            ? styles.chat.myMessageBubble
-            : styles.chat.otherMessageBubble,
-        ]}
-      >
-        <Text
-          style={
-            message.sender === 'user'
-              ? styles.chat.myMessageText
-              : styles.chat.otherMessageText
-          }
-        >
-          {message.content}
-        </Text>
-      </View>
-    </View>
-  );
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.chat.container}>
-        <Text>Loading chat...</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={styles.chat.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.chat.container}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.chat.messagesContainer}
-          contentContainerStyle={styles.chat.messagesContent}
-          onContentSizeChange={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: true })
+    <View style={{ flex: 1, padding: 20 }}>
+      <ScrollView style={{ flex: 1 }}>
+        <TextInput
+          multiline
+          value={
+            transcript +
+            (interimTranscript ? ' **' + interimTranscript + '**' : '')
           }
-        >
-          {messages.map(renderMessage)}
-          {provisionalText && (
-            <View style={styles.chat.provisionalTextContainer}>
-              <Text style={styles.chat.provisionalText}>{provisionalText}</Text>
-            </View>
-          )}
-        </ScrollView>
-        <View style={styles.chat.inputContainer}>
-          <TextInput
-            style={styles.chat.oneLineInput}
-            placeholder="Type a message..."
-            placeholderTextColor="#999"
-            value={newMessage}
-            onChangeText={setNewMessage}
-          />
-          <TouchableOpacity
-            style={styles.chat.sendButton}
-            onPress={() => sendMessage(newMessage)}
-          >
-            <Text style={styles.chat.sendButtonText}>Send</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.chat.recordButton}
-            onPress={toggleRecording}
-          >
-            <Icon
-              name={isRecording ? 'stop' : 'mic'}
-              size={24}
-              color={theme.colors.primary}
-            />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          onChangeText={setTranscript}
+          style={{
+            flex: 1,
+            minHeight: 200,
+            borderColor: 'gray',
+            borderWidth: 1,
+            padding: 10,
+          }}
+        />
+      </ScrollView>
+      <TouchableOpacity
+        onPress={toggleRecording}
+        style={{
+          backgroundColor: isRecording ? 'red' : 'blue',
+          padding: 15,
+          borderRadius: 5,
+          marginTop: 20,
+          alignItems: 'center',
+        }}
+      >
+        <Text style={{ color: 'white' }}>
+          {isRecording ? 'Stop Recording' : 'Start Recording'}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 

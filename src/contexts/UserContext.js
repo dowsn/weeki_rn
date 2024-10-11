@@ -30,7 +30,7 @@ export const UserProvider = ({ children, initialUser }) => {
     userId: 0,
   };
 
-  const [user, setUser] = usePersistedState('user', initialUser || defaultUser);
+  const [user, setUser] = usePersistedState('user', defaultUser);
   const colorScheme = useColorScheme();
   const [isDark, setIsDark] = usePersistedState(
     'isDark',
