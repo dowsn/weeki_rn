@@ -1,10 +1,12 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-const EmptyList = () => {
+const EmptyList = ({ itemName = "Notes" }) => {
+
+  // how to do itemName in list
   return (
     <View>
-      <Text>Still nothing</Text>
+      <Text>There are no {itemName} yet.</Text>
     </View>
   );
 };

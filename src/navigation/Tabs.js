@@ -3,6 +3,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import TabScreen from 'src/components/layouts/TabScreen';
 import { useUserContext } from 'src/hooks/useUserContext';
 import BackHeader from '../components/common/BackHeader';
 import ChatScreen from '../screens/Create/ChatScreen';
@@ -90,7 +91,7 @@ const Tabs = () => {
       />
       <Tab.Screen
         name={'Build'}
-        component={WeekStack}
+        component={TabScreen}
         options={({ route }) => ({
           animationEnabled: true,
           lazy: false,

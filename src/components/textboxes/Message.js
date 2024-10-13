@@ -1,12 +1,10 @@
 import { StyleSheet } from 'react-native';
 
-export default (theme) =>
-  StyleSheet.create({
+const Message = ({ id, sender, date_created, text  }) => {
 
-    container: {
-      flex: 1,
-    },
+  const { theme } = useUserContext();
 
+  const customStyles = StyleSheet.create({
     messagesContainer: {
       flex: 1,
     },
@@ -56,3 +54,38 @@ export default (theme) =>
       fontSize: 16,
     },
   });
+
+    return (
+     <View
+      key={id || message.date_created}
+      style={[
+        styles.chat.messageContainer,
+        message.sender === 'user'
+          ? styles.chat.myMessageContainer
+          : styles.chat.otherMessageContainer
+      ]}
+    >
+      <View
+        style={[
+          styles.chat.messageBubble,
+          message.sender === 'user'
+            ? styles.chat.myMessageBubble
+            : styles.chat.otherMessageBubble,
+        ]}
+      >
+        <Text
+          style={
+            message.sender === 'user'
+              ? styles.chat.myMessageText
+              : styles.chat.otherMessageText
+          }
+        >
+          {text}
+        </Text>
+      </View>
+    </View >
+        )
+
+}
+
+export default Message

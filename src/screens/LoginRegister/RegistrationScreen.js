@@ -13,6 +13,7 @@ const RegistrationScreen = () => {
     console.log('Password:', password);
   };
 
+  // 3 step registration
   return (
     <View>
       <TextInput

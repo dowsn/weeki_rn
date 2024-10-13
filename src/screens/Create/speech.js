@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { host } from 'src/constants/constants';
-import { fetchData } from 'src/utilities/api';
+import { fetchData } from 'src/utils/api';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
 

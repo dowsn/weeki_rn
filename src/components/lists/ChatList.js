@@ -4,25 +4,25 @@ import { FlatList, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import FeedSeparator from '../common/FeedSeparator';
 import NoteElement from '../list_elements/NoteElement';
+import Message from '../textboxes/Message';
 import Note from '../textboxes/Note';
 import EmptyList from './EmptyList';
 
-const NoteList = ({ title, data }) => {
-    const { theme } = useUserContext();
+const ChatList = ({ data }) => {
+  const { theme } = useUserContext();
 
-    const customStyles = StyleSheet.create({
-      noteList: {
-        flex: 1,
-        marginBottom: theme.spacing.small,
-
-      },
-    });
+  const customStyles = StyleSheet.create({
+    chatList: {
+      flex: 1,
+      marginBottom: theme.spacing.small,
+    },
+  });
 
   const renderItem = ({ item }) => {
     return (
-      <Note
+      <Message
         id={item.id}
-        topicColor={item.topicColor}
+        sender={item.sender}
         date_created={item.date_created}
         text={item.text}
       />
@@ -31,19 +31,14 @@ const NoteList = ({ title, data }) => {
 
   return (
     <View>
-      <Subtitle>{title}</Subtitle>
       <FlatList
-        style={noteList}
+        style={chatList}
         data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={EmptyList}
       />
     </View>
   );
 };
-
-
-
 
 export default FeedList;

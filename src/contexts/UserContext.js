@@ -8,7 +8,7 @@ import {
   lightColors,
   spacing,
 } from '../constants/theme';
-import { usePersistedState } from '../utilities/context';
+import { usePersistedState } from '../utils/context';
 
 export const UserContext = createContext();
 

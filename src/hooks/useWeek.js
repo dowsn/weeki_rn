@@ -1,28 +1,28 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import fetchFromApi from '../utils/api';
+import { useUserContext } from './useUserContext';
 
-export const useFeed = () => {
-  const [user, setUser] = useContext(UserContext);
-  const [feeds, setFeeds] = useState([]);
+export const useWeek = () => {
+  const { user, setUser, theme } = useUserContext();
+  const [weekData, setWeekData] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
-  const [pickLists, setPickLists] = useState([]);
 
 
- const fetchData = useCallback(async () => {
+
+ const fetchWeek = useCallback(async () => {
    try {
-     console.log(user);
      setLoading(true);
 
-     const pickListsData = await fetchFromApi('getPickListsForCityID', {
+     const response = await fetchFromApi('week', {
        user_id: user.userId,
-       city_id: user.selectedCityId,
      });
 
-     if (!pickListsData) {
-       throw new Error('No data');
+     if (!response || !response.response) {
+
      }
+
      const pickListsArray = pickListsData.response.listitems;
 
      // this needs to take
@@ -48,23 +48,7 @@ export const useFeed = () => {
    }
  }, [user.selectedCityId, user.selectedPickListIndex]);
 
- const withTimeout = (promise, timeout) => {
-   return new Promise((resolve, reject) => {
-     const timer = setTimeout(() => {
-`       reject(new Error('Request timed out'));
-`     }, timeout);
 
-     promise
-       .then((value) => {
-         clearTimeout(timer);
-         resolve(value);
-       })
-       .catch((error) => {
-         clearTimeout(timer);
-         reject(error);
-       });
-   });
- };
 
   useEffect(() => {
     fetchData();

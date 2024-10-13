@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { fetchData } from 'src/utilities/api';
+import { fetchData } from 'src/utils/api';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
 
@@ -104,34 +104,7 @@ const ChatScreen = ({ initialConversationSessionId }) => {
   };
 
   const renderMessage = (message) => (
-    <View
-      key={message.id || message.date_created}
-      style={[
-        styles.chat.messageContainer,
-        message.sender === 'user'
-          ? styles.chat.myMessageContainer
-          : styles.chat.otherMessageContainer
-      ]}
-    >
-      <View
-        style={[
-          styles.chat.messageBubble,
-          message.sender === 'user'
-            ? styles.chat.myMessageBubble
-            : styles.chat.otherMessageBubble,
-        ]}
-      >
-        <Text
-          style={
-            message.sender === 'user'
-              ? styles.chat.myMessageText
-              : styles.chat.otherMessageText
-          }
-        >
-          {message.content}
-        </Text>
-      </View>
-    </View>
+    <Message
   );
 
   if (isLoading) {
@@ -155,7 +128,7 @@ const ChatScreen = ({ initialConversationSessionId }) => {
           contentContainerStyle={styles.chat.messagesContent}
           onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
         >
-          {messages.map(renderMessage)}
+          <ChatList data={messages} />
         </ScrollView>
         <View style={styles.chat.inputContainer}>
           <TextInput

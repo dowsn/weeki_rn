@@ -18,25 +18,25 @@ import { www } from 'src/constants/constants';
 import { UserContext } from 'src/contexts/UserContext';
 import { useLogin } from 'src/hooks/useLogin'; // Import the new useLogin hook
 import { useUserContext } from 'src/hooks/useUserContext';
+import { showAlert } from 'src/utils/alert';
 import ForgotPasswordScreen from './ForgotPasswordScreen';
 import RegistrationScreen from './RegistrationScreen';
 
 const LoginScreen = () => {
   const { setUser } = useUserContext();
-  const { login, isLoading, error, setError } = useLogin();
+  const { login, isLoading, error } = useLogin();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
   const handleLogin = async () => {
-    const response = await login(username, password);
+    const { error, message, content } = await login(username, password);
 
-    if (response.error) {
-      Alert.alert('Login Error', response.message);
+    if (error) {
+      showAlert('Login Error', message);
     } else {
-      console.log('Login successful:', response);
-      setUser(response.content);
-      Alert.alert('Success', 'Login successful!');
+      setUser(content);
+      showAlert('Success', 'Login successful!');
     }
   };
 

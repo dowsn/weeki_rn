@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import fetchFromApi from '../utilities/api';
+import fetchFromApi from '../utils/api';
 
 export const useCities = () => {
   const [cities, setCities] = useState([]);
