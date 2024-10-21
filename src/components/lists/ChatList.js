@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import FeedSeparator from '../common/FeedSeparator';
 import NoteElement from '../list_elements/NoteElement';
@@ -14,7 +14,9 @@ const ChatList = ({ data }) => {
   const customStyles = StyleSheet.create({
     chatList: {
       flex: 1,
-      marginBottom: theme.spacing.small,
+    },
+    separator: {
+      height: theme.spacing.small,
     },
   });
 
@@ -25,20 +27,21 @@ const ChatList = ({ data }) => {
         sender={item.sender}
         date_created={item.date_created}
         text={item.text}
+        profilePicture={item.profilePicture}
       />
     );
   };
 
   return (
-    <View>
+    <View style={customStyles.chatList}>
       <FlatList
-        style={chatList}
         data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        ItemSeparatorComponent={() => <View style={customStyles.separator} />}
       />
     </View>
   );
 };
 
-export default FeedList;
+export default ChatList;

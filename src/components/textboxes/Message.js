@@ -1,91 +1,87 @@
-import { StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { useUserContext } from './UserContext'; // Assuming you have a UserContext
 
-const Message = ({ id, sender, date_created, text  }) => {
-
+const Message = ({ id, sender, date_created, text, profilePicture }) => {
   const { theme } = useUserContext();
 
-  const customStyles = StyleSheet.create({
-    messagesContainer: {
-      flex: 1,
-    },
-    messagesContent: {
-      padding: 16,
-    },
-
+  const styles = StyleSheet.create({
     messageContainer: {
+      flexDirection: 'row',
       marginBottom: 16,
-    },
-    myMessageContainer: {
       alignItems: 'flex-end',
     },
-    otherMessageContainer: {
-      alignItems: 'flex-start',
+    userMessageContainer: {
+      justifyContent: 'flex-end',
+    },
+    assistantMessageContainer: {
+      justifyContent: 'flex-start',
     },
     messageBubble: {
-      maxWidth: '80%',
+      maxWidth: '70%',
       padding: 12,
       borderRadius: 20,
     },
-    myMessageBubble: {
+    userMessageBubble: {
       backgroundColor: '#007AFF',
+      marginLeft: 8,
     },
-    otherMessageBubble: {
+    assistantMessageBubble: {
       backgroundColor: '#E5E5EA',
+      marginRight: 8,
     },
-    myMessageText: {
+    userMessageText: {
       color: 'white',
     },
-    otherMessageText: {
+    assistantMessageText: {
       color: 'black',
     },
-    inputContainer: {
-      padding: 16,
-      backgroundColor: 'white',
-      borderTopWidth: 1,
-      borderTopColor: '#E5E5EA',
+    profilePicture: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
     },
-
-    oneLineInput: {
-      height: 40,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 20,
-      paddingHorizontal: 16,
-      fontSize: 16,
-    },
+    // ... (keep other styles from your original code)
   });
 
-    return (
-     <View
-      key={id || message.date_created}
+  const isUser = sender === 'user';
+
+  return (
+    <View
+      key={id || date_created}
       style={[
-        styles.chat.messageContainer,
-        message.sender === 'user'
-          ? styles.chat.myMessageContainer
-          : styles.chat.otherMessageContainer
+        styles.messageContainer,
+        isUser ? styles.userMessageContainer : styles.assistantMessageContainer,
       ]}
     >
+      {!isUser && (
+        <Image
+          source={{ uri: profilePicture }}
+          style={styles.profilePicture}
+        />
+      )}
       <View
         style={[
-          styles.chat.messageBubble,
-          message.sender === 'user'
-            ? styles.chat.myMessageBubble
-            : styles.chat.otherMessageBubble,
+          styles.messageBubble,
+          isUser ? styles.userMessageBubble : styles.assistantMessageBubble,
         ]}
       >
         <Text
-          style={
-            message.sender === 'user'
-              ? styles.chat.myMessageText
-              : styles.chat.otherMessageText
-          }
+          style={isUser ? styles.userMessageText : styles.assistantMessageText}
         >
           {text}
         </Text>
       </View>
-    </View >
-        )
+      {isUser && (
+        <Image
+          source={{ uri: profilePicture }}
+          style={styles.profilePicture}
+        />
+      )}
+    </View>
+  );
+};
 
-}
+
 
 export default Message

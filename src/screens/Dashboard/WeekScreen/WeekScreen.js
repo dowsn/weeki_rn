@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import calculateFittingElements from 'src/utils/box_calc';
 import { useUserContext } from '../../../hooks/useUserContext';
 import { createStyles } from '../../../styles';
 import createScreenStyles from './WeekScreen.styles';
@@ -13,11 +14,19 @@ const WeekScreen = (
   // topics with notes type
   // weeks for that year
 
+        const fittingRows = calculateFittingElements(
+          boxSize,
+          spacing,
+          decrementHeight,
+        );
+
+
 
   const styles = createStyles(theme);
   const screenStyles = createScreenStyles(theme);
   useEffect(() => {
     async function useWeek(weekId) {
+
       // function body
     }
     useWeek(weekId);

@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import React from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TabScreen from 'src/components/layouts/TabScreen';
 import { useUserContext } from 'src/hooks/useUserContext';
@@ -24,101 +24,69 @@ const Tabs = () => {
         tabBarInactiveTintColor: theme.colors.gray,
         tabBarStyle: {
           backgroundColor: theme.colors.dark,
+          height: 60,
+          borderTopWidth: 0,
         },
         animationEnabled: true,
       }}
     >
-      <Tab.Screen
-        name={'Dashboard'}
-        component={DashboardScreen}
-        options={({ route }) => ({
-          animationEnabled: true,
-          lazy: false,
-          tabBarShowLabel: false,
-          header: () => {
-            const routeName = getFocusedRouteNameFromRoute(route) ?? 'FeedView';
-            if (routeName === 'CitySelectorView') {
-              return <CitySelectorViewHeader />;
-            } else if (routeName !== 'FeedView') {
-              return <BackHeader />;
-            }
-          },
-          tabBarIcon: ({ focused, color, size }) => (
-            <Image
-              source={require('assets/icons/WeekIcon.png')}
-              style={[
-                {
-                  width: size,
-                  height: size,
-                  tintColor: color,
-                },
-                focused ? selectedTab : unselectedTab,
-              ]}
-            />
-          ),
-        })}
-      />
-      <Tab.Screen
-        name={'Create'}
-        component={SpeechScreen}
-        options={({ route }) => ({
-          animationEnabled: true,
-          lazy: false,
-          tabBarShowLabel: false,
-
-          header: () => {
-            const routeName = getFocusedRouteNameFromRoute(route) ?? 'FeedView';
-            if (routeName === 'CitySelectorView') {
-              return <CitySelectorViewHeader />;
-            } else if (routeName !== 'FeedView') {
-              return <BackHeader />;
-            }
-          },
-          tabBarIcon: ({ focused, color, size }) => (
-            <Image
-              source={require('assets/icons/WeekIcon.png')}
-              style={[
-                {
-                  width: size,
-                  height: size,
-                  tintColor: color,
-                },
-                focused ? selectedTab : unselectedTab,
-              ]}
-            />
-          ),
-        })}
-      />
-      <Tab.Screen
-        name={'Build'}
-        component={TabScreen}
-        options={({ route }) => ({
-          animationEnabled: true,
-          lazy: false,
-          tabBarShowLabel: false,
-          header: () => {
-            const routeName = getFocusedRouteNameFromRoute(route) ?? 'FeedView';
-            if (routeName === 'CitySelectorView') {
-              return <CitySelectorViewHeader />;
-            } else if (routeName !== 'FeedView') {
-              return <BackHeader />;
-            }
-          },
-          tabBarIcon: ({ focused, color, size }) => (
-            <Image
-              source={require('assets/icons/WeekIcon.png')}
-              style={[
-                {
-                  width: size,
-                  height: size,
-                  tintColor: color,
-                },
-                focused ? selectedTab : unselectedTab,
-              ]}
-            />
-          ),
-        })}
-      />
+      {['Reflect', 'Record', 'Review'].map((tabName, index) => (
+        <Tab.Screen
+          key={tabName}
+          name={tabName}
+          component={
+            tabName === 'Reflect'
+              ? DashboardScreen
+              : tabName === 'Record'
+                ? SpeechScreen
+                : TabScreen
+          }
+          options={({ route }) => ({
+            animationEnabled: true,
+            lazy: false,
+            tabBarShowLabel: false,
+            header: () => {
+              const routeName =
+                getFocusedRouteNameFromRoute(route) ?? 'FeedView';
+              if (routeName === 'CitySelectorView') {
+                return <CitySelectorViewHeader />;
+              } else if (routeName !== 'FeedView') {
+                return <BackHeader />;
+              }
+            },
+            tabBarIcon: ({ focused, color, size }) => (
+              <View
+                style={[
+                  styles.tabItem,
+                  index === 1 && styles.middleTab,
+                  focused && styles.focusedTab,
+                ]}
+              >
+                <Image
+                  source={require('assets/icons/Review.svg')}
+                  style={[
+                    {
+                      width: size,
+                      height: size,
+                      tintColor: index === 1 ? theme.colors.dark : color,
+                    },
+                    focused ? selectedTab : unselectedTab,
+                  ]}
+                />
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: index === 1 ? theme.colors.dark : color },
+                  ]}
+                >
+                  {tabName}
+                </Text>
+                {focused && <View style={styles.selectionIndicator} />}
+              </View>
+            ),
+          })}
+        />
+      ))}
     </Tab.Navigator>
   );
 };
@@ -130,9 +98,33 @@ const styles = StyleSheet.create({
   unselectedTab: {
     tintColor: 'grey',
   },
-  tabIcon: {
-    width: 24,
-    height: 24,
+  tabItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    width: '100%',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  middleTab: {
+    backgroundColor: '#03C04A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  focusedTab: {
+    // Remove borderTopWidth and borderTopColor from here
+  },
+  tabText: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  selectionIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: 'white',
   },
 });
 

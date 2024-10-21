@@ -1,34 +1,38 @@
 import { useTheme } from '@react-navigation/native';
 import React from 'react';
-import { StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { useUserContext } from '../../hooks/useUserContext';
-import { createStyles } from '../../styles';
 
-const CustomTextInput = ({
-  placeholder,
-  ...props
-}) => {
-  const { user, setUser, theme } = useUserContext();
+const CustomTextInput = ({ placeholder, ...props }) => {
+  const { theme } = useUserContext();
   const { colors } = useTheme();
 
   const customStyles = StyleSheet.create({
-    textInput: {
-      height: theme.spacing.large,
-      padding: theme.spacing.large,
-      fontSize: theme.fontSizes.medium,
+    container: {
+      borderColor: theme.colors.onSurfaceVariant,
+      borderWidth: 1,
       borderRadius: theme.borderRadii.large,
-      color: theme.colors.onSurface,
       backgroundColor: theme.colors.surface,
-
+      justifyContent: 'center',
+    },
+    textInput: {
+      height: theme.spacing.large * 2,
+      fontSize: theme.fontSizes.medium,
+      color: theme.colors.onSurface,
+      textAlign: 'center', // Center the text
     },
   });
 
   return (
-    <TextInput
-      style={customStyles.textInput}
-      autoCapitalize="none"
-      {...props}
-    />
+    <View style={customStyles.container}>
+      <TextInput
+        style={customStyles.textInput}
+        autoCapitalize="none"
+        placeholderTextColor={theme.colors.onSurfaceVariant}
+        placeholder={placeholder}
+        {...props}
+      />
+    </View>
   );
 };
 
