@@ -104,7 +104,7 @@ const ChatScreen = ({ initialConversationSessionId }) => {
   };
 
   const renderMessage = (message) => (
-    <Message
+    <Message key={message.id || message.date_created} text={message.content} sender={message.sender} />
   );
 
   if (isLoading) {
