@@ -3,6 +3,8 @@ export const host =
 export const www =
   `https://${host}/`;
 
+export const ASSISTANT_PROFILE_PICTURE = "";
+
 export const globalUrl = `${www}api/`;
 const baseUrl = `${www}`;
 const profilePictures = baseUrl + "items/uploads/images/profilepictures/";

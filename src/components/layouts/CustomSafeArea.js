@@ -1,33 +1,40 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import {
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
 import { createStyles } from 'src/styles';
 
-const CustomSafeView = ({ children, noPadding = false }) => {
+const CustomSafeView = ({ children, noPadding = false, ...otherProps }) => {
   const { user, setUser, theme } = useUserContext();
 
   const customStyles = StyleSheet.create({
     outerContainer: {
       flex: 1,
-      backgroundColor: theme.colors.background, // Or whatever color you want
+      backgroundColor: theme.colors.background,
+      marginBottom: theme.spacing.small
     },
     safeArea: {
       flex: 1,
     },
     innerContainer: {
       flex: 1,
-      backgroundColor: theme.colors.background, // Same as outerContainer
-      paddingHorizontal: noPadding ? 0 : theme.spacing.small, // Conditionally add padding
+      backgroundColor: theme.colors.background,
+      paddingHorizontal: noPadding ? 0 : theme.spacing.small,
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
   });
 
   return (
     <View style={customStyles.outerContainer}>
-      <SafeAreaView
-        style={customStyles.safeArea}
-        edges={['right', 'top', 'left']}
-      >
-        <View style={customStyles.innerContainer}>{children}</View>
+      <SafeAreaView style={customStyles.safeArea}>
+        <View style={customStyles.innerContainer} {...otherProps}>
+          {children}
+        </View>
       </SafeAreaView>
     </View>
   );

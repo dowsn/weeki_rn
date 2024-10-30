@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { ASSISTANT_PROFILE_PICTURE } from 'src/constants/constants';
 import { fetchData } from 'src/utils/api';
 import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
@@ -79,7 +80,7 @@ const ChatScreen = ({ initialConversationSessionId }) => {
       const response = await fetchData(
         `/api/chat-sessions/${conversationSessionId}/messages/`,
         'POST',
-        { content: newMessage, date_created, user_id: user.id }
+        { content: newMessage, date_created, user_id: user.id, profile_picture: user.profile_picture }
       );
 
       const userMessage = {
@@ -92,6 +93,7 @@ const ChatScreen = ({ initialConversationSessionId }) => {
         content: response.content,
         sender: 'assistant',
         date_created: response.date_created,
+        profile_picture: ASSISTANT_PROFILE_PICTURE
       };
 
       setMessages(prevMessages => [...prevMessages, userMessage, assistantMessage]);
@@ -109,37 +111,37 @@ const ChatScreen = ({ initialConversationSessionId }) => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.chat.container}>
+      <SafeAreaView style={styles.container}>
         <Text>Loading chat...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.chat.container}>
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.chat.container}
+        style={styles.container}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
       >
         <ScrollView
           ref={scrollViewRef}
-          style={styles.chat.messagesContainer}
-          contentContainerStyle={styles.chat.messagesContent}
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.messagesContent}
           onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
         >
           <ChatList data={messages} />
         </ScrollView>
-        <View style={styles.chat.inputContainer}>
+        <View style={styles.inputContainer}>
           <TextInput
-            style={styles.chat.oneLineInput}
+            style={styles.oneLineInput}
             placeholder="Type a message..."
             placeholderTextColor="#999"
             value={newMessage}
             onChangeText={setNewMessage}
           />
-          <TouchableOpacity style={styles.chat.sendButton} onPress={sendMessage}>
-            <Text style={styles.chat.sendButtonText}>Send</Text>
+          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+            <Text style={styles.sendButtonText}>Send</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

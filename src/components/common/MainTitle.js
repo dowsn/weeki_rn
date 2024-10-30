@@ -12,6 +12,7 @@ const MainTitle = ({ title }) => {
       marginBottom: theme.spacing.large,
       color: theme.colors.onBackground,
       textAlign: 'center',
+      marginTop: theme.spacing.large,
     },
   });
 
