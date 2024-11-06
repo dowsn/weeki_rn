@@ -1,42 +1,88 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
+  KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ScrollView,
   StatusBar,
   StyleSheet,
   View,
 } from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
-import { createStyles } from 'src/styles';
 
-const CustomSafeView = ({ children, noPadding = false, ...otherProps }) => {
-  const { user, setUser, theme } = useUserContext();
+const CustomSafeView = ({
+  children,
+  noPadding = false,
+  scrollable = false,
+  contentContainerStyle,
+  keyboardShouldPersistTaps = 'handled',
+  ...otherProps
+}) => {
+  const { theme } = useUserContext();
 
-  const customStyles = StyleSheet.create({
-    outerContainer: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      marginBottom: theme.spacing.small
-    },
-    safeArea: {
-      flex: 1,
-    },
-    innerContainer: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      paddingHorizontal: noPadding ? 0 : theme.spacing.small,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    },
-  });
+  const customStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: theme.colors.background,
+        },
+        scrollView: {
+          flexGrow: 1,
+        },
+        contentContainer: {
+          flexGrow: 1,
+          paddingHorizontal: noPadding ? 0 : theme.spacing.small,
+          paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+          paddingBottom: theme.spacing.small,
+        },
+      }),
+    [theme, noPadding],
+  );
+
+  const content = useMemo(() => {
+    if (scrollable) {
+      return (
+        <ScrollView
+          style={customStyles.scrollView}
+          contentContainerStyle={[
+            customStyles.contentContainer,
+            contentContainerStyle,
+          ]}
+          keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          {...otherProps}
+        >
+          {children}
+        </ScrollView>
+      );
+    }
+
+    return (
+      <View style={[customStyles.contentContainer, contentContainerStyle]}>
+        {children}
+      </View>
+    );
+  }, [
+    scrollable,
+    children,
+    customStyles,
+    contentContainerStyle,
+    keyboardShouldPersistTaps,
+    otherProps,
+  ]);
 
   return (
-    <View style={customStyles.outerContainer}>
-      <SafeAreaView style={customStyles.safeArea}>
-        <View style={customStyles.innerContainer} {...otherProps}>
-          {children}
-        </View>
-      </SafeAreaView>
-    </View>
+    <SafeAreaView style={customStyles.container}>
+      <KeyboardAvoidingView
+        style={customStyles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        enabled
+      >
+        {content}
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

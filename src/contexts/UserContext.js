@@ -6,6 +6,7 @@ import {
   darkColors,
   fontSizes,
   lightColors,
+  line,
   spacing,
 } from '../constants/theme';
 import { usePersistedState } from '../utils/context';
@@ -49,6 +50,7 @@ export const UserProvider = ({ children, initialUser }) => {
     spacing,
     fontSizes,
     borderRadii,
+    line,
     toggleTheme,
   };
 

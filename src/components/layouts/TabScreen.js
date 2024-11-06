@@ -6,9 +6,9 @@ import CustomSafeView from './CustomSafeArea';
 
 const Tab = createMaterialTopTabNavigator();
 
-const XComponent = () => (
+const WComponent = () => (
   <View style={styles.tabContent}>
-    <Text>This is the X tab content</Text>
+    <Text>This is the W tab content</Text>
   </View>
 );
 
@@ -18,11 +18,9 @@ const YComponent = () => (
   </View>
 );
 
-const WComponent = () => (
-
-
+const TComponent = () => (
   <View style={styles.tabContent}>
-    <Text>This is the W tab content</Text>
+    <Text>This is the T tab content</Text>
   </View>
 );
 
@@ -32,23 +30,23 @@ const TabScreen = () => {
       <NavigationContainer independent={true}>
         <Tab.Navigator
           screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color }) => {
-              return (
-                <Text
-                  style={{ color: focused ? 'blue' : 'gray', fontSize: 16 }}
-                >
-                  {route.name}
-                </Text>
-              );
-            },
+            // Added route here
+            tabBarIcon: (
+              { focused }, // Removed unused color parameter
+            ) => (
+              <Text style={{ color: focused ? 'blue' : 'gray', fontSize: 16 }}>
+                {route.name}
+              </Text>
+            ),
             tabBarActiveTintColor: 'blue',
             tabBarInactiveTintColor: 'gray',
-            tabBarShowLabel: false, // Hide the label to show only the icon
+            tabBarShowLabel: false,
             tabBarIndicatorStyle: { backgroundColor: 'blue' },
           })}
         >
           <Tab.Screen name="W" component={WComponent} />
           <Tab.Screen name="Y" component={YComponent} />
+          <Tab.Screen name="T" component={TComponent} />
         </Tab.Navigator>
       </NavigationContainer>
     </CustomSafeView>

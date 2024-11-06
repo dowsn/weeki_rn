@@ -3,33 +3,44 @@ import { Dimensions, StyleSheet, View } from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
 import TopicBox from '../textboxes/TopicBox';
 
-const TopicGrid = ({ data }) => {
+const TopicGrid = ({ data, navigation }) => {
+
   const { theme } = useUserContext();
+
   const screenWidth = Dimensions.get('window').width;
-  const padding = theme.spacing.small;
-  const boxSize = (screenWidth - padding * 3) / 2; // Calculate the size of each box
+  const gap = theme.spacing.small; // Gap between boxes
+  const boxSize = (screenWidth - (theme.spacing.small * 2)  - gap) / 2; // Calculate size accounting for padding and gap
 
   const styles = StyleSheet.create({
     container: {
+    },
+    gridContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       justifyContent: 'space-between',
-      padding: padding,
     },
     boxWrapper: {
       width: boxSize,
       height: boxSize,
-      marginBottom: padding,
+      marginBottom: gap,
     },
   });
 
   return (
     <View style={styles.container}>
-      {data.map((topic) => (
-        <View key={topic.id} style={styles.boxWrapper}>
-          <TopicBox id={topic.id} title={topic.title} color={topic.color} />
-        </View>
-      ))}
+      <View style={styles.gridContainer}>
+        {data.map((topic) => (
+          <View key={topic.id} style={styles.boxWrapper}>
+            <TopicBox
+              id={topic.id}
+              title={topic.name}
+              color={topic.color}
+              navigation={navigation}
+              size={boxSize}
+            />
+          </View>
+        ))}
+      </View>
     </View>
   );
 };

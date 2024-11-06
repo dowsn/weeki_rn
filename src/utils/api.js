@@ -23,10 +23,36 @@ export const fetchFromApi = async (apiFunction, options = {}) => {
     body = null,
     headers = {},
     timeout = 20000,
+    queryParams = {},
   } = options;
 
   try {
     const url = new URL(apiFunction, globalUrl);
+
+    // For GET requests, convert body to query parameters
+    if (method === 'GET' && body) {
+      Object.entries(body).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            url.searchParams.append(key, item);
+          });
+        } else if (value !== null && value !== undefined) {
+          url.searchParams.append(key, value);
+        }
+      });
+    }
+
+    // Add any additional query parameters
+    Object.entries(queryParams).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          url.searchParams.append(key, item);
+        });
+      } else if (value !== null && value !== undefined) {
+        url.searchParams.append(key, value);
+      }
+    });
+
     console.log('Full URL:', url.toString());
 
     const fetchOptions = {
@@ -37,13 +63,15 @@ export const fetchFromApi = async (apiFunction, options = {}) => {
       },
     };
 
-    if (body) {
+    // Only add body for non-GET requests
+    if (body && method !== 'GET' && method !== 'HEAD') {
       fetchOptions.body = JSON.stringify(body);
     }
 
     console.log('Request options:', {
       ...fetchOptions,
-      body: body, // Log the original body object
+      body: method !== 'GET' && method !== 'HEAD' ? body : undefined,
+      queryParams: url.search,
     });
 
     const fetchPromise = fetch(url.toString(), fetchOptions).then(

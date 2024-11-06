@@ -16,7 +16,7 @@ const baseColors = {
     dark: '#A0A096',
   },
   accent: {
-    green: '#4CAF50',
+    green: '#03C04A',
     red: '#F44336',
   },
 };
@@ -25,6 +25,8 @@ const baseColors = {
 export const lightColors = {
   dark: baseColors.marineBlue.main,
   light: baseColors.moleskin.light,
+
+  green: baseColors.accent.green,
 
   background: baseColors.moleskin.main,
 
@@ -51,6 +53,7 @@ export const darkColors = {
 
   background: baseColors.marineBlue.main,
   surface: baseColors.marineBlue.light,
+
   surfaceVariant: baseColors.marineBlue.dark,
   onBackground: baseColors.moleskin.main,
   onSurface: baseColors.moleskin.light,
@@ -78,4 +81,10 @@ export const borderRadii = {
   small: 4,
   medium: 8,
   large: 20,
+};
+
+export const line = {
+  small: 1,
+  medium: 2,
+  large: 4,
 };

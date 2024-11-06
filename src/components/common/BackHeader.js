@@ -2,44 +2,45 @@ import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useUserContext } from 'src/hooks/useUserContext';
 
-function BackHeader() {
-  const { backButton, backText, backButtonIcon } = styles;
+function BackHeader({ text, onPress }) {
+  const { theme } = useUserContext();
   const navigation = useNavigation();
 
+  const styles = StyleSheet.create({
+    backButtonIcon: {
+      color: theme.colors.surface,
+      fontSize: 16,
+      paddingRight: 5,
+    },
+    backButton: {
+      padding: theme.spacing.small,
+      backgroundColor: theme.colors.background,
+      display: 'flex',
+      justifyContent: 'flex-start',
+      paddingBottom: theme.spacing.small,
+      paddingTop: theme.spacing.small,
+    },
+    backText: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    text: {
+      color: theme.colors.surface,
+      fontSize: 27,
+      fontWeight: 'bold',
+    },
+  });
+
   return (
-    <SafeAreaView edges={["right", "top", "left"]} style={backButton}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={backText}>
-        <Icon name="chevron-back" style={backButtonIcon} />
-        <Text style={styles.text}>Back</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    <TouchableOpacity onPress={onPress} style={styles.backButton}>
+      <Icon name="chevron-back" style={styles.backButtonIcon} />
+      <Text style={styles.text}>{text}</Text>
+    </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  backButtonIcon: {
-    color: "#fff",
-    fontSize: 20,
-    paddingRight: 5,
-  },
-  backButton: {
-    padding: 10,
-    backgroundColor: "black",
-    display: "flex",
-    justifyContent: "flex-start",
-    paddingBottom: 12.5,
-    paddingTop: 12.5,
-  },
-  backText: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  text: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
+
 
 export default BackHeader;
