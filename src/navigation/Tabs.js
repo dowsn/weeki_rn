@@ -3,6 +3,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import React from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import TabScreen from 'src/components/layouts/TabScreen';
 import { useUserContext } from 'src/hooks/useUserContext';
 import BackHeader from '../components/common/BackHeader';
@@ -25,9 +26,26 @@ const tabIcons = {
 
 // Wrapper component for WriteScreen that covers the entire screen
 const FullScreenWrite = () => {
+  const { theme } = useUserContext();
+
   return (
-    <View style={{ height: SCREEN_HEIGHT, backgroundColor: '#fff' }}>
-      <WriteScreen />
+    <View style={{ flex: 1 }}>
+      <SafeAreaView
+        edges={['top']}
+        style={{
+          backgroundColor: theme.colors.background,
+          flex: 0,
+        }}
+      />
+      <SafeAreaView
+        edges={['left', 'right']} // Removed 'bottom' to prevent double padding
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.dark,
+        }}
+      >
+        <WriteScreen />
+      </SafeAreaView>
     </View>
   );
 };
