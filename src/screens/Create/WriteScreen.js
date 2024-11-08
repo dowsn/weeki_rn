@@ -14,7 +14,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useNote } from 'src/hooks/useNote';
 import { useUserContext } from 'src/hooks/useUserContext';
+import { showAlert } from 'src/utils/alert';
 
 const WriteScreen = () => {
   const { theme, user } = useUserContext();
@@ -22,6 +24,7 @@ const WriteScreen = () => {
   const [text, setText] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const { saveNote, isLoading, error } = useNote();
 
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener(
@@ -44,6 +47,7 @@ const WriteScreen = () => {
     };
   }, []);
 
+
   const tabIcons = {
     Done: require('assets/icons/Done.png'),
     Record: require('assets/icons/Record.png'),
@@ -57,23 +61,44 @@ const WriteScreen = () => {
     }
   };
 
-  const saveMessage = () => {
-    console.log('Saving message:', text);
+  const handleNote = async() => {
+       try {
+         const response = await saveNote(user.userId, text);
+
+         if (response.error) {
+           showAlert('Login Error', response.message);
+         } else {
+
+          showAlert('Successfully saved');
+
+          setText('');
+         }
+
+
+
+       } catch (error) {
+         showAlert(
+           'Saving Note Error',
+           error.message || 'An unexpected error occurred',
+         );
+
+
+       }
   };
 
   const handleSave = () => {
-    saveMessage();
+    handleNote();
     setShowModal(false);
-    navigation.navigate('Reflect');
   };
 
   const handleDiscard = () => {
     setShowModal(false);
     navigation.navigate('Reflect');
+    setText('');
   };
 
-  const TabItem = ({ name, onPress }) => (
-    <Pressable style={styles.tabItem} onPress={onPress}>
+  const TabItem = ({ name, onPress, isLoading }) => (
+    <Pressable style={styles.tabItem} onPress={onPress} disabled={isLoading}>
       <Image
         source={tabIcons[name]}
         style={{
@@ -199,7 +224,7 @@ const WriteScreen = () => {
 
         <View style={[styles.tabBar]}>
           {user.isRecording && <TabItem name="Stop" />}
-          <TabItem name="Done" onPress={handleBackPress} />
+          <TabItem name="Done" onPress={handleBackPress} disabled={isLoading} />
         </View>
       </View>
 
