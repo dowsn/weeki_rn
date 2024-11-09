@@ -1,4 +1,3 @@
-// File: src/screens/Dashboard/DashboardScreen.js
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import NormalButton from '../../components/buttons/NormalButton';
@@ -12,7 +11,7 @@ import { useUserContext } from '../../hooks/useUserContext';
 import { createStyles } from '../../styles';
 import { showAlert } from '../../utils/alert';
 
-const DashboardScreen = ({ navigation }) => {
+const ReflectScreen = ({ navigation }) => {
   const { user, setUser, theme } = useUserContext();
   const [topics, setTopics] = useState([]);
   const styles = createStyles(theme);
@@ -36,25 +35,18 @@ const DashboardScreen = ({ navigation }) => {
     fetchTopics();
   }, []);
 
-  const logoutHandler = async () => {
-    setUser({ userId: 0 });
-  };
 
   return isLoading ? (
     <LoadingAnimation />
   ) : (
     <CustomSafeView scrollable>
-      <MainTitle title={`Welcome ${user.username}`} />
-      <FlexSpacer />
+      <MainTitle title="Let's reflect about" />
+      {/* <FlexSpacer /> */}
       <TopicGrid data={topics} navigation={navigation} />
-      <NormalButton
-        text="Edit Profile"
-        onPress={() => navigation.navigate('EditProfile')}
-      />
-      <NormalButton text="Logout" onPress={logoutHandler} />
+
 
     </CustomSafeView>
   );
 };
 
-export default DashboardScreen;
+export default ReflectScreen;

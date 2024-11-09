@@ -1,5 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import {
+  getFocusedRouteNameFromRoute,
+  useNavigation,
+} from '@react-navigation/native';
 import React from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,13 +10,12 @@ import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import TabScreen from 'src/components/layouts/TabScreen';
 import { useUserContext } from 'src/hooks/useUserContext';
 import BackHeader from '../components/common/BackHeader';
-import ProfileHeader from '../components/layouts/ProfileHeader';
-import ChatScreen from '../screens/Create/ChatScreen';
-import SpeechScreen from '../screens/Create/SpeechScreen';
-import WriteScreen from '../screens/Create/WriteScreen';
-import DashboardScreen from '../screens/Dashboard/DashboardScreen';
-import DashboardStackScreen from '../screens/Dashboard/DashboardStackScreen';
-import WeekStack from '../screens/Dashboard/WeekScreen/WeekScreen';
+import ProfileHeader from '../components/common/ProfileHeader';
+import ChatScreen from '../screens/Record/ChatScreen';
+import SpeechScreen from '../screens/Record/SpeechScreen';
+import WriteScreen from '../screens/Record/WriteScreen';
+import ReflectStackScreen from '../screens/Reflect/ReflectStackScreen';
+import WeekStack from '../screens/Review/WeekScreen/WeekScreen';
 
 const Tab = createBottomTabNavigator();
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -52,6 +54,9 @@ const FullScreenWrite = () => {
 
 const Tabs = () => {
   const { theme } = useUserContext();
+
+    const navigation = useNavigation();
+
 
   const styles = StyleSheet.create({
     selectedTab: {
@@ -112,7 +117,7 @@ const Tabs = () => {
           name={tabName}
           component={
             tabName === 'Reflect'
-              ? DashboardStackScreen
+              ? ReflectStackScreen
               : tabName === 'Record'
                 ? FullScreenWrite // Use the wrapper component instead of WriteScreen directly
                 : TabScreen
@@ -123,7 +128,7 @@ const Tabs = () => {
             tabBarShowLabel: false,
             header: () => {
               // Hide header for Record screen
-              return tabName === 'Record' ? null : <ProfileHeader />;
+              return tabName === 'Record' ? null : <ProfileHeader navigation={navigation} />;
             },
             tabBarIcon: ({ focused, color, size }) => {
               const itemColor =

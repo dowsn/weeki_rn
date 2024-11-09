@@ -6,11 +6,44 @@ import CustomSafeView from './CustomSafeArea';
 
 const Tab = createMaterialTopTabNavigator();
 
-const WComponent = () => (
-  <View style={styles.tabContent}>
-    <Text>This is the W tab content</Text>
-  </View>
-);
+const WComponent = () => {
+
+  //  const { user, setUser, theme } = useUserContext();
+  //  const [notes, setNotes] = useState([]);
+  // const [page, setPage] = useState(1);
+  // const [weekId, setWeekId] = useState(undefined);
+  // const [pagination, setPagination] = useState(10);
+
+  //  const styles = createStyles(theme);
+
+  //  const { getWeek, isLoading, error } = useWeek();
+
+  //  useEffect(() => {
+  //    const fetchWeek = async () => {
+  //      try {
+  //        const response = await getWeek(user.userId, weekId, page, pagination);
+  //        if (response.error) {
+  //          showAlert('Error:', response.message);
+  //        } else {
+  //          setNotes(response.content);
+  //        }
+  //      } catch (error) {
+  //        console.log(
+  //          'Error fetching topics',
+  //          error.message || 'An unexpected error occurred',
+  //        );
+  //      }
+  //    };
+
+  //    fetchWeek();
+  //  }, [weekId]);
+
+  return (
+    <View >
+      <Text>This is the W tab content</Text>
+    </View>
+  );
+};
 
 const YComponent = () => (
   <View style={styles.tabContent}>

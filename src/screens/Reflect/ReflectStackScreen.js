@@ -3,13 +3,12 @@ import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import BackHeader from 'src/components/common/BackHeader';
 import { useUserContext } from 'src/hooks/useUserContext';
-import DashboardScreen from './DashboardScreen';
-import EditProfileView from './EditProfileView';
+import ReflectScreen from './ReflectScreen';
 import TopicReflectionView from './TopicReflectionView';
 
 const DashboardStack = createStackNavigator();
 
-function DashboardStackScreen() {
+function ReflectStackScreen() {
 
   const { theme } = useUserContext();
   return (
@@ -35,7 +34,7 @@ function DashboardStackScreen() {
     >
       <DashboardStack.Screen
         name="DashboardMain"
-        component={DashboardScreen}
+        component={ReflectScreen}
         options={{
           headerShown: false,
         }}
@@ -44,9 +43,9 @@ function DashboardStackScreen() {
         name="TopicReflectionView"
         component={TopicReflectionView}
       />
-      <DashboardStack.Screen name="EditProfile" component={EditProfileView} />
+
     </DashboardStack.Navigator>
   );
 }
 
-export default DashboardStackScreen;
+export default ReflectStackScreen;

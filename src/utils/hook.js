@@ -35,7 +35,7 @@ export const useApiCall = (apiConfig) => {
           return handleError(response.message);
         }
 
-        return { error: false, content: response.content };
+        return { error: false, content: response.content, message: response.message };
       } catch (err) {
         const errorMessage =
           err.message === 'Request timed out' ||
