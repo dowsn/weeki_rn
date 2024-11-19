@@ -51,7 +51,7 @@ const WriteScreen = () => {
   const tabIcons = {
     Record: require('assets/icons/Record.png'),
     Done: require('assets/icons/Done.png'),
-    Question: require('assets/icons/Question.png'),
+    MrWeek: require('assets/icons/MrWeek.png'),
   };
 
   const handleBackPress = () => {
@@ -96,7 +96,7 @@ const WriteScreen = () => {
         } else {
           console.log(response);
 
-          showAlert('Question', response.message);
+          showAlert('Mr. Week', response.message);
 
         }
       } catch (error) {
@@ -121,7 +121,7 @@ const WriteScreen = () => {
     setText('');
   };
 
-  const TabItem = ({ name, onPress, isLoading }) => (
+  const TabItem = ({ special_title, name, onPress, isLoading }) => (
     <Pressable style={styles.tabItem} onPress={onPress} disabled={isLoading}>
       <Image
         source={tabIcons[name]}
@@ -131,7 +131,7 @@ const WriteScreen = () => {
           tintColor: '#FFFFFF',
         }}
       />
-      <Text style={styles.tabText}>{name}</Text>
+      <Text style={styles.tabText}>{special_title ? special_title : name}</Text>
     </Pressable>
   );
 
@@ -249,7 +249,7 @@ const WriteScreen = () => {
         <View style={[styles.tabBar]}>
           {user.isRecording && <TabItem name="Stop" />}
           <TabItem name="Done" onPress={handleBackPress} disabled={isLoading} />
-          <TabItem name="Question" onPress={handleQuestion} disabled={isLoading} />
+          <TabItem special_title="Mr. Week" name="MrWeek" onPress={handleQuestion} disabled={isLoading} />
         </View>
       </View>
 

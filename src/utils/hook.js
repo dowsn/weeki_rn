@@ -1,9 +1,12 @@
+// utils/hook.js
 import { useState } from 'react';
+import { useUserContext } from 'src/hooks/useUserContext';
 import { fetchFromApi } from './api';
 
 export const useApiCall = (apiConfig) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { user, setUser } = useUserContext(); // Get user context
 
   const handleError = (errorMessage) => {
     setIsLoading(false);
@@ -27,6 +30,8 @@ export const useApiCall = (apiConfig) => {
         const response = await fetchFromApi(path, {
           method,
           body: params,
+          user, // Pass user object containing tokens
+          setUser, // Pass setUser for token refresh functionality
         });
 
         setIsLoading(false);
@@ -35,7 +40,11 @@ export const useApiCall = (apiConfig) => {
           return handleError(response.message);
         }
 
-        return { error: false, content: response.content, message: response.message };
+        return {
+          error: false,
+          content: response.content,
+          message: response.message,
+        };
       } catch (err) {
         const errorMessage =
           err.message === 'Request timed out' ||
@@ -47,7 +56,6 @@ export const useApiCall = (apiConfig) => {
     };
 
   const apiCalls = {};
-
   for (const [key, config] of Object.entries(apiConfig)) {
     apiCalls[key] = createApiCall(config.path, config.method);
   }

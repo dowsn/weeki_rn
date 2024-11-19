@@ -1,14 +1,26 @@
 import { useApiCall } from 'src/utils/hook';
+import { useUserContext } from './useUserContext';
 
 export const useLogin = () => {
+  const { setUser, logout } = useUserContext();
+
   const { apiCalls, isLoading, error } = useApiCall({
     login: { path: 'login', method: 'POST' },
-    forgotPassword: { path: 'forgot-password', method: 'POST' },
   });
 
-  const login = (username, password) => apiCalls.login({ username, password });
+  const login = async (username, password) => {
+    try {
+      const response = await apiCalls.login({ username, password });
 
-  const forgotPassword = (email) => apiCalls.forgotPassword({ email });
+      if (response.content) {
+        await setUser(response.content);
+        return response;
+      }
+      throw new Error('Invalid login response');
+    } catch (error) {
+      throw error;
+    }
+  };
 
-  return { forgotPassword, login, isLoading, error };
+  return { login, logout, isLoading, error };
 };

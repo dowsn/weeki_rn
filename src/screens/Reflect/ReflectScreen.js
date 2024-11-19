@@ -19,6 +19,10 @@ const ReflectScreen = ({ navigation }) => {
   const { getTopics, isLoading, error } = useTopics();
 
   useEffect(() => {
+    console.log(user);
+  }, []);
+
+  useEffect(() => {
     const fetchTopics = async () => {
       try {
         const response = await getTopics(user.userId);
@@ -35,7 +39,6 @@ const ReflectScreen = ({ navigation }) => {
     fetchTopics();
   }, []);
 
-
   return isLoading ? (
     <LoadingAnimation />
   ) : (
@@ -43,8 +46,6 @@ const ReflectScreen = ({ navigation }) => {
       <MainTitle title="Let's reflect about" />
       {/* <FlexSpacer /> */}
       <TopicGrid data={topics} navigation={navigation} />
-
-
     </CustomSafeView>
   );
 };

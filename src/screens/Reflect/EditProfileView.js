@@ -16,10 +16,11 @@ const EditProfileView = ({ navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
-  const { user, setUser } = useUserContext();
+  const { user, setUser, logout } = useUserContext();
 
-    const logoutHandler = async () => {
-      setUser({ userId: 0 });
+  const logoutHandler = async () => {
+      await logout();
+      // setUser({ userId: 0 });
     };
 
   const styles = StyleSheet.create({

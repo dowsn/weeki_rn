@@ -27,12 +27,18 @@ import ForgotPasswordScreen from './ForgotPasswordScreen';
 import RegistrationScreen from './RegistrationScreen';
 
 const LoginScreen = () => {
-  const { setUser } = useUserContext();
-  const { login, isLoading, error } = useLogin();
-  const navigation = useNavigation();
-
+  const { login, isLoading } = useLogin();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      await login(username, password);
+      // Navigation will be handled by your auth state changes
+    } catch (error) {
+      showAlert('Login Error', error.message || 'An unexpected error occurred');
+    }
+  };
 
   // Use separate state variables and memoized handlers
   const handleUsernameChange = useCallback((text) => {
@@ -43,19 +49,19 @@ const LoginScreen = () => {
     setPassword(text);
   }, []);
 
-  const handleLogin = async () => {
-    try {
-      const response = await login(username, password);
+  // const handleLogin = async () => {
+  //   try {
+  //     const response = await login(username, password);
 
-      if (response.error) {
-        showAlert('Login Error', response.message);
-      } else {
-        setUser(response.content);
-      }
-    } catch (error) {
-      showAlert('Login Error', error.message || 'An unexpected error occurred');
-    }
-  };
+  //     if (response.error) {
+  //       showAlert('Login Error', response.message);
+  //     } else {
+  //       setUser(response.content);
+  //     }
+  //   } catch (error) {
+  //     showAlert('Login Error', error.message || 'An unexpected error occurred');
+  //   }
+  // };
 
   const styles = StyleSheet.create({
     container: {

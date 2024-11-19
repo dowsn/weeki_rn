@@ -30,35 +30,35 @@ const MainStack = () => {
 };
 
 const MainNavigator = () => {
-  const { user, setUser } = useUserContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading } = useUserContext();
 
-  useEffect(() => {
-    const initializeUser = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem('user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        } else {
-          setUser({ userId: 0 });
-        }
-      } catch (error) {
-        console.error('Error initializing user:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeUser();
-  }, [setUser]);
-
-  if (isLoading) {
+  if (loading) {
     return <WeekiLoading />;
   }
 
-  // Return MainStack instead of Tabs directly
   return user.userId !== 0 ? <MainStack /> : <AuthStack />;
 };
+
+
+
+
+    //  const logout = async () => {
+    //    const defaultUserData = {
+    //      userId: 0,
+    //      tokens: {
+    //        access: null,
+    //        refresh: null,
+    //      },
+    //    };
+    //    setUser(defaultUserData);
+    //    await storeData('user', defaultUserData, setLoading);
+    //  };
+
+    // logout();
+
+
+
+
 
 const App = () => {
   return (

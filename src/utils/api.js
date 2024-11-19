@@ -24,6 +24,7 @@ export const fetchFromApi = async (apiFunction, options = {}) => {
     headers = {},
     timeout = 20000,
     queryParams = {},
+    user,
   } = options;
 
   try {
@@ -59,6 +60,9 @@ export const fetchFromApi = async (apiFunction, options = {}) => {
       method,
       headers: {
         'Content-Type': 'application/json',
+        ...(user?.tokens?.access
+          ? { Authorization: `Bearer ${user.tokens.access}` }
+          : {}),
         ...headers,
       },
     };
@@ -76,11 +80,34 @@ export const fetchFromApi = async (apiFunction, options = {}) => {
 
     const fetchPromise = fetch(url.toString(), fetchOptions).then(
       async (response) => {
+
+
+         if (response.status === 401 && user?.tokens?.refresh) {
+           // Handle token refresh
+           const newTokens = await refreshTokens(user.tokens.refresh);
+           if (newTokens) {
+             // Update user context with new tokens
+             options.setUser(user, newTokens);
+
+             // Retry original request with new token
+             return fetchFromApi(apiFunction, {
+               ...options,
+               headers: {
+                 ...headers,
+                 Authorization: `Bearer ${newTokens.access}`,
+               },
+             });
+           }
+         }
+
         console.log('Response status:', response.status);
         console.log(
           'Response headers:',
           Object.fromEntries(response.headers.entries()),
         );
+
+
+
 
         let responseData;
         const contentType = response.headers.get('content-type');
@@ -114,6 +141,27 @@ export const fetchFromApi = async (apiFunction, options = {}) => {
       const errorData = JSON.parse(error.message);
       console.error('Detailed error:', errorData);
     }
+    throw error;
+  }
+};
+
+const refreshTokens = async (refreshToken) => {
+  try {
+    const response = await fetchFromApi('refresh-token', {
+      method: 'POST',
+      body: { refresh: refreshToken },
+      requiresAuth: false,
+    });
+
+    if (response.access) {
+      return {
+        access: response.access,
+        refresh: refreshToken,
+      };
+    }
+    throw new Error('Invalid refresh token response');
+  } catch (error) {
+    console.error('Token refresh failed:', error);
     throw error;
   }
 };
