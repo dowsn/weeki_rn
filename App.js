@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// App.js
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import WeekiLoading from 'src/components/common/WeekiLoading';
 import { UserProvider } from 'src/contexts/UserContext';
 import { useUserContext } from 'src/hooks/useUserContext';
@@ -11,18 +11,41 @@ import AuthStack from 'src/stacks/AuthStack';
 
 const Stack = createStackNavigator();
 
-// Create a wrapper component for the main app flow
+// Create a wrapper component for protected routes
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useUserContext();
+
+  if (loading) {
+    return <WeekiLoading />;
+  }
+
+  return user.tokens?.access ? children : <AuthStack />;
+};
+
+// Create separate screen components with navigation props
+const ProtectedTabs = ({ navigation }) => (
+  <ProtectedRoute>
+    <Tabs navigation={navigation} />
+  </ProtectedRoute>
+);
+
+const ProtectedEditProfile = ({ navigation, route }) => (
+  <ProtectedRoute>
+    <EditProfileView navigation={navigation} route={route} />
+  </ProtectedRoute>
+);
+
 const MainStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
         name="MainTabs"
-        component={Tabs}
+        component={ProtectedTabs}
         options={{ headerShown: false }}
       />
       <Stack.Screen
         name="EditProfileView"
-        component={EditProfileView}
+        component={ProtectedEditProfile}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -38,27 +61,6 @@ const MainNavigator = () => {
 
   return user.userId !== 0 ? <MainStack /> : <AuthStack />;
 };
-
-
-
-
-    //  const logout = async () => {
-    //    const defaultUserData = {
-    //      userId: 0,
-    //      tokens: {
-    //        access: null,
-    //        refresh: null,
-    //      },
-    //    };
-    //    setUser(defaultUserData);
-    //    await storeData('user', defaultUserData, setLoading);
-    //  };
-
-    // logout();
-
-
-
-
 
 const App = () => {
   return (

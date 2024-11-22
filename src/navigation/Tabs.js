@@ -9,7 +9,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import TabScreen from 'src/components/layouts/TabScreen';
 import { useUserContext } from 'src/hooks/useUserContext';
-import BackHeader from '../components/common/BackHeader';
 import ProfileHeader from '../components/common/ProfileHeader';
 import ChatScreen from '../screens/Record/ChatScreen';
 import SpeechScreen from '../screens/Record/SpeechScreen';

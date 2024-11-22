@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -11,7 +12,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import NormalButton from 'src/components/buttons/NormalButton';
 import { useUserContext } from 'src/hooks/useUserContext';
 
-const EditProfileView = ({ navigation }) => {
+const EditProfileView = () => {
+  const navigation = useNavigation();
   const { theme } = useUserContext();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,9 +21,9 @@ const EditProfileView = ({ navigation }) => {
   const { user, setUser, logout } = useUserContext();
 
   const logoutHandler = async () => {
-      await logout();
-      // setUser({ userId: 0 });
-    };
+    await logout();
+    // setUser({ userId: 0 });
+  };
 
   const styles = StyleSheet.create({
     container: {

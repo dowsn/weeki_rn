@@ -1,4 +1,3 @@
-// utils/hook.js
 import { useState } from 'react';
 import { useUserContext } from 'src/hooks/useUserContext';
 import { fetchFromApi } from './api';
@@ -6,7 +5,7 @@ import { fetchFromApi } from './api';
 export const useApiCall = (apiConfig) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { user, setUser } = useUserContext(); // Get user context
+  const { user, setUser } = useUserContext();
 
   const handleError = (errorMessage) => {
     setIsLoading(false);
@@ -20,6 +19,7 @@ export const useApiCall = (apiConfig) => {
       setIsLoading(true);
       setError(null);
 
+      // Validate required parameters
       for (const [key, value] of Object.entries(params)) {
         if (!value) {
           return handleError(`${key} is required`);
@@ -30,8 +30,8 @@ export const useApiCall = (apiConfig) => {
         const response = await fetchFromApi(path, {
           method,
           body: params,
-          user, // Pass user object containing tokens
-          setUser, // Pass setUser for token refresh functionality
+          user,
+          setUser, // For token refresh handling
         });
 
         setIsLoading(false);
@@ -46,11 +46,24 @@ export const useApiCall = (apiConfig) => {
           message: response.message,
         };
       } catch (err) {
-        const errorMessage =
-          err.message === 'Request timed out' ||
-          err.message === 'Network request failed'
-            ? 'Unable to connect to the server. Please check your internet connection and try again.'
-            : err.data?.message || 'An unexpected error occurred';
+        let errorMessage = 'An unexpected error occurred';
+
+        if (err.message === 'Request timed out') {
+          errorMessage =
+            'Unable to connect to the server. Please check your internet connection.';
+        } else if (err.message === 'Network request failed') {
+          errorMessage =
+            'Network connection failed. Please check your internet.';
+        } else if (err.message === 'Authentication failed') {
+          errorMessage = 'Your session has expired. Please log in again.';
+          // Let UserContext handle the logout
+          if (user?.tokens?.refresh) {
+            await logout();
+          }
+        } else if (err.data?.message) {
+          errorMessage = err.data.message;
+        }
+
         return handleError(errorMessage);
       }
     };

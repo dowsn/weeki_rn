@@ -2,7 +2,7 @@ import { useApiCall } from 'src/utils/hook';
 import { useUserContext } from './useUserContext';
 
 export const useLogin = () => {
-  const { setUser, logout } = useUserContext();
+  const { setUser } = useUserContext();
 
   const { apiCalls, isLoading, error } = useApiCall({
     login: { path: 'login', method: 'POST' },
@@ -22,5 +22,5 @@ export const useLogin = () => {
     }
   };
 
-  return { login, logout, isLoading, error };
+  return { login, isLoading, error };
 };
