@@ -13,6 +13,7 @@ const TopicGrid = ({ data, navigation }) => {
 
   const styles = StyleSheet.create({
     container: {
+      paddingTop: theme.spacing.small,
     },
     gridContainer: {
       flexDirection: 'row',
@@ -34,7 +35,7 @@ const TopicGrid = ({ data, navigation }) => {
             <TopicBox
               id={topic.id}
               title={topic.name}
-              color={topic.color}
+              image={topic.image}
               navigation={navigation}
               size={boxSize}
             />

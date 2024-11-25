@@ -29,6 +29,7 @@ const ReflectScreen = ({ navigation }) => {
         if (response.error) {
           showAlert('Error:', response.message);
         } else {
+          console.log(response.content);
           setTopics(response.content);
         }
       } catch (error) {
@@ -43,7 +44,7 @@ const ReflectScreen = ({ navigation }) => {
     <LoadingAnimation />
   ) : (
     <CustomSafeView scrollable>
-      <MainTitle title="Let's reflect about" />
+      {/* <MainTitle title="Let's reflect about" /> */}
       {/* <FlexSpacer /> */}
       <TopicGrid data={topics} navigation={navigation} />
     </CustomSafeView>

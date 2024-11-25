@@ -64,14 +64,7 @@ const Tabs = () => {
     unselectedTab: {
       tintColor: theme.colors.gray,
     },
-    tabItem: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      width: '100%',
-      paddingTop: 8,
-      paddingBottom: 4,
-    },
+
     focusedTab: {
       // Styles for focused state
     },
@@ -87,13 +80,20 @@ const Tabs = () => {
       height: 4,
       backgroundColor: theme.colors.light,
     },
+    tabItem: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      width: '100%',
+      paddingBottom: 20, // Adjusted this
+    },
     tabBar: {
       backgroundColor: theme.colors.dark,
       height: 80,
       fontSize: theme.fontSizes.large,
       borderTopWidth: 0,
       borderBottomWidth: 0,
-      paddingBottom: theme.spacing.medium,
+      paddingBottom: 0, // Changed from theme.spacing.medium
     },
   });
 
@@ -110,7 +110,15 @@ const Tabs = () => {
         animationEnabled: true,
       })}
     >
-      {['Reflect', 'Record', 'Review'].map((tabName, index) => (
+      <Tab.Screen
+        name="Reflect"
+        component={ReflectStackScreen}
+        options={{
+          tabBarButton: () => null,
+          header: () => <ProfileHeader navigation={navigation} />,
+        }}
+      />
+      {['Record'].map((tabName, index) => (
         <Tab.Screen
           key={tabName}
           name={tabName}
@@ -124,33 +132,30 @@ const Tabs = () => {
           options={({ route }) => ({
             animationEnabled: true,
             lazy: false,
+            tabBarLabel: () => null, // Add this line
+
             tabBarShowLabel: false,
             header: () => {
-                return route.name !== 'Record' ? <ProfileHeader navigation={navigation} /> : null;
+              return route.name !== 'Record' ? (
+                <ProfileHeader navigation={navigation} />
+              ) : null;
             },
             tabBarIcon: ({ focused, color, size }) => {
-              const itemColor =
-                index === 1
-                  ? focused
-                    ? theme.colors.light
-                    : theme.colors.green
-                  : focused
-                    ? theme.colors.light
-                    : theme.colors.gray;
+              const itemColor = focused
+                ? theme.colors.light
+                : theme.colors.green;
 
               return (
                 <View style={[styles.tabItem, focused && styles.focusedTab]}>
                   <Image
                     source={tabIcons[tabName]}
                     style={{
-                      width: size,
-                      height: size,
+                      width: size + 10,
+                      height: size + 10,
                       tintColor: itemColor,
                     }}
                   />
-                  <Text style={[styles.tabText, { color: itemColor }]}>
-                    {tabName}
-                  </Text>
+
                   {focused && <View style={styles.selectionIndicator} />}
                 </View>
               );

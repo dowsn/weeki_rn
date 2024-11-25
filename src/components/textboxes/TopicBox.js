@@ -1,33 +1,41 @@
-// import { format } from 'date-fns'; // For date formatting
-// import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'; // For icons
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  LayoutAnimation,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { borderRadii, fontSizes } from 'src/constants/theme';
+import React from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { www } from 'src/constants/constants';
 import { useUserContext } from 'src/hooks/useUserContext';
 
-const TopicBox = ({ id, title, color, size, navigation }) => {
-
+const TopicBox = ({ id, title, image, size, navigation }) => {
   const { theme } = useUserContext();
+
+  const imagePath = image ? www + image : null;
+
+  console.log(imagePath);
+
   const styles = StyleSheet.create({
     container: {
       width: size,
       height: size,
-      borderWidth: theme.line.small,
-      borderColor: color,
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: theme.borderRadii.large,
-      backgroundColor: theme.colors.surface,
+      overflow: 'hidden',
+      position: 'relative',
+    },
+    image: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    textContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
       padding: theme.spacing.small,
     },
     text: {
-      color: theme.colors.onSurface,
+      color: theme.colors.light,
       textAlign: 'center',
       fontSize: theme.fontSizes.medium,
     },
@@ -36,47 +44,18 @@ const TopicBox = ({ id, title, color, size, navigation }) => {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate('TopicReflectionView', {
-        topicId: id
-      })}
+      onPress={() =>
+        navigation.navigate('TopicReflectionView', { topicId: id })
+      }
     >
-      <Text style={styles.text} numberOfLines={2}>
-        {title}
-      </Text>
+      <Image source={{ uri: imagePath }} style={styles.image} />
+      <View style={styles.textContainer}>
+        <Text style={styles.text} numberOfLines={2}>
+          {title}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
-};``
-
-// const TopicBox = ({ id, title, color }) => {
-
-//   const { theme } = useUserContext();
-
-//   const openConversation = () => {
-//     // Implement logic to open DetailMessage
-//     console.log('Opening DetailMessage for id:', id);
-//   };
-
-//   const styles = StyleSheet.create({
-//     container: {
-//       borderColor: color,
-//       borderWidth: 1,
-//       borderRadius: theme.borderRadii.large,
-//       backgroundColor: theme.colors.surface,
-//       justifyContent: 'left',
-//       paddingHorizontal: theme.spacing.small,
-//       paddingVertical: theme.spacing.small
-//     },
-
-//     topicText: {
-//       color: color
-//     }
-//   });
-
-//   return (
-//     <TouchableOpacity style={styles.container}>
-//       <Text style={styles.topicText}>{title}</Text>
-//     </TouchableOpacity>
-//   );
-// };
+};
 
 export default TopicBox;
