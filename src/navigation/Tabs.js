@@ -45,7 +45,7 @@ const FullScreenWrite = () => {
           backgroundColor: theme.colors.dark,
         }}
       >
-        <WriteScreen />
+        <ChatScreen />
       </SafeAreaView>
     </View>
   );
@@ -126,8 +126,7 @@ const Tabs = () => {
             lazy: false,
             tabBarShowLabel: false,
             header: () => {
-              // Hide header for Record screen
-              return tabName === 'Record' ? null : <ProfileHeader navigation={navigation} />;
+                return route.name !== 'Record' ? <ProfileHeader navigation={navigation} /> : null;
             },
             tabBarIcon: ({ focused, color, size }) => {
               const itemColor =
