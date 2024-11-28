@@ -42,7 +42,7 @@ const ProfileHeader = ({ navigation }) => {
           onPress={() => navigation.navigate('EditProfileView')}
           style={styles.profileButton}
         >
-          <Image source={{ uri: user.image }} style={styles.image} />
+          {/* <Image source={{ uri: user.image }} style={styles.image} /> */}
           {/* <Text style={styles.username}>{user.username}</Text> */}
         </TouchableOpacity>
       </View>

@@ -5,7 +5,7 @@ import { fetchFromApi } from './api';
 export const useApiCall = (apiConfig) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { user, setUser } = useUserContext();
+  const { user, setUser, logout } = useUserContext();
 
   const handleError = (errorMessage) => {
     setIsLoading(false);
