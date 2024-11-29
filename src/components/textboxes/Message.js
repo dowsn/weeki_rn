@@ -1,112 +1,50 @@
-import React, { useState } from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { www } from 'src/constants/constants';
+import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
 
-const Message = ({
-  id,
-  sender,
-  date_created,
-  text,
-  profilePicture = www +
-    '/media/images/others/images/others/mr_week_profile_picture.png',
-}) => {
-  const { theme } = useUserContext();
-  console.log('profilePicture', profilePicture);
+const Message = ({ id, sender, date_created, text, profilePicture, followup = false }) => {
 
+  const { user, theme } = useUserContext();
 
   const styles = StyleSheet.create({
     messageContainer: {
-      flexDirection: 'row',
-      marginBottom: 8, // Reduced from 16
-      alignItems: 'flex-end',
+      width: '100%',
+      marginBottom: theme.spacing.small,
+      alignItems: 'center',
     },
-    userMessageContainer: {
-      justifyContent: 'flex-end',
-    },
-    assistantMessageContainer: {
-      justifyContent: 'flex-start',
-    },
-    messageBubble: {
-      maxWidth: '80%', // Increased from 70%
-      padding: 12,
-      borderRadius: 20,
-    },
-    userMessageBubble: {
-      backgroundColor: '#007AFF',
-      marginLeft: 8,
-    },
-    assistantMessageBubble: {
-      backgroundColor: '#E5E5EA',
-      marginRight: 8,
-    },
-    userMessageText: {
-      color: 'white',
-    },
-    assistantMessageText: {
-      color: 'black',
+    profilePictureContainer: {
+      width: '100%',
+      alignItems: 'center',
+      marginBottom: 8,
     },
     profilePicture: {
       width: 36,
       height: 36,
       borderRadius: 18,
+      backgroundColor: '#4899F7', // Blue color from your example
     },
-    container: {
-      flex: 1,
+    messageBubble: {
+      width: '100%',
+      padding: theme.spacing.medium,
+      borderRadius: theme.borderRadii.large,
+      backgroundColor: '#7ED321', // Green color from your example
     },
-    inputContainer: {
-      flexDirection: 'row',
-      padding: 8,
-      backgroundColor: 'white',
-      borderTopWidth: 1,
-      borderTopColor: '#E5E5EA',
-    },
-    input: {
-      flex: 1,
-      padding: 10,
-      backgroundColor: '#F2F2F7',
-      borderRadius: 20,
-      marginRight: 8,
-      maxHeight: 100,
+    messageText: {
+      color: 'black',
+      fontSize: theme.fontSizes.medium,
     },
   });
 
-  const isUser = sender === 'user';
-
   return (
-    <View
-      key={id || date_created}
-      style={[
-        styles.messageContainer,
-        isUser ? styles.userMessageContainer : styles.assistantMessageContainer,
-      ]}
-    >
-      {!isUser && (
-        <Image source={profilePicture} style={styles.profilePicture} />
-      )}
-      <View
-        style={[
-          styles.messageBubble,
-          isUser ? styles.userMessageBubble : styles.assistantMessageBubble,
-        ]}
-      >
-        <Text
-          style={isUser ? styles.userMessageText : styles.assistantMessageText}
-        >
-          {text}
-        </Text>
-      </View>
-      {isUser && (
+    <View key={id || date_created} style={styles.messageContainer}>
+      {!followup && (
+      <View style={styles.profilePictureContainer}>
         <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+      </View>
       )}
+      <View style={styles.messageBubble}>
+        <Text style={styles.messageText}>{text}</Text>
+      </View>
     </View>
   );
 };

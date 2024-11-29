@@ -1,26 +1,10 @@
 import SecurityService from 'src/contexts/SecurityService';
 import { globalUrl } from '../constants/constants';
 
-const withTimeout = (promise, timeout) => {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error('Request timed out'));
-    }, timeout);
-    promise
-      .then((value) => {
-        clearTimeout(timer);
-        resolve(value);
-      })
-      .catch((error) => {
-        clearTimeout(timer);
-        reject(error);
-      });
-  });
-};
-
 const refreshTokens = async (refreshToken) => {
   try {
-    const response = await fetch(`${globalUrl}/token/refresh/`, {
+    console.log('Attempting to refresh token');
+    const response = await fetch(`${globalUrl}token/refresh/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,51 +13,34 @@ const refreshTokens = async (refreshToken) => {
     });
 
     if (!response.ok) {
+      console.error('Token refresh failed:', response.status);
       throw new Error('Token refresh failed');
     }
 
     const data = await response.json();
+    console.log('Token refresh successful');
+
     return {
       access: data.access,
-      refresh: refreshToken, // Keep the same refresh token
+      refresh: data.refresh || refreshToken,
     };
   } catch (error) {
-    console.error('Token refresh failed:', error);
+    console.error('Token refresh error:', error);
     throw error;
   }
 };
 
-export const fetchFromApi = async (apiFunction, options = {}) => {
+export const fetchFromApi = async (endpoint, options = {}) => {
   const {
-    method = 'POST',
+    method = 'GET',
     body = null,
     headers = {},
-    timeout = 20000,
-    queryParams = {},
-    user,
-    setUser,
+    requiresAuth = true,
   } = options;
 
   try {
-    const url = new URL(apiFunction, globalUrl);
+    let tokens = requiresAuth ? await SecurityService.getTokens() : null;
 
-    // Add query parameters for GET requests
-    if (method === 'GET' && body) {
-      Object.entries(body).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          url.searchParams.append(key, value);
-        }
-      });
-    }
-
-    // Add additional query parameters
-    Object.entries(queryParams).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        url.searchParams.append(key, value);
-      }
-    });
-
-    const tokens = await SecurityService.getTokens();
     const fetchOptions = {
       method,
       headers: {
@@ -83,57 +50,55 @@ export const fetchFromApi = async (apiFunction, options = {}) => {
       },
     };
 
-    if (body && method !== 'GET') {
+    // Handle URL and query parameters
+    let url = `${globalUrl}${endpoint}`;
+
+    // For GET requests, append query parameters to URL
+    if (method === 'GET' && body) {
+      const queryParams = new URLSearchParams();
+      Object.entries(body).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          queryParams.append(key, value);
+        }
+      });
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    } else if (body) {
+      // For non-GET requests, add body to fetchOptions
       fetchOptions.body = JSON.stringify(body);
     }
 
-    const fetchPromise = fetch(url.toString(), fetchOptions).then(
-      async (response) => {
-        if (response.status === 401 && tokens?.refresh) {
-          try {
-            const newTokens = await refreshTokens(tokens.refresh);
-            await SecurityService.setTokens(newTokens);
-            if (setUser && user) {
-              setUser({ ...user, tokens: newTokens });
-            }
+    console.log(`Making ${method} request to: ${url}`);
 
-            // Retry original request with new token
-            return fetchFromApi(apiFunction, {
-              ...options,
-              headers: {
-                ...headers,
-                Authorization: `Bearer ${newTokens.access}`,
-              },
-            });
-          } catch (refreshError) {
-            await SecurityService.removeTokens();
-            throw new Error('Authentication failed');
-          }
-        }
+    let response = await fetch(url, fetchOptions);
 
-        let responseData;
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          responseData = await response.json();
-        } else {
-          responseData = await response.text();
-        }
+    // Handle 401 with token refresh
+    if (response.status === 401 && tokens?.refresh) {
+      try {
+        console.log('Attempting token refresh due to 401');
+        const newTokens = await refreshTokens(tokens.refresh);
+        await SecurityService.setTokens(newTokens);
 
-        if (!response.ok) {
-          throw new Error(
-            JSON.stringify({
-              status: response.status,
-              statusText: response.statusText,
-              data: responseData,
-            }),
-          );
-        }
+        // Retry original request with new token
+        fetchOptions.headers.Authorization = `Bearer ${newTokens.access}`;
+        console.log('Retrying original request with new token');
+        response = await fetch(url, fetchOptions);
+      } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError);
+        await SecurityService.clearAll();
+        throw new Error('Authentication failed');
+      }
+    }
 
-        return responseData;
-      },
-    );
+    const responseData = await response.json();
 
-    return await withTimeout(fetchPromise, timeout);
+    if (!response.ok) {
+      throw new Error(responseData.message || 'API request failed');
+    }
+
+    return responseData;
   } catch (error) {
     console.error('API Error:', error);
     throw error;
