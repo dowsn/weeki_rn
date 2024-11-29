@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { www } from 'src/constants/constants';
 import { useUserContext } from 'src/hooks/useUserContext';
 
 const Message = ({
@@ -15,9 +16,12 @@ const Message = ({
   sender,
   date_created,
   text,
-  profilePicture = require('../../../assets/images/mr_week_profile_picture.png'),
+  profilePicture = www +
+    '/media/images/others/images/others/mr_week_profile_picture.png',
 }) => {
   const { theme } = useUserContext();
+  console.log('profilePicture', profilePicture);
+
 
   const styles = StyleSheet.create({
     messageContainer: {
@@ -101,7 +105,7 @@ const Message = ({
         </Text>
       </View>
       {isUser && (
-        <Image source={profilePicture} style={styles.profilePicture} />
+        <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
       )}
     </View>
   );

@@ -85,7 +85,7 @@ const Tabs = () => {
       justifyContent: 'center',
       height: '100%',
       width: '100%',
-      paddingBottom: 20, // Adjusted this
+      paddingBottom: 80, // Adjusted this
     },
     tabBar: {
       backgroundColor: theme.colors.dark,
@@ -150,8 +150,8 @@ const Tabs = () => {
                   <Image
                     source={tabIcons[tabName]}
                     style={{
-                      width: size + 10,
-                      height: size + 10,
+                      width: size + 80,
+                      height: size + 80,
                       tintColor: itemColor,
                     }}
                   />

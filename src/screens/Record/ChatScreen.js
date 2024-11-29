@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import Message from 'src/components/textboxes/Message';
+import { www } from 'src/constants/constants';
 import { useNote } from 'src/hooks/useNote';
 import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
@@ -27,8 +28,9 @@ const ChatScreen = () => {
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
 
-  const defaultUserPicture = 'https://yourdefaulturl.com/user-avatar.png';
-  const mrWeekPicture = 'https://yourdefaulturl.com/mrweek-avatar.png';
+
+  const defaultUserPicture = www + 'media/images/others/images/others/default_profile_picture.png';
+  const mrWeekPicture = www + 'media/images/others/images/others/mr_week_profile_picture.png';
 
   const tabIcons = {
     Done: require('assets/icons/Done.png'),

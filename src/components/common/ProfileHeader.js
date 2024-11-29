@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useUserContext } from 'src/hooks/useUserContext';
@@ -8,6 +8,7 @@ import EditProfileView from 'src/screens/Reflect/EditProfileView';
 
 const ProfileHeader = ({ navigation }) => {
   const { user, theme } = useUserContext();
+  console.log('user', user.profileImage);
 
   const styles = StyleSheet.create({
     container: {
@@ -33,6 +34,16 @@ const ProfileHeader = ({ navigation }) => {
     icon: {
       color: theme.colors.light,
     },
+    image: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+    },
+
+    imageIcon: {
+      width: 46,
+      height: 46,
+    }
   });
 
   return (
@@ -42,7 +53,17 @@ const ProfileHeader = ({ navigation }) => {
           onPress={() => navigation.navigate('EditProfileView')}
           style={styles.profileButton}
         >
-          <Image source={{ uri: user.image }} style={styles.image} />
+          <Image source={{ uri: user.profileImage }} style={styles.image} />
+          {/* <Text style={styles.username}>{user.username}</Text> */}
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('EditProfileView')}
+          style={styles.profileButton}
+        >
+          <Image
+            source={require('assets/icons/Review.png')}
+            style={styles.imageIcon}
+          />
           {/* <Text style={styles.username}>{user.username}</Text> */}
         </TouchableOpacity>
       </View>
