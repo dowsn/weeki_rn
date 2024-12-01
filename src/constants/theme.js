@@ -19,12 +19,19 @@ const baseColors = {
     green: '#03C04A',
     red: '#F44336',
   },
+  messages: {
+    me: '#03C04A',
+    mr_week: '#F44336',
+  }
 };
 
 // Light mode colors
 export const lightColors = {
   dark: baseColors.marineBlue.main,
   light: baseColors.moleskin.light,
+
+  me: baseColors.messages.me,
+  mr_week: baseColors.messages.mr_week,
 
   green: baseColors.accent.green,
 

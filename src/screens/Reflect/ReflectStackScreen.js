@@ -20,14 +20,13 @@ function ReflectStackScreen() {
           backgroundColor: theme.colors.background,
           // Remove header border/shadow
           shadowColor: 'transparent',
-          elevation: 0,
+          // elevation: 0,
         },
         headerTintColor: theme.colors.onBackground,
         // Remove default back button completely
         headerBackVisible: false,
         // Remove back button title
         headerBackTitleVisible: false,
-
 
         headerTitle: '',
       }}
@@ -42,8 +41,10 @@ function ReflectStackScreen() {
       <DashboardStack.Screen
         name="TopicReflectionView"
         component={TopicReflectionView}
+        // options={{
+        //   headerShown: false,
+        // }}
       />
-
     </DashboardStack.Navigator>
   );
 }

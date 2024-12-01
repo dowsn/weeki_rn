@@ -2,14 +2,14 @@ import { useApiCall } from 'src/utils/hook';
 
 export const useNote = () => {
   const { apiCalls, isLoading, error } = useApiCall({
-    saveNote: { path: 'save_note', method: 'POST' },
-    suggestQuestion: { path: 'suggest_question', method: 'POST' },
+    // saveNote: { path: 'save_note', method: 'POST' },
+    chat: { path: 'chat', method: 'POST' },
   });
 
-  const saveNote = (userId, text) => apiCalls.saveNote({ userId, text });
+  // const saveNote = (userId, text) => apiCalls.saveNote({ userId, text });
 
-  const suggestQuestion = (userId, text) =>
-    apiCalls.suggestQuestion({ userId, text });
+  const chat = (userId, history, query, topics) =>
+    apiCalls.suggestQuestion({ userId, history, query, topics });
 
-  return { saveNote, suggestQuestion, isLoading, error };
+  return { chat, isLoading, error };
 };

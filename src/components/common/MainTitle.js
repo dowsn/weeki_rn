@@ -10,7 +10,7 @@ const MainTitle = ({ title }) => {
       fontSize: theme.fontSizes.large,
       fontWeight: 'bold',
       marginBottom: theme.spacing.large,
-      color: theme.colors.onBackground,
+      color: theme.colors.light,
       textAlign: 'center',
       marginTop: theme.spacing.large,
     },

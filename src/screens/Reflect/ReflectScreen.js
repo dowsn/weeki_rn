@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import ProfileHeader from 'src/components/common/ProfileHeader';
 import NormalButton from '../../components/buttons/NormalButton';
 import FlexSpacer from '../../components/common/FlexSpacer';
 import LoadingAnimation from '../../components/common/LoadingAnimation';
@@ -14,7 +15,7 @@ import { showAlert } from '../../utils/alert';
 const ReflectScreen = ({ navigation }) => {
   const { user, setUser, theme } = useUserContext();
   const [topics, setTopics] = useState([]);
-  const styles = createStyles(theme);
+  // const styles = createStyles(theme);
 
   const { getTopics, isLoading, error } = useTopics();
 
@@ -31,6 +32,7 @@ const ReflectScreen = ({ navigation }) => {
         } else {
           console.log(response.content);
           setTopics(response.content);
+          setUser({ ...user, topics: response.content });
         }
       } catch (error) {
         console.log('Error fetching topics', error.message || 'An unexpected error occurred');
@@ -40,15 +42,46 @@ const ReflectScreen = ({ navigation }) => {
     fetchTopics();
   }, []);
 
+  const handleChatButtonPress = () => {
+    if (user.topics.length === 0) {
+      showAlert('No topics created', 'Please create at least one topic to continue');
+      return;
+    }
+    navigation.navigate('Chat');
+  }
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    chatButton: {
+      position: 'absolute',
+      bottom: 20,
+      alignSelf: 'center',
+      padding: 40, // Increased padding to make the button much bigger
+      backgroundColor: theme.colors.green, // Added background color to make the button green
+      borderRadius: 90, // Increased border radius to maintain circular shape with bigger size
+    },
+  });
+
   return isLoading ? (
     <LoadingAnimation />
   ) : (
-    <CustomSafeView scrollable>
+    <CustomSafeView scrollable >
+
       {/* <MainTitle title="Let's reflect about" /> */}
       {/* <FlexSpacer /> */}
       <TopicGrid data={topics} navigation={navigation} />
+      <TouchableOpacity
+        style={styles.chatButton}
+        onPress={() => {handleChatButtonPress()}}
+      >
+
+      </TouchableOpacity>
     </CustomSafeView>
   );
 };
+
+
 
 export default ReflectScreen;

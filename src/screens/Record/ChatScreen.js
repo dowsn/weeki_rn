@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
+  Dimensions,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -17,22 +18,24 @@ import { www } from 'src/constants/constants';
 import { useNote } from 'src/hooks/useNote';
 import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
+import { prepareMessages } from 'src/utils/messages';
+import { prepareTopics } from 'src/utils/topics';
 
 const ChatScreen = () => {
   const { theme, user } = useUserContext();
+
+  console.log(user);
   const navigation = useNavigation();
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const { saveNote, suggestQuestion, isLoading } = useNote();
+  const { chat, isLoading } = useNote();
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
 
   const defaultUserPicture =
     www + 'media/images/others/default_profile_picture.png';
   const mrWeekPicture = www + 'media/images/others/mr_week_profile_picture.png';
-
-  console.log(defaultUserPicture);
 
   const tabIcons = {
     Done: require('assets/icons/Done.png'),
@@ -70,17 +73,26 @@ const ChatScreen = () => {
     scrollToBottom();
   }, [messages]);
 
+  const handleKeyPress = ({ nativeEvent }) => {
+    if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
+      handleSubmitEditing();
+      return true; // Prevents default enter behavior
+    }
+    return false; // Allows the enter key to create a new line
+  };
+
   const handleAddMessage = () => {
     if (text.trim()) {
       const isFollowUp =
         messages.length > 0 && messages[messages.length - 1].sender === 'user';
+
 
       const newMessage = {
         id: Date.now().toString(),
         text: text.trim(),
         sender: 'user',
         date_created: new Date().toISOString(),
-        profilePicture: user.profilePicture || defaultUserPicture,
+        profilePicture: user.profileImage || defaultUserPicture,
         followup: isFollowUp,
       };
 
@@ -99,11 +111,12 @@ const ChatScreen = () => {
     }
   };
 
-  const handleQuestion = async () => {
-    if (!text.trim()) return;
+  const handleQuery = async () => {
+    const { query, history } = prepareMessages(messages);
+    const topics = prepareTopics(user.topics);
 
     try {
-      const response = await suggestQuestion(user.userId, text);
+      const response = await chat(user.userId, query, history, topics);
       if (response.error) {
         showAlert('Error', response.message);
       } else {
@@ -153,10 +166,27 @@ const ChatScreen = () => {
     return keyboardHeight > 0 ? 20 : bottomHeight;
   };
 
+  const isIPhoneWithNotch = () => {
+    const dim = Dimensions.get('window');
+    return (
+      Platform.OS === 'ios' &&
+      !Platform.isPad &&
+      !Platform.isTVOS &&
+      (dim.height > 800 || dim.width > 800)
+    );
+  };
+
+  const getKeyboardOffset = () => {
+    if (Platform.OS === 'ios') {
+      return isIPhoneWithNotch() ? 88 : 60;
+    }
+    return 0;
+  };
+
   const styles = StyleSheet.create({
     wrapper: {
       flex: 1,
-      backgroundColor: theme.colors.dark,
+      backgroundColor: '#cfd4db', // Match keyboard color
     },
     container: {
       flex: 1,
@@ -168,91 +198,115 @@ const ChatScreen = () => {
     contentContainer: {
       flexGrow: 1,
       padding: theme.spacing.medium,
-      paddingBottom: getBottomPadding(), // Dynamic bottom padding
+      paddingBottom: getBottomPadding(),
+      paddingTop: 120,
     },
-    bottomContainer: {
+    floatingControls: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1,
+      paddingHorizontal: 20,
+      paddingTop: Platform.OS === 'ios' ? 70 : 20,
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      backgroundColor: 'transparent',
+    },
+    circleButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(10, 33, 64, 0.6)',
+    },
+    inputSection: {
       position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      backgroundColor: theme.colors.background,
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: -2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 5,
-    },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'flex-end', // Changed to flex-end to align with growing input
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      backgroundColor: theme.colors.background,
+      backgroundColor: '#cfd4db', // Match keyboard color
       borderTopWidth: 1,
       borderTopColor: 'rgba(0, 0, 0, 0.1)',
+      paddingBottom: Platform.OS === 'ios' ? 0 : 16, // Increased padding
+    },
+    inputContainer: {
+      paddingHorizontal: theme.spacing.medium,
+      paddingVertical: 8,
+      paddingBottom: 40,
     },
     input: {
-      flex: 1,
       backgroundColor: '#F0F0F0',
       borderRadius: theme.borderRadii.large,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      marginRight: 8,
-      fontSize: theme.fontSizes.medium,
-      maxHeight: 100, // This limits how tall the input can grow
-      minHeight: 40, // This ensures a minimum height
+      paddingHorizontal: theme.spacing.medium,
+      paddingVertical: 10, // Adjusted to center text
+      fontSize: 16,
+      maxHeight: 120,
+      minHeight: 40,
       color: '#000000',
-      width: '95%',
+      textAlignVertical: 'center', // Added to center the cursor/text
     },
-    tabBar: {
-      flexDirection: 'row',
-      backgroundColor: '#0A2140',
-      height: 60, // Slightly reduced fixed height
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    tabItem: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-    },
-    tabText: {
-      fontSize: theme.fontSizes.middle,
-      marginTop: theme.spacing.small,
-      color: '#FFFFFF',
+    mrWeekButton: {
+      position: 'absolute',
+      right: 16,
+      top: -48,
+      zIndex: 1,
     },
   });
+
 
   return (
     <KeyboardAvoidingView
       style={styles.wrapper}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+      // keyboardVerticalOffset={getKeyboardOffset() - 60}
     >
       <View style={styles.container}>
+        {/* Floating Done Button */}
+        <View style={styles.floatingControls}>
+          <Pressable
+            style={styles.circleButton}
+            onPress={() => navigation.navigate('Reflect')}
+          >
+            <Image
+              source={tabIcons.Done}
+              style={{ width: 56, height: 56, tintColor: 'white' }}
+            />
+          </Pressable>
+        </View>
+
+        {/* Messages ScrollView */}
         <ScrollView
           ref={scrollViewRef}
           style={styles.messagesContainer}
           contentContainerStyle={styles.contentContainer}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }
-          onLayout={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }
+          onContentSizeChange={scrollToBottom}
+          onLayout={scrollToBottom}
         >
           {messages.map((message) => (
             <Message key={message.id} {...message} />
           ))}
         </ScrollView>
 
-        <View style={[styles.bottomContainer, { bottom: keyboardHeight }]}>
+        {/* Input Section */}
+        <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
+            {/* Mr Week Button */}
+            <Pressable
+              style={styles.mrWeekButton}
+              onPress={handleQuery}
+              disabled={isLoading}
+            >
+              <Image
+                source={{ uri: mrWeekPicture }}
+                style={{ width: 38, height: 38, borderRadius: 18 }}
+              />
+            </Pressable>
+
             <TextInput
               ref={inputRef}
               style={styles.input}
@@ -260,29 +314,13 @@ const ChatScreen = () => {
               onChangeText={setText}
               placeholder="Type a message..."
               placeholderTextColor="#999"
-              multiline={false}
+              multiline={true}
+              onKeyPress={handleKeyPress}
               onSubmitEditing={handleSubmitEditing}
-              blurOnSubmit={false}
               returnKeyType="send"
+              blurOnSubmit={true}
             />
           </View>
-
-          {keyboardHeight === 0 && (
-            <View style={styles.tabBar}>
-              <TabItem
-                name="Done"
-                onPress={() => navigation.navigate('Reflect')}
-                disabled={isLoading}
-              />
-              <TabItem
-                special_title="Mr. Week"
-                name="MrWeek"
-                onPress={handleQuestion}
-                disabled={isLoading}
-                image={mrWeekPicture}
-              />
-            </View>
-          )}
         </View>
       </View>
     </KeyboardAvoidingView>

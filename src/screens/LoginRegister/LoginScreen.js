@@ -1,74 +1,48 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useContext, useRef, useState } from 'react';
-import {
-  Alert,
-  Linking,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useCallback } from 'react';
+import { Linking, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import NormalButton from 'src/components/buttons/NormalButton';
 import TextLink from 'src/components/buttons/TextLink';
-import FlexSpacer from 'src/components/common/FlexSpacer';
 import MainTitle from 'src/components/common/MainTitle';
 import CustomTextInput from 'src/components/forms/CustomTextInput';
 import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import SpacingView from 'src/components/layouts/SpacingView';
-import { www } from 'src/constants/constants';
-import { UserContext } from 'src/contexts/UserContext';
-import { useLogin } from 'src/hooks/useLogin'; // Import the new useLogin hook
-import { useUserContext } from 'src/hooks/useUserContext';
-import { createStyles } from 'src/styles';
+import { useLogin } from 'src/hooks/useLogin';
 import { showAlert } from 'src/utils/alert';
-import ForgotPasswordScreen from './ForgotPasswordScreen';
-import RegistrationScreen from './RegistrationScreen';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  title: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+
+});
 
 const LoginScreen = () => {
+  const navigation = useNavigation();
   const { login, isLoading } = useLogin();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
   const handleLogin = async () => {
     try {
       await login(username, password);
-      // Navigation will be handled by your auth state changes
     } catch (error) {
       showAlert('Login Error', error.message || 'An unexpected error occurred');
     }
   };
 
-  // Use separate state variables and memoized handlers
-  const handleUsernameChange = useCallback((text) => {
-    setUsername(text);
-  }, []);
-
-  const handlePasswordChange = useCallback((text) => {
-    setPassword(text);
-  }, []);
-
-  // const handleLogin = async () => {
-  //   try {
-  //     const response = await login(username, password);
-
-  //     if (response.error) {
-  //       showAlert('Login Error', response.message);
-  //     } else {
-  //       setUser(response.content);
-  //     }
-  //   } catch (error) {
-  //     showAlert('Login Error', error.message || 'An unexpected error occurred');
-  //   }
-  // };
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-    },
-  });
+  const handleUsernameChange = useCallback((text) => setUsername(text), []);
+  const handlePasswordChange = useCallback((text) => setPassword(text), []);
 
   return (
     <CustomSafeView scrollable keyboardShouldPersistTaps="handled">
@@ -77,15 +51,14 @@ const LoginScreen = () => {
       <SpacingView style={styles.container}>
         <CustomTextInput
           placeholder="Username"
-          onChangeText={setUsername}
+          onChangeText={handleUsernameChange}
           value={username}
-          secureTextEntry={false}
         />
         <CustomTextInput
           placeholder="Password"
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
           value={password}
-          secureTextEntry={true}
+          secureTextEntry
         />
         <NormalButton
           text={isLoading ? 'Logging in...' : 'Login'}
@@ -93,6 +66,7 @@ const LoginScreen = () => {
           disabled={isLoading}
         />
       </SpacingView>
+
       <TextLink
         text="Don't have an account? Sign Up"
         onPress={() => navigation.navigate('Register')}
@@ -104,14 +78,11 @@ const LoginScreen = () => {
       <TextLink
         text="Visit our website"
         onPress={() =>
-          Linking.openURL('https://www.example.com').catch((err) =>
-            console.error('An error occurred', err),
-          )
+          Linking.openURL('https://www.example.com').catch(console.error)
         }
       />
     </CustomSafeView>
   );
 };
-
 
 export default LoginScreen;

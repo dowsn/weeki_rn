@@ -27,7 +27,7 @@ const Message = ({ id, sender, date_created, text, profilePicture, followup = fa
       width: '100%',
       padding: theme.spacing.medium,
       borderRadius: theme.borderRadii.large,
-      backgroundColor: '#7ED321', // Green color from your example
+      backgroundColor: sender === 'assistant' ? theme.colors.mr_week : theme.colors.me,
     },
     messageText: {
       color: 'black',

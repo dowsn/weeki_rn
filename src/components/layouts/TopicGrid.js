@@ -2,6 +2,7 @@ import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
 import TopicBox from '../textboxes/TopicBox';
+import TopicEmpty from '../textboxes/TopicEmpty';
 
 const TopicGrid = ({ data, navigation }) => {
 
@@ -27,18 +28,28 @@ const TopicGrid = ({ data, navigation }) => {
     },
   });
 
+  // Fill up with EmptyTopic components if less than 4 topics
+  const filledData = [...data];
+  while (filledData.length < 4) {
+    filledData.push({ id: `empty-${filledData.length}`, isEmpty: true });
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.gridContainer}>
-        {data.map((topic) => (
+        {filledData.map((topic) => (
           <View key={topic.id} style={styles.boxWrapper}>
-            <TopicBox
-              id={topic.id}
-              title={topic.name}
-              image={topic.image}
-              navigation={navigation}
-              size={boxSize}
-            />
+            {topic.isEmpty ? (
+              <TopicEmpty size={boxSize} navigation={navigation} />
+            ) : (
+              <TopicBox
+                id={topic.id}
+                title={topic.name}
+                image={topic.image}
+                navigation={navigation}
+                size={boxSize}
+              />
+            )}
           </View>
         ))}
       </View>

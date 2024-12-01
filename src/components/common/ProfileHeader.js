@@ -8,14 +8,13 @@ import EditProfileView from 'src/screens/Reflect/EditProfileView';
 
 const ProfileHeader = ({ navigation }) => {
   const { user, theme } = useUserContext();
-  console.log('user', user.profileImage);
 
   const styles = StyleSheet.create({
     container: {
       backgroundColor: theme.colors.dark,
     },
     header: {
-      padding: theme.spacing.small,
+      // padding: theme.spacing.small,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',

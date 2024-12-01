@@ -9,7 +9,7 @@ const TextLink = ({ text, onPress }) => {
   const styles = StyleSheet.create({
     textLink: {
       fontSize: theme.fontSizes.medium,
-      color: theme.colors.primary,
+      color: theme.colors.light,
       textDecorationLine: 'underline',
       fontWeight: 'bold',
     },

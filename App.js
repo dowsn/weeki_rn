@@ -2,74 +2,95 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
+import { View } from 'react-native';
+import ProfileHeader from 'src/components/common/ProfileHeader';
 import WeekiLoading from 'src/components/common/WeekiLoading';
 import { UserProvider } from 'src/contexts/UserContext';
 import { useUserContext } from 'src/hooks/useUserContext';
-import Tabs from 'src/navigation/Tabs';
+import ChatScreen from 'src/screens/Record/ChatScreen';
 import EditProfileView from 'src/screens/Reflect/EditProfileView';
+import ReflectScreen from 'src/screens/Reflect/ReflectScreen';
+import ReflectStackScreen from 'src/screens/Reflect/ReflectStackScreen';
 import AuthStack from 'src/stacks/AuthStack';
 
 const Stack = createStackNavigator();
+const RootStack = createStackNavigator();
 
-// Create a wrapper component for protected routes
-const ProtectedRoute = ({ children }) => {
+const RootNavigator = () => {
   const { user, loading } = useUserContext();
 
-  if (loading) {
-    return <WeekiLoading />;
-  }
+  if (loading) return <WeekiLoading />;
 
-  return user.tokens?.access ? children : <AuthStack />;
-};
-
-// Create separate screen components with navigation props
-const ProtectedTabs = ({ navigation }) => (
-  <ProtectedRoute>
-    <Tabs navigation={navigation} />
-  </ProtectedRoute>
-);
-
-const ProtectedEditProfile = ({ navigation, route }) => (
-  <ProtectedRoute>
-    <EditProfileView navigation={navigation} route={route} />
-  </ProtectedRoute>
-);
-
-const MainStack = () => {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="MainTabs"
-        component={ProtectedTabs}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="EditProfileView"
-        component={ProtectedEditProfile}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
+    <RootStack.Navigator>
+      {!user.tokens?.access ? (
+        <RootStack.Screen
+          name="Auth"
+          component={AuthStack}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <RootStack.Screen
+          name="Main"
+          component={MainStack}
+          options={{ headerShown: false }}
+        />
+      )}
+    </RootStack.Navigator>
   );
 };
 
-const MainNavigator = () => {
-  const { user, loading } = useUserContext();
+const App = () => (
+  <UserProvider>
+    <NavigationContainer>
+      <RootNavigator />
+    </NavigationContainer>
+  </UserProvider>
+);
 
-  if (loading) {
-    return <WeekiLoading />;
-  }
-
-  return user.userId !== 0 ? <MainStack /> : <AuthStack />;
-};
-
-const App = () => {
+const HeaderWrapper = ({ children, navigation }) => {
+  const { theme } = useUserContext();
   return (
-    <UserProvider>
-      <NavigationContainer>
-        <MainNavigator />
-      </NavigationContainer>
-    </UserProvider>
+    <View style={{ flex: 1, backgroundColor: theme.colors.dark }}>
+      <ProfileHeader navigation={navigation} />
+      {children}
+    </View>
   );
 };
+
+const ProtectedRouteWithHeader = ({ children, navigation }) => {
+  const { user, loading } = useUserContext();
+
+  if (loading) return <WeekiLoading />;
+  if (!user.tokens?.access) return <AuthStack />;
+
+  return <HeaderWrapper navigation={navigation}>{children}</HeaderWrapper>;
+};
+
+const MainStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen name="Reflect" options={{ headerShown: false }}>
+      {(props) => (
+        <ProtectedRouteWithHeader {...props}>
+          <ReflectStackScreen {...props} />
+        </ProtectedRouteWithHeader>
+      )}
+    </Stack.Screen>
+    <Stack.Screen
+      name="Chat"
+      component={ChatScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen name="EditProfileView" options={{ headerShown: false }}>
+      {(props) => (
+        // <ProtectedRouteWithHeader {...props}>
+          <EditProfileView {...props} />
+        // </ProtectedRouteWithHeader>
+      )}
+    </Stack.Screen>
+  </Stack.Navigator>
+);
+
+
 
 export default App;
