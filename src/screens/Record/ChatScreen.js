@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import Message from 'src/components/textboxes/Message';
 import { www } from 'src/constants/constants';
+import { useAgentChat } from 'src/hooks/useChatAgent';
 import { useNote } from 'src/hooks/useNote';
 import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
@@ -32,6 +33,21 @@ const ChatScreen = () => {
   const { chat, isLoading } = useNote();
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
+
+
+  const { sendMessage } = useAgentChat((streamedText) => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const lastMessage = updated[updated.length - 1];
+      if (lastMessage?.sender === 'assistant') {
+        updated[updated.length - 1] = {
+          ...lastMessage,
+          text: lastMessage.text + streamedText,
+        };
+      }
+      return updated;
+    });
+  });
 
   const defaultUserPicture =
     www + 'media/images/others/default_profile_picture.png';
@@ -111,33 +127,50 @@ const ChatScreen = () => {
     }
   };
 
-  const handleQuery = async () => {
-    const { query, history } = prepareMessages(messages);
-    const topics = prepareTopics(user.topics);
+  const handleQuery = () => {
+  if (text.trim()) {
+    setMessages(prev => [...prev, {
+      id: (Date.now() + 1).toString(),
+      text: '',
+      sender: 'assistant',
+      date_created: new Date().toISOString(),
+      profilePicture: mrWeekPicture
+    }]);
+    sendMessage(text);
+  }
+};
 
-    try {
-      const response = await chat(user.userId, query, history, topics);
-      if (response.error) {
-        showAlert('Error', response.message);
-      } else {
-        handleAddMessage();
-        const mrWeekMessage = {
-          id: (Date.now() + 1).toString(),
-          text: response.message,
-          sender: 'assistant',
-          date_created: new Date().toISOString(),
-          profilePicture: mrWeekPicture,
-        };
-        setMessages((prevMessages) => [...prevMessages, mrWeekMessage]);
 
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-      }
-    } catch (error) {
-      showAlert('Error', error.message || 'An unexpected error occurred');
-    }
-  };
+
+// Claude can make mistakes. Please double-check responses.
+
+  // const handleQuery = async () => {
+  //   const { query, history } = prepareMessages(messages);
+  //   const topics = prepareTopics(user.topics);
+
+  //   try {
+  //     const response = await chat(user.userId, query, history, topics);
+  //     if (response.error) {
+  //       showAlert('Error', response.message);
+  //     } else {
+  //       handleAddMessage();
+  //       const mrWeekMessage = {
+  //         id: (Date.now() + 1).toString(),
+  //         text: response.message,
+  //         sender: 'assistant',
+  //         date_created: new Date().toISOString(),
+  //         profilePicture: mrWeekPicture,
+  //       };
+  //       setMessages((prevMessages) => [...prevMessages, mrWeekMessage]);
+
+  //       setTimeout(() => {
+  //         scrollViewRef.current?.scrollToEnd({ animated: true });
+  //       }, 100);
+  //     }
+  //   } catch (error) {
+  //     showAlert('Error', error.message || 'An unexpected error occurred');
+  //   }
+  // };
 
   const TabItem = ({
     special_title,
