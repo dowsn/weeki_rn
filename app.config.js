@@ -1,4 +1,7 @@
 export default {
+    android: {
+    package: "ai.weeki"
+  },
   name: 'weeki',
   // ... other existing configs
   extra: {
