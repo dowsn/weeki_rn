@@ -1,38 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import ProfileHeader from 'src/components/common/ProfileHeader';
+import CustomText from 'src/components/textboxes/CustomText';
+import ChatButton from '../../components/buttons/ChatButton';
 import NormalButton from '../../components/buttons/NormalButton';
 import FlexSpacer from '../../components/common/FlexSpacer';
 import LoadingAnimation from '../../components/common/LoadingAnimation';
 import MainTitle from '../../components/common/MainTitle';
 import CustomSafeView from '../../components/layouts/CustomSafeArea';
 import TopicGrid from '../../components/layouts/TopicGrid';
-import { useTopics } from '../../hooks/useTopics';
+import { useTopicsAndChatSession } from '../../hooks/useTopicsAndChatSession';
 import { useUserContext } from '../../hooks/useUserContext';
-import { createStyles } from '../../styles';
 import { showAlert } from '../../utils/alert';
 
 const ReflectScreen = ({ navigation }) => {
   const { user, setUser, theme } = useUserContext();
   const [topics, setTopics] = useState([]);
+  const [ chatSession, setChatSession ] = useState(null);
   // const styles = createStyles(theme);
 
-  const { getTopics, isLoading, error } = useTopics();
+  const { getTopicsAndChatSession, isLoading, error } = useTopicsAndChatSession();
 
   useEffect(() => {
     console.log(user);
   }, []);
+  //
 
   useEffect(() => {
     const fetchTopics = async () => {
       try {
-        const response = await getTopics(user.userId);
+        const response = await getTopicsAndChatSession(user.userId);
         if (response.error) {
           showAlert('Error:', response.message);
         } else {
           console.log(response.content);
-          setTopics(response.content);
-          setUser({ ...user, topics: response.content });
+          let receivedTopics = response.content.topics;
+          setTopics(receivedTopics);
+          setChatSession(response.content.chat_session);
+          setUser({ ...user, topics: receivedTopics });
+          // c
         }
       } catch (error) {
         console.log('Error fetching topics', error.message || 'An unexpected error occurred');
@@ -42,46 +48,19 @@ const ReflectScreen = ({ navigation }) => {
     fetchTopics();
   }, []);
 
-  const handleChatButtonPress = () => {
-    if (user.topics.length === 0) {
-      showAlert('No topics created', 'Please create at least one topic to continue');
-      return;
-    }
-    navigation.navigate('Chat');
-  }
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    chatButton: {
-      position: 'absolute',
-      bottom: 20,
-      alignSelf: 'center',
-      padding: 40, // Increased padding to make the button much bigger
-      backgroundColor: theme.colors.green, // Added background color to make the button green
-      borderRadius: 90, // Increased border radius to maintain circular shape with bigger size
-    },
-  });
-
   return isLoading ? (
     <LoadingAnimation />
   ) : (
-    <CustomSafeView scrollable >
+    <CustomSafeView scrollable>
+      <CustomText>about{'\n'}personal topics</CustomText>
 
-      {/* <MainTitle title="Let's reflect about" /> */}
-      {/* <FlexSpacer /> */}
       <TopicGrid data={topics} navigation={navigation} />
-      <TouchableOpacity
-        style={styles.chatButton}
-        onPress={() => {handleChatButtonPress()}}
-      >
-
-      </TouchableOpacity>
+      <ChatButton chatSession={chatSession} navigation={navigation} />
+      <CustomText user={false}>
+        in{'\n'}focused session{'\n'}starting
+      </CustomText>
     </CustomSafeView>
   );
 };
-
-
 
 export default ReflectScreen;

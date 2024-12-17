@@ -1,41 +1,29 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { www } from 'src/constants/constants';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
 
-const TopicBox = ({ id, title, image, size, navigation }) => {
+const TopicBox = ({ id, title, width, height, navigation }) => {
   const { theme } = useUserContext();
-
-  const imagePath = image ? www + image : null;
-
-  console.log(imagePath);
 
   const styles = StyleSheet.create({
     container: {
-      width: size,
-      height: size,
+      width: width,
+      height: height,
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: theme.borderRadii.large,
+      borderRadius: theme.borderRadii.large * 3,
       overflow: 'hidden',
       position: 'relative',
-    },
-    image: {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      resizeMode: 'cover',
+      borderWidth: 1,
+      borderColor: theme.colors.yellow_light,
     },
     textContainer: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: theme.colors.violet_darkest,
       padding: theme.spacing.small,
+      width: '100%',
     },
     text: {
-      color: theme.colors.light,
+      color: theme.colors.yellow_light,
       textAlign: 'center',
       fontSize: theme.fontSizes.medium,
     },
@@ -48,7 +36,6 @@ const TopicBox = ({ id, title, image, size, navigation }) => {
         navigation.navigate('TopicReflectionView', { topicId: id })
       }
     >
-      <Image source={{ uri: imagePath }} style={styles.image} />
       <View style={styles.textContainer}>
         <Text style={styles.text} numberOfLines={2}>
           {title}

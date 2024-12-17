@@ -25,7 +25,7 @@ const CustomSafeView = ({
       StyleSheet.create({
         container: {
           flex: 1,
-          backgroundColor: theme.colors.dark,
+          backgroundColor: theme.colors.violet_darkest,
         },
         scrollView: {
           flexGrow: 1,

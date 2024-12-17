@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Dimensions,
   Image,
@@ -25,7 +25,6 @@ import { prepareTopics } from 'src/utils/topics';
 const ChatScreen = () => {
   const { theme, user } = useUserContext();
 
-  console.log(user);
   const navigation = useNavigation();
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
@@ -34,20 +33,102 @@ const ChatScreen = () => {
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
 
-
-  const { sendMessage } = useAgentChat((streamedText) => {
+  const handleStreamedResponse = useCallback((token) => {
     setMessages((prev) => {
       const updated = [...prev];
       const lastMessage = updated[updated.length - 1];
       if (lastMessage?.sender === 'assistant') {
         updated[updated.length - 1] = {
           ...lastMessage,
-          text: lastMessage.text + streamedText,
+          text: lastMessage.text + token,
         };
+      } else {
+        updated.push({
+          sender: 'assistant',
+          text: token,
+          profilePicture: www + 'media/images/others/mr_week_profile_picture.png',
+          showAvatar: true, // Always show Mr. Week's avatar for first message
+          isFollowUp: false
+        });
       }
       return updated;
     });
-  });
+  }, []);
+
+  const { sendMessage, isConnected } = useAgentChat(handleStreamedResponse);
+
+  const handleSend = useCallback(() => {
+    if (!text.trim() || !isConnected) return;
+
+    handleAddMessage();
+  }, [text, isConnected]);
+
+  const handleKeyPress = ({ nativeEvent }) => {
+    if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
+      handleSubmitEditing();
+      return true; // Prevents default enter behavior
+    }
+    return false; // Allows the enter key to create a new line
+  };
+
+  const handleAddMessage = () => {
+    if (text.trim()) {
+      const isFollowUp =
+        messages.length > 0 && messages[messages.length - 1].sender === 'user';
+
+      const newMessage = {
+        id: Date.now().toString(),
+        text: text.trim(),
+        sender: 'user',
+        date_created: new Date().toISOString(),
+        profilePicture: user?.profileImage || www + 'media/images/others/default_profile_picture.png',
+        followup: isFollowUp
+      };
+
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setText('');
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  };
+
+  const handleSubmitEditing = () => {
+    if (text.trim()) {
+      handleAddMessage();
+    }
+  };
+
+  const handleMrWeekResponse = () => {
+    if (messages[messages.length - 1]?.sender === 'assistant') {
+      return;
+    }
+
+    // Get consecutive user messages from bottom until we hit an assistant message
+    const userMessages = [];
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const message = messages[i];
+      if (message.sender === 'assistant') {
+        break;
+      }
+      if (message.sender === 'user') {
+        userMessages.unshift(message.text);
+      }
+    }
+
+    const query = userMessages.join('\n');
+
+    if (query.trim() && isConnected) {
+      sendMessage(query);
+    } else if (!isConnected) {
+      showAlert('Error', 'Not connected to chat service');
+    }
+  };
+
+  useEffect(() => {
+    console.log('useAgentChat connection status:', isConnected);
+  }, [isConnected]);
 
   const defaultUserPicture =
     www + 'media/images/others/default_profile_picture.png';
@@ -88,108 +169,6 @@ const ChatScreen = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const handleKeyPress = ({ nativeEvent }) => {
-    if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
-      handleSubmitEditing();
-      return true; // Prevents default enter behavior
-    }
-    return false; // Allows the enter key to create a new line
-  };
-
-  const handleAddMessage = () => {
-    if (text.trim()) {
-      const isFollowUp =
-        messages.length > 0 && messages[messages.length - 1].sender === 'user';
-
-
-      const newMessage = {
-        id: Date.now().toString(),
-        text: text.trim(),
-        sender: 'user',
-        date_created: new Date().toISOString(),
-        profilePicture: user.profileImage || defaultUserPicture,
-        followup: isFollowUp,
-      };
-
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setText('');
-
-      // Scroll to bottom immediately and after a short delay to ensure content is rendered
-      scrollToBottom();
-      setTimeout(scrollToBottom, 100);
-    }
-  };
-
-  const handleSubmitEditing = () => {
-    if (text.trim()) {
-      handleAddMessage();
-    }
-  };
-
-  const handleQuery = () => {
-  if (text.trim()) {
-    setMessages(prev => [...prev, {
-      id: (Date.now() + 1).toString(),
-      text: '',
-      sender: 'assistant',
-      date_created: new Date().toISOString(),
-      profilePicture: mrWeekPicture
-    }]);
-    sendMessage(text);
-  }
-};
-
-
-
-// Claude can make mistakes. Please double-check responses.
-
-  // const handleQuery = async () => {
-  //   const { query, history } = prepareMessages(messages);
-  //   const topics = prepareTopics(user.topics);
-
-  //   try {
-  //     const response = await chat(user.userId, query, history, topics);
-  //     if (response.error) {
-  //       showAlert('Error', response.message);
-  //     } else {
-  //       handleAddMessage();
-  //       const mrWeekMessage = {
-  //         id: (Date.now() + 1).toString(),
-  //         text: response.message,
-  //         sender: 'assistant',
-  //         date_created: new Date().toISOString(),
-  //         profilePicture: mrWeekPicture,
-  //       };
-  //       setMessages((prevMessages) => [...prevMessages, mrWeekMessage]);
-
-  //       setTimeout(() => {
-  //         scrollViewRef.current?.scrollToEnd({ animated: true });
-  //       }, 100);
-  //     }
-  //   } catch (error) {
-  //     showAlert('Error', error.message || 'An unexpected error occurred');
-  //   }
-  // };
-
-  const TabItem = ({
-    special_title,
-    name,
-    onPress,
-    isLoading,
-    image = false,
-  }) => (
-    <Pressable style={styles.tabItem} onPress={onPress} disabled={isLoading}>
-      <Image
-        source={image ? { uri: image } : tabIcons[name]}
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 24,
-        }}
-      />
-    </Pressable>
-  );
 
   const getBottomPadding = () => {
     const TAB_BAR_HEIGHT = 60;
@@ -288,7 +267,6 @@ const ChatScreen = () => {
     },
   });
 
-
   return (
     <KeyboardAvoidingView
       style={styles.wrapper}
@@ -331,7 +309,7 @@ const ChatScreen = () => {
             {/* Mr Week Button */}
             <Pressable
               style={styles.mrWeekButton}
-              onPress={handleQuery}
+              onPress={handleMrWeekResponse}
               disabled={isLoading}
             >
               <Image

@@ -1,15 +1,15 @@
 const baseColors = {
   marineBlue: {
-    main: '#001F3F',
-    light: '#00172D',
-    dark: '#000F1F',
-    darkest: '#000A14',
+    main: '#0C0313',
+    light: '#E6D6FF', // logo tez
+    dark: '#9932CC', // konverzace ready
+    // darkest: '#000A14',
   },
   moleskin: {
-    main: '#F5F5F0',
-    light: '#E8E8E0',
-    lighter: '#F0F0E8',
-    lightest: '#FAFAF5',
+    main: '#FFFFDF',
+    light: '#FFFFD6',
+    dark: '#FFFFB7',
+    // lightest: '#FAFAF5',
   },
   gray: {
     light: '#D0D0C8',
@@ -22,54 +22,68 @@ const baseColors = {
   messages: {
     me: '#03C04A',
     mr_week: '#F44336',
-  }
+  },
 };
 
 // Light mode colors
 export const lightColors = {
-  dark: baseColors.marineBlue.main,
-  light: baseColors.moleskin.light,
+  violet_darkest: baseColors.marineBlue.main,
+  violet_light: baseColors.marineBlue.light,
+  violet_darker: baseColors.marineBlue.dark,
+  yellow_light: baseColors.moleskin.main,
+  yellow_darker: baseColors.moleskin.light,
+  yellow_darkest: baseColors.moleskin.dark,
 
-  me: baseColors.messages.me,
-  mr_week: baseColors.messages.mr_week,
+  // me: baseColors.messages.me,
+  // mr_week: baseColors.messages.mr_week,
 
   green: baseColors.accent.green,
+  red: baseColors.accent.red,
 
-  background: baseColors.moleskin.main,
+  // background: baseColors.moleskin.main,
 
-  surface: baseColors.moleskin.light,
-  surfaceVariant: baseColors.moleskin.lighter,
 
-  onBackground: baseColors.marineBlue.main,
+  // surface: baseColors.moleskin.light,
+  // surfaceVariant: baseColors.moleskin.lighter,
 
-  onSurface: baseColors.marineBlue.light,
-  onSurfaceVariant: baseColors.marineBlue.dark,
+  // onBackground: baseColors.marineBlue.main,
 
-  primary: baseColors.marineBlue.main,
-  secondary: baseColors.marineBlue.light,
-  tertiary: baseColors.marineBlue.dark,
+  // onSurface: baseColors.marineBlue.light,
+  // onSurfaceVariant: baseColors.marineBlue.dark,
 
-  gray: baseColors.gray.light,
+  // primary: baseColors.marineBlue.main,
+  // secondary: baseColors.marineBlue.light,
+  // tertiary: baseColors.marineBlue.dark,
+
+  gray: baseColors.gray.dark,
   ...baseColors.accent,
 };
 
 // Dark mode colors
 export const darkColors = {
   dark: baseColors.marineBlue.main,
+  violet_light: baseColors.marineBlue.light,
+  violet_dark: baseColors.marineBlue.dark,
   light: baseColors.moleskin.light,
+  yellow_light: baseColors.moleskin.light,
+  yellow_dark: baseColors.moleskin.dark,
 
-  background: baseColors.marineBlue.main,
-  surface: baseColors.marineBlue.light,
+  green: baseColors.accent.green,
+  red: baseColors.accent.red,
 
-  surfaceVariant: baseColors.marineBlue.dark,
-  onBackground: baseColors.moleskin.main,
-  onSurface: baseColors.moleskin.light,
-  onSurfaceVariant: baseColors.moleskin.lighter,
-  primary: baseColors.moleskin.main,
-  secondary: baseColors.moleskin.light,
-  tertiary: baseColors.moleskin.lighter,
   gray: baseColors.gray.dark,
   ...baseColors.accent,
+
+  // background: baseColors.marineBlue.main,
+  // surface: baseColors.marineBlue.light,
+
+  // surfaceVariant: baseColors.marineBlue.dark,
+  // onBackground: baseColors.moleskin.main,
+  // onSurface: baseColors.moleskin.light,
+  // onSurfaceVariant: baseColors.moleskin.lighter,
+  // primary: baseColors.moleskin.main,
+  // secondary: baseColors.moleskin.light,
+  // tertiary: baseColors.moleskin.lighter,
 };
 
 export const spacing = {
@@ -79,7 +93,7 @@ export const spacing = {
 };
 
 export const fontSizes = {
-  small: 12,
+  small: 14,
   medium: 16,
   large: 20,
 };

@@ -23,15 +23,15 @@ const NormalButton = ({ text, onPress, inverted = false }) => {
       paddingVertical: theme.spacing.medium,
       width: '100%',
       paddingHorizontal: 0,
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadii.large,
+      backgroundColor: theme.colors.violet_darkest,
+      borderRadius: theme.borderRadii.large * 2,
       marginVertical: theme.spacing.small,
       borderWidth: 1,
-      borderColor: theme.colors.background,
+      borderColor: theme.colors.yellow_light,
     },
     buttonText: {
-      fontSize: theme.fontSizes.large,
-      color: theme.colors.onSurface,
+      fontSize: theme.fontSizes.medium,
+      color: theme.colors.yellow_light,
       fontWeight: 'bold',
       textAlign: 'center',
     },
@@ -39,12 +39,12 @@ const NormalButton = ({ text, onPress, inverted = false }) => {
 
   const animatedBackgroundColor = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [theme.colors.surface, theme.colors.onSurface],
+    outputRange: [theme.colors.violet_darkest, theme.colors.yellow_light],
   });
 
   const animatedTextColor = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [theme.colors.onSurface, theme.colors.surface],
+    outputRange: [theme.colors.yellow_light, theme.colors.violet_darkest],
   });
 
   const handlePressIn = useCallback(() => {

@@ -7,7 +7,7 @@ const LoadingAnimation = () => {
   const { theme } = useUserContext();
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="medium" color={theme.colors.onBackground} />
+      <ActivityIndicator size="medium" color={theme.colors.violet_dark} />
     </View>
   );
 };

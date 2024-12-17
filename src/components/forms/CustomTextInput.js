@@ -9,10 +9,10 @@ const CustomTextInput = ({ placeholder, ...props }) => {
 
   const customStyles = StyleSheet.create({
     container: {
-      borderColor: theme.colors.onSurfaceVariant,
+      borderColor: theme.colors.yellow_light,
       borderWidth: 1,
-      borderRadius: theme.borderRadii.large,
-      backgroundColor: theme.colors.surface,
+      borderRadius: theme.borderRadii.large * 2,
+      backgroundColor: theme.colors.yellow_light,
       justifyContent: 'center',
     },
     textInput: {
@@ -28,7 +28,7 @@ const CustomTextInput = ({ placeholder, ...props }) => {
       <TextInput
         style={customStyles.textInput}
         autoCapitalize="none"
-        placeholderTextColor={theme.colors.onSurfaceVariant}
+        placeholderTextColor={theme.colors.gray}
         placeholder={placeholder}
         {...props}
       />

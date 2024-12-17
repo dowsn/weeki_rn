@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback } from 'react';
-import { Linking, StyleSheet } from 'react-native';
+import { Image, Linking, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import NormalButton from 'src/components/buttons/NormalButton';
 import TextLink from 'src/components/buttons/TextLink';
@@ -9,29 +9,44 @@ import CustomTextInput from 'src/components/forms/CustomTextInput';
 import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import SpacingView from 'src/components/layouts/SpacingView';
 import { useLogin } from 'src/hooks/useLogin';
+import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  title: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 40,
-  },
-
-});
-
 const LoginScreen = () => {
+  const {theme} = useUserContext();
   const navigation = useNavigation();
   const { login, isLoading } = useLogin();
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      paddingHorizontal: 20,
+    },
+    logoContainer: {
+      alignItems: 'center',
+      marginTop: 20, // Increased marginTop to move the logo down
+    },
+    mainLogo: {
+      width: 120,
+      height: 120,
+      alignSelf: 'center',
+      // backgroundColor: 'red',
+    },
+    contentWrapper: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    contentContainer: {
+      paddingHorizontal: 20,
+    },
+    footerPart: {
+      height: 140,
+      // paddingTop: 0,
+    },
+  });
 
   const handleLogin = async () => {
     try {
@@ -46,9 +61,13 @@ const LoginScreen = () => {
 
   return (
     <CustomSafeView scrollable keyboardShouldPersistTaps="handled">
-      <MainTitle title="Welcome to weeki" />
-
-      <SpacingView style={styles.container}>
+      <View style={styles.logoContainer}>
+      <Image
+        source={require('assets/icons/Logo_Violet.png')}
+        style={styles.mainLogo}
+        />
+      </View>
+      <SpacingView style={styles.contentWrapper}>
         <CustomTextInput
           placeholder="Username"
           onChangeText={handleUsernameChange}
@@ -66,21 +85,16 @@ const LoginScreen = () => {
           disabled={isLoading}
         />
       </SpacingView>
-
-      <TextLink
-        text="Don't have an account? Sign Up"
-        onPress={() => navigation.navigate('Register')}
-      />
-      <TextLink
-        text="Forgot Password?"
-        onPress={() => navigation.navigate('ForgotPassword')}
-      />
-      <TextLink
-        text="Visit our website"
-        onPress={() =>
-          Linking.openURL('https://www.example.com').catch(console.error)
-        }
-      />
+      <SpacingView spacing="large" style={styles.footerPart}>
+        <TextLink
+          text="Sign Up"
+          onPress={() => navigation.navigate('Register')}
+        />
+        <TextLink
+          text="Forgot Password"
+          onPress={() => navigation.navigate('ForgotPassword')}
+        />
+      </SpacingView>
     </CustomSafeView>
   );
 };

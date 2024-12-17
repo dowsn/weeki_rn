@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useUserContext } from 'src/hooks/useUserContext';
 import EditProfileView from 'src/screens/Reflect/EditProfileView';
+import NormalButton from '../buttons/NormalButton';
 
 const ProfileHeader = ({ navigation }) => {
   const { user, theme } = useUserContext();
@@ -14,10 +15,13 @@ const ProfileHeader = ({ navigation }) => {
       backgroundColor: theme.colors.dark,
     },
     header: {
-      // padding: theme.spacing.small,
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      gap: theme.spacing.small, // Add gap between buttons
+      padding: theme.spacing.small,
+    },
+    buttonWrapper: {
+      flex: 1, // This makes each button wrapper take equal space
     },
     profileButton: {
       flexDirection: 'row',
@@ -38,33 +42,27 @@ const ProfileHeader = ({ navigation }) => {
       height: 36,
       borderRadius: 18,
     },
-
     imageIcon: {
       width: 46,
       height: 46,
-    }
+    },
   });
 
   return (
     <SafeAreaView edges={['right', 'top', 'left']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('EditProfileView')}
-          style={styles.profileButton}
-        >
-          <Image source={{ uri: user.profileImage }} style={styles.image} />
-          {/* <Text style={styles.username}>{user.username}</Text> */}
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('EditProfileView')}
-          style={styles.profileButton}
-        >
-          <Image
-            source={require('assets/icons/Review.png')}
-            style={styles.imageIcon}
+        <View style={styles.buttonWrapper}>
+          <NormalButton
+            text="You"
+            onPress={() => navigation.navigate('EditProfileView')}
           />
-          {/* <Text style={styles.username}>{user.username}</Text> */}
-        </TouchableOpacity>
+        </View>
+        <View style={styles.buttonWrapper}>
+          <NormalButton
+            text="Reflect"
+            onPress={() => navigation.navigate('EditProfileView')}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );

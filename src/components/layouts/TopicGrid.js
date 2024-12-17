@@ -5,12 +5,12 @@ import TopicBox from '../textboxes/TopicBox';
 import TopicEmpty from '../textboxes/TopicEmpty';
 
 const TopicGrid = ({ data, navigation }) => {
-
   const { theme } = useUserContext();
 
   const screenWidth = Dimensions.get('window').width;
   const gap = theme.spacing.small; // Gap between boxes
-  const boxSize = (screenWidth - (theme.spacing.small * 2)  - gap) / 2; // Calculate size accounting for padding and gap
+  const boxWidth = (screenWidth - theme.spacing.small * 2 - gap) / 2; // Calculate width
+  const boxHeight = boxWidth * 0.5; // Make height 50% of width - adjust this ratio as needed
 
   const styles = StyleSheet.create({
     container: {
@@ -22,17 +22,13 @@ const TopicGrid = ({ data, navigation }) => {
       justifyContent: 'space-between',
     },
     boxWrapper: {
-      width: boxSize,
-      height: boxSize,
+      width: boxWidth,
+      height: boxHeight,
       marginBottom: gap,
     },
   });
 
-  // Fill up with EmptyTopic components if less than 4 topics
   const filledData = [...data];
-  while (filledData.length < 4) {
-    filledData.push({ id: `empty-${filledData.length}`, isEmpty: true });
-  }
 
   return (
     <View style={styles.container}>
@@ -40,14 +36,19 @@ const TopicGrid = ({ data, navigation }) => {
         {filledData.map((topic) => (
           <View key={topic.id} style={styles.boxWrapper}>
             {topic.isEmpty ? (
-              <TopicEmpty size={boxSize} navigation={navigation} />
+              <TopicEmpty
+                width={boxWidth}
+                height={boxHeight}
+                navigation={navigation}
+              />
             ) : (
               <TopicBox
                 id={topic.id}
                 title={topic.name}
                 image={topic.image}
                 navigation={navigation}
-                size={boxSize}
+                width={boxWidth}
+                height={boxHeight}
               />
             )}
           </View>
