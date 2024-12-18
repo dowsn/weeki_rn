@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "assets": ["./assets/icons/Logo_Violet.png"],
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -17,17 +18,33 @@
       }
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "orientations": {
+        "portrait": true,
+        "portraitUpsideDown": true,
+        "landscape": false,
+        "landscapeLeft": false,
+        "landscapeRight": false
+      }
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "screenOrientation": "portrait"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "newArchEnabled": true
+        }
+      ]
+    ]
   }
 }

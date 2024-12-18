@@ -4,8 +4,6 @@ import { useUserContext } from 'src/hooks/useUserContext';
 
 const LoadingAnimation = () => {
 
-
-
   const { theme } = useUserContext();
 
   const styles = StyleSheet.create({

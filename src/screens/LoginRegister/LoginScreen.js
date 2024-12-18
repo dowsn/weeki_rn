@@ -33,7 +33,6 @@ const LoginScreen = () => {
       width: 120,
       height: 120,
       alignSelf: 'center',
-      // backgroundColor: 'red',
     },
     contentWrapper: {
       flex: 1,
@@ -62,10 +61,12 @@ const LoginScreen = () => {
   return (
     <CustomSafeView scrollable keyboardShouldPersistTaps="handled">
       <View style={styles.logoContainer}>
-      <Image
-        source={require('assets/icons/Logo_Violet.png')}
-        style={styles.mainLogo}
-        />
+        <TouchableOpacity onPress={() => Linking.openURL('https://weeki.ai')}>
+          <Image
+            source={require('../../../assets/icons/Logo_Violet.png')}
+            style={styles.mainLogo}
+          />
+        </TouchableOpacity>
       </View>
       <SpacingView style={styles.contentWrapper}>
         <CustomTextInput
