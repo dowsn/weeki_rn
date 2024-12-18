@@ -1,6 +1,7 @@
 // App.js
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { registerRootComponent } from 'expo';
 import React from 'react';
 import { View } from 'react-native';
 import ProfileHeader from 'src/components/common/ProfileHeader';
@@ -91,6 +92,7 @@ const MainStack = () => (
   </Stack.Navigator>
 );
 
+registerRootComponent(App);
 
 
 export default App;

@@ -44,7 +44,7 @@ const ChatButton = ({ chatSession, navigation }) => {
 
   const handleSave = async () => {
     // Call useChatSession API with selected date
-    // await useChatSession({ userId: user.userId, date });
+    await useChatSession({ userId: user.userId, date });
     setModalVisible(false);
     navigation.replace('Reflect'); // Reload the ReflectScreen
   };
@@ -151,12 +151,10 @@ const ChatButton = ({ chatSession, navigation }) => {
   const getSmallButtonText = () => {
     if (!chatSession || Object.keys(chatSession).length === 0) {
       return false;
-    } else if (!isToday) {
-      const sessionDate = new Date(chatSession.date);
-      const formattedDate = `${sessionDate.getDate()}. ${sessionDate.getMonth() + 1}.`;
-      return `${formattedDate} ${chatSession.time_left} min`;
     } else {
-      return `${chatSession.time_left} min`;
+      const sessionDate = new Date(chatSession.date);
+      const formattedDate = `${sessionDate.getDate()}.${sessionDate.getMonth() + 1}.`;
+      return formattedDate;
     }
   };
 

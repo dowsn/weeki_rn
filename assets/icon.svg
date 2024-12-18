@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Background rectangle with dark purple color - no border radius -->
+  <rect x="0" y="0" width="1024" height="1024" fill="#0C0313"/>
+  
+  <!-- First column (light purple) -->
+  <rect x="102" y="348" width="225" height="625" rx="112.5" ry="112.5" fill="#E6D6FF"/>
+  
+  <!-- Middle column (light purple) -->
+  <rect x="399" y="348" width="225" height="625" rx="112.5" ry="112.5" fill="#E6D6FF"/>
+  
+  <!-- Last column (light purple) -->
+  <rect x="696" y="348" width="225" height="625" rx="112.5" ry="112.5" fill="#E6D6FF"/>
+  
+  <!-- Circle indicator (light purple) -->
+  <circle cx="808.5" cy="164" r="112.5" fill="#E6D6FF"/>
+</svg>

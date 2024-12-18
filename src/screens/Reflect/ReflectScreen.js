@@ -16,37 +16,44 @@ import { showAlert } from '../../utils/alert';
 const ReflectScreen = ({ navigation }) => {
   const { user, setUser, theme } = useUserContext();
   const [topics, setTopics] = useState([]);
-  const [ chatSession, setChatSession ] = useState(null);
-  // const styles = createStyles(theme);
+  const [chatSession, setChatSession] = useState(null);
+  const { getTopicsAndChatSession, isLoading, error } =
+    useTopicsAndChatSession();
 
-  const { getTopicsAndChatSession, isLoading, error } = useTopicsAndChatSession();
-
-  useEffect(() => {
-    console.log(user);
-  }, []);
-  //
-
-  useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        const response = await getTopicsAndChatSession(user.userId);
-        if (response.error) {
-          showAlert('Error:', response.message);
-        } else {
-          console.log(response.content);
-          let receivedTopics = response.content.topics;
-          setTopics(receivedTopics);
-          setChatSession(response.content.chat_session);
-          setUser({ ...user, topics: receivedTopics });
-          // c
-        }
-      } catch (error) {
-        console.log('Error fetching topics', error.message || 'An unexpected error occurred');
+  const fetchTopics = async () => {
+    try {
+      const response = await getTopicsAndChatSession(user.userId);
+      if (response.error) {
+        showAlert('Error:', response.message);
+      } else {
+        console.log(response.content);
+        let receivedTopics = response.content.topics;
+        setTopics(receivedTopics);
+        setChatSession(response.content.chat_session);
+        setUser({ ...user, topics: receivedTopics });
       }
-    };
+    } catch (error) {
+      console.log(
+        'Error fetching topics',
+        error.message || 'An unexpected error occurred',
+      );
+    }
+  };
 
+  // Fetch data when component mounts
+  useEffect(() => {
     fetchTopics();
   }, []);
+
+  // Add navigation focus listener to reload data when screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchTopics();
+    });
+
+    // Cleanup listener on component unmount
+    return unsubscribe;
+  }, [navigation]);
 
   return isLoading ? (
     <LoadingAnimation />

@@ -22,8 +22,9 @@ import { showAlert } from 'src/utils/alert';
 import { prepareMessages } from 'src/utils/messages';
 import { prepareTopics } from 'src/utils/topics';
 
-const ChatScreen = () => {
+const ChatScreen = ( router ) => {
   const { theme, user } = useUserContext();
+  const { chat_session_id } = router.route.params;
 
   const navigation = useNavigation();
   const [text, setText] = useState('');
@@ -32,6 +33,7 @@ const ChatScreen = () => {
   const { chat, isLoading } = useNote();
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
+
 
   const handleStreamedResponse = useCallback((token) => {
     setMessages((prev) => {
@@ -55,7 +57,7 @@ const ChatScreen = () => {
     });
   }, []);
 
-  const { sendMessage, isConnected } = useAgentChat(handleStreamedResponse);
+  const { sendMessage, isConnected } = useAgentChat(handleStreamedResponse, chat_session_id);
 
   const handleSend = useCallback(() => {
     if (!text.trim() || !isConnected) return;
