@@ -58,7 +58,8 @@ const ReflectScreen = ({ navigation }) => {
   return isLoading ? (
     <WeekiLoading />
   ) : (
-    <CustomSafeView scrollable>
+      <CustomSafeView scrollable>
+     <ProfileHeader navigation={navigation} />
       <CustomText>about{'\n'}personal topics</CustomText>
 
       <TopicGrid data={topics} navigation={navigation} />

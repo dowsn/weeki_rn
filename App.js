@@ -56,7 +56,6 @@ const HeaderWrapper = ({ children, navigation }) => {
   const { theme } = useUserContext();
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.violet_darkest }}>
-      <ProfileHeader navigation={navigation} />
       {children}
     </View>
   );

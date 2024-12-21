@@ -60,7 +60,7 @@ const ProfileHeader = ({ navigation }) => {
         <View style={styles.buttonWrapper}>
           <NormalButton
             text="Reflect"
-            onPress={() => navigation.navigate('EditProfileView')}
+            onPress={() => navigation.navigate('OldSessionsView')}
           />
         </View>
       </View>
