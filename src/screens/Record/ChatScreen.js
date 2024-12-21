@@ -21,11 +21,13 @@ import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
 import { prepareMessages } from 'src/utils/messages';
 import { prepareTopics } from 'src/utils/topics';
+import { useChatSession } from '../../hooks/useChatSession';
 
 const ChatScreen = ( router ) => {
   const { theme, user } = useUserContext();
   const { chat_session_id } = router.route.params;
 
+  const { reschedule, error } = useChatSession();
   const navigation = useNavigation();
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
@@ -34,28 +36,58 @@ const ChatScreen = ( router ) => {
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
 
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const handleStreamedResponse = useCallback((token) => {
-    setMessages((prev) => {
-      const updated = [...prev];
-      const lastMessage = updated[updated.length - 1];
-      if (lastMessage?.sender === 'assistant') {
-        updated[updated.length - 1] = {
-          ...lastMessage,
-          text: lastMessage.text + token,
-        };
-      } else {
-        updated.push({
-          sender: 'assistant',
-          text: token,
-          profilePicture: www + 'media/images/others/mr_week_profile_picture.png',
-          showAvatar: true, // Always show Mr. Week's avatar for first message
-          isFollowUp: false
-        });
-      }
-      return updated;
-    });
-  }, []);
+  // finish
+  const handleReschedule = async (date) => {
+    // Call useChatSession API with selected date
+    console.log('Rescheduling chat session for', date);
+    console.log('User ID:', user.userId);
+    await reschedule(user.userId, chat_session_id, date);
+    navigation.replace('Reflect'); // Reload the ReflectScreen
+  };
+
+
+const handleStreamedResponse = useCallback(
+  (data) => {
+    if (data.type === 'connection_status' && data.messages) {
+      // Initialize with historical messages
+      setMessages(
+        data.messages.map((msg) => ({
+          id: msg.id,
+          text: msg.content,
+          sender: msg.sender,
+          date_created: msg.timestamp,
+        })),
+      );
+      setIsInitialized(true);
+    } else {
+      // Handle streamed message tokens
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastMessage = updated[updated.length - 1];
+
+        if (lastMessage?.sender === 'assistant') {
+          // Append to existing assistant message
+          updated[updated.length - 1] = {
+            ...lastMessage,
+            text: lastMessage.text + data,
+          };
+        } else {
+          // Create new assistant message
+          updated.push({
+            id: Date.now().toString(),
+            sender: 'assistant',
+            text: data,
+            date_created: new Date().toISOString(),
+          });
+        }
+        return updated;
+      });
+    }
+  },
+  [user],
+);
 
   const { sendMessage, isConnected } = useAgentChat(handleStreamedResponse, chat_session_id);
 
@@ -83,8 +115,6 @@ const ChatScreen = ( router ) => {
         text: text.trim(),
         sender: 'user',
         date_created: new Date().toISOString(),
-        profilePicture: user?.profileImage || www + 'media/images/others/default_profile_picture.png',
-        followup: isFollowUp
       };
 
       setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -128,9 +158,6 @@ const ChatScreen = ( router ) => {
     }
   };
 
-  useEffect(() => {
-    console.log('useAgentChat connection status:', isConnected);
-  }, [isConnected]);
 
   const defaultUserPicture =
     www + 'media/images/others/default_profile_picture.png';

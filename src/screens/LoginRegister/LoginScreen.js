@@ -1,6 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback } from 'react';
-import { Image, Linking, StyleSheet, View } from 'react-native';
+import {
+  Image,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import NormalButton from 'src/components/buttons/NormalButton';
 import TextLink from 'src/components/buttons/TextLink';

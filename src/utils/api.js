@@ -65,17 +65,19 @@ export const fetchFromApi = async (endpoint, options = {}) => {
       if (queryString) {
         url += `?${queryString}`;
       }
-    } else if (body) {
+    } else if (body && method !== 'GET') {
       // For non-GET requests, add body to fetchOptions
       fetchOptions.body = JSON.stringify(body);
     }
 
     console.log(`Making ${method} request to: ${url}`);
-
+    // console.log('Request headers:', fetchOptions.headers);
     let response = await fetch(url, fetchOptions);
 
+    console.log(response);
     // Handle 401 with token refresh
     if (response.status === 401 && tokens?.refresh) {
+      console.log('Token refresh failed:', response.status);
       try {
         console.log('Attempting token refresh due to 401');
         const newTokens = await refreshTokens(tokens.refresh);

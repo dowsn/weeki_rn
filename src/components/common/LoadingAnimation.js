@@ -2,26 +2,39 @@ import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
 
-const LoadingAnimation = () => {
+const fallbackStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+});
 
-  const { theme } = useUserContext();
-
-  const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
     container: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: theme.colors.violet_darkest,
+      backgroundColor: colors.violet_darkest,
     },
   });
 
+const LoadingAnimation = () => {
+  const { theme } = useUserContext();
+
+  // Move styles creation outside of render
+  const styles = theme?.colors ? createStyles(theme.colors) : fallbackStyles;
+
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="medium" color={theme.colors.violet_light} />
+      <ActivityIndicator
+        size="medium"
+        color={theme?.colors?.violet_light || '#fff'}
+      />
     </View>
   );
 };
-
-
 
 export default LoadingAnimation;

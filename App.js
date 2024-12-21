@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { registerRootComponent } from 'expo';
 import React from 'react';
 import { View } from 'react-native';
+import { enableScreens } from 'react-native-screens';
 import ProfileHeader from 'src/components/common/ProfileHeader';
 import WeekiLoading from 'src/components/common/WeekiLoading';
 import { UserProvider } from 'src/contexts/UserContext';
@@ -13,6 +14,8 @@ import EditProfileView from 'src/screens/Reflect/EditProfileView';
 import ReflectScreen from 'src/screens/Reflect/ReflectScreen';
 import ReflectStackScreen from 'src/screens/Reflect/ReflectStackScreen';
 import AuthStack from 'src/stacks/AuthStack';
+
+enableScreens();
 
 const Stack = createStackNavigator();
 const RootStack = createStackNavigator();

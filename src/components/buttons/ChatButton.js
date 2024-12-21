@@ -1,24 +1,16 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Modal,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useChatSession } from '../../hooks/useChatSession';
 import { useUserContext } from '../../hooks/useUserContext';
 import { showAlert } from '../../utils/alert';
+import CustomDatePickerModal from '../common/CustomDatePickerModal';
 
 const ChatButton = ({ chatSession, navigation }) => {
-
   const { user, theme } = useUserContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
   const [isToday, setIsToday] = useState(false);
+  const { create, cancel, reschedule } = useChatSession();
 
   useEffect(() => {
     if (chatSession && chatSession.date) {
@@ -32,21 +24,22 @@ const ChatButton = ({ chatSession, navigation }) => {
     }
   }, [chatSession]);
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === 'ios');
-    setDate(currentDate);
-  };
-
-  const showDatepicker = () => {
-    setShow(true);
-  };
-
   const handleSave = async () => {
-    // Call useChatSession API with selected date
-    await useChatSession({ userId: user.userId, date });
+    await create(user.userId, date);
     setModalVisible(false);
-    navigation.replace('Reflect'); // Reload the ReflectScreen
+    navigation.replace('Reflect');
+  };
+
+  const handleCancel = async () => {
+    await cancel(chatSession.id);
+    setModalVisible(false);
+    navigation.replace('Reflect');
+  };
+
+  const handleReschedule = async () => {
+    await reschedule(user.userId, chatSession.id, date);
+    setModalVisible(false);
+    navigation.replace('Reflect');
   };
 
   const handleChatButtonPress = () => {
@@ -56,9 +49,8 @@ const ChatButton = ({ chatSession, navigation }) => {
         'Please create at least one topic to continue',
       );
       return;
-    } else {
-      setModalVisible(true);
     }
+    setModalVisible(true);
   };
 
   const styles = StyleSheet.create({
@@ -72,85 +64,37 @@ const ChatButton = ({ chatSession, navigation }) => {
       height: 100,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: theme.colors.green,
+      backgroundColor: theme.colors.violet_light,
       borderRadius: 200,
     },
-    centeredView: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 22,
-    },
-    modalView: {
-      margin: 20,
-      backgroundColor: 'white',
-      borderRadius: 20,
-      padding: 35,
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
-    },
-    button: {
-      borderRadius: 20,
-      padding: 10,
-      elevation: 2,
-    },
-    buttonClose: {
-      backgroundColor: '#2196F3',
-    },
-    textStyle: {
+    buttonText: {
       color: theme.colors.violet_darkest,
+      textAlign: 'center',
       fontWeight: 'bold',
-      textAlign: 'center',
-    },
-    modalText: {
-      marginBottom: 15,
-      textAlign: 'center',
-    },
-    optionButton: {
-      backgroundColor: '#2196F3',
-      borderRadius: 20,
-      padding: 10,
-      margin: 10,
-      elevation: 2,
-    },
-    optionButtonText: {
-      color: theme.colors.violet_darkest,
       fontSize: theme.fontSizes.medium,
-      fontWeight: 'bold',
+    },
+    smallButtonText: {
+      color: theme.colors.violet_darkest,
       textAlign: 'center',
+      fontSize: theme.fontSizes.small,
     },
   });
 
-  const getButtonStyle = () => {
-    if (!chatSession) {
-      return { backgroundColor: theme.colors.violet_light };
-    } else if (!isToday) {
-      return { backgroundColor: theme.colors.violet_light };
-    } else {
-      return { backgroundColor: theme.colors.violet_light };
-    }
-  };
-
   const getButtonText = () => {
     if (!chatSession || Object.keys(chatSession).length === 0) {
-      return "Some\nDay";
+      return 'Some\nDay';
     } else if (!isToday) {
-      return `Set`;
+      return 'Set';
     } else {
-      return `Now`;
+      return 'Now';
     }
   };
 
   const getSmallButtonText = () => {
     if (!chatSession || Object.keys(chatSession).length === 0) {
       return false;
+    } else if (isToday) {
+      return chatSession.time_left + ' min';
     } else {
       const sessionDate = new Date(chatSession.date);
       const formattedDate = `${sessionDate.getDate()}.${sessionDate.getMonth() + 1}.`;
@@ -161,96 +105,32 @@ const ChatButton = ({ chatSession, navigation }) => {
   return (
     <View style={styles.chatButtonContainer}>
       <TouchableOpacity
-        style={[styles.chatButton, getButtonStyle()]}
+        style={styles.chatButton}
         onPress={handleChatButtonPress}
       >
-        <Text
-          style={{
-            color: theme.colors.violet_darkest,
-            textAlign: 'center',
-            fontWeight: 'bold',
-            fontSize: theme.fontSizes.medium,
-          }}
-        >
-          {getButtonText()}
-        </Text>
+        <Text style={styles.buttonText}>{getButtonText()}</Text>
         {getSmallButtonText() && (
-          <Text
-            style={{
-              color: 'white',
-              textAlign: 'center',
-              fontSize: theme.fontSizes.small,
-            }}
-          >
-            {getSmallButtonText()}
-          </Text>
+          <Text style={styles.smallButtonText}>{getSmallButtonText()}</Text>
         )}
       </TouchableOpacity>
-      <Modal
-        animationType="slide"
-        transparent={true}
+
+      <CustomDatePickerModal
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
+        onClose={() => setModalVisible(false)}
+        date={date}
+        onDateChange={setDate}
+        onSave={handleSave}
+        chatSession={chatSession}
+        onCancel={handleCancel}
+        onReschedule={handleReschedule}
+        onOpenSession={() => {
+          setModalVisible(false);
+          navigation.navigate('Chat', {
+            chat_session_id: chatSession.id,
+          });
         }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {isToday ? (
-              <>
-                <TouchableOpacity
-                  style={styles.optionButton}
-                  onPress={() => {
-                    setModalVisible(false);
-                    navigation.navigate('Chat'); // some api call?
-                  }}
-                >
-                  <Text style={styles.optionButtonText}>Open Session</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.optionButton}
-                  onPress={showDatepicker}
-                >
-                  <Text style={styles.optionButtonText}>Reschedule</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                {Platform.OS === 'android' ? (
-                  <>
-                    <Button onPress={showDatepicker} title="Select Date" />
-                    {show && (
-                      <DateTimePicker
-                        testID="dateTimePicker"
-                        value={date}
-                        mode="date"
-                        is24Hour={true}
-                        display="default"
-                        onChange={onChange}
-                      />
-                    )}
-                  </>
-                ) : (
-                  // iOS with calendar view
-                  <DateTimePicker
-                    testID="dateTimePicker"
-                    value={date}
-                    mode="date"
-                    display="inline"
-                    onChange={onChange}
-                    style={{ height: 340, width: 300 }}
-                  />
-                )}
-                <Button
-                  style={[styles.button, styles.buttonClose]}
-                  onPress={handleSave}
-                  title="Save"
-                />
-              </>
-            )}
-          </View>
-        </View>
-      </Modal>
+        isToday={isToday}
+      />
     </View>
   );
 };

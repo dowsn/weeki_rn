@@ -5,8 +5,8 @@ import CustomText from 'src/components/textboxes/CustomText';
 import ChatButton from '../../components/buttons/ChatButton';
 import NormalButton from '../../components/buttons/NormalButton';
 import FlexSpacer from '../../components/common/FlexSpacer';
-import LoadingAnimation from '../../components/common/LoadingAnimation';
 import MainTitle from '../../components/common/MainTitle';
+import WeekiLoading from '../../components/common/WeekiLoading';
 import CustomSafeView from '../../components/layouts/CustomSafeArea';
 import TopicGrid from '../../components/layouts/TopicGrid';
 import { useTopicsAndChatSession } from '../../hooks/useTopicsAndChatSession';
@@ -56,7 +56,7 @@ const ReflectScreen = ({ navigation }) => {
   }, [navigation]);
 
   return isLoading ? (
-    <LoadingAnimation />
+    <WeekiLoading />
   ) : (
     <CustomSafeView scrollable>
       <CustomText>about{'\n'}personal topics</CustomText>

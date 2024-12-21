@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useUserContext } from 'src/hooks/useUserContext';
 
-const Message = ({ id, sender, date_created, text, profilePicture, followup = false }) => {
+const Message = ({ id, sender, date_created, text}) => {
 
   const { user, theme } = useUserContext();
 
@@ -12,17 +12,7 @@ const Message = ({ id, sender, date_created, text, profilePicture, followup = fa
       marginBottom: theme.spacing.small,
       alignItems: 'center',
     },
-    profilePictureContainer: {
-      width: '100%',
-      alignItems: 'center',
-      marginBottom: 8,
-    },
-    profilePicture: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: '#4899F7', // Blue color from your example
-    },
+
     messageBubble: {
       width: '100%',
       padding: theme.spacing.medium,
@@ -37,11 +27,6 @@ const Message = ({ id, sender, date_created, text, profilePicture, followup = fa
 
   return (
     <View key={id || date_created} style={styles.messageContainer}>
-      {!followup && (
-      <View style={styles.profilePictureContainer}>
-        <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
-      </View>
-      )}
       <View style={styles.messageBubble}>
         <Text style={styles.messageText}>{text}</Text>
       </View>
