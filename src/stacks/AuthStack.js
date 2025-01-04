@@ -1,4 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
+import ActivationScreen from 'src/screens/LoginRegister/ActivationScreen';
 import ForgotPasswordScreen from 'src/screens/LoginRegister/ForgotPasswordScreen';
 import LoginScreen from 'src/screens/LoginRegister/LoginScreen';
 import RegisterScreen from 'src/screens/LoginRegister/RegistrationScreen';
@@ -13,23 +14,27 @@ const AuthStack = () => {
         component={LoginScreen}
         options={{
           headerShown: false,
-          headerTitle: 'Sign In',
+        }}
+      />
+      <Stack.Screen
+        name="Activation"
+        component={ActivationScreen}
+        options={{
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="Register"
         component={RegisterScreen}
         options={{
-          headerShown: true,
-          headerTitle: 'Sign Up',
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="ForgotPassword"
         component={ForgotPasswordScreen}
         options={{
-          headerShown: true,
-          headerTitle: 'Forgot Password',
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

@@ -1,135 +1,209 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from 'src/components/common/Text';
 import { useChatSession } from '../../hooks/useChatSession';
 import { useUserContext } from '../../hooks/useUserContext';
 import { showAlert } from '../../utils/alert';
 import CustomDatePickerModal from '../common/CustomDatePickerModal';
 
-const ChatButton = ({ chatSession, navigation }) => {
+const ChatButton = ({
+  chatSession,
+  navigation,
+  nextDate,
+  isAlreadySession,
+}) => {
   const { user, theme } = useUserContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(new Date());
   const [isToday, setIsToday] = useState(false);
   const { create, cancel, reschedule } = useChatSession();
 
+
+
   useEffect(() => {
-    if (chatSession && chatSession.date) {
+    const today = new Date();
+
+
+    if (isAlreadySession) {
+    const nextDay = new Date(today);
+    nextDay.setDate(nextDay.getDate() + 1);
+    setDate(nextDay); // Pass the Date object directly
+    return;
+    }
+
+    if (chatSession?.date) {
+
+      setDate(new Date(chatSession.date));
       const sessionDate = new Date(chatSession.date);
-      const today = new Date();
-      setIsToday(
-        sessionDate.getFullYear() === today.getFullYear() &&
-          sessionDate.getMonth() === today.getMonth() &&
-          sessionDate.getDate() === today.getDate(),
-      );
+
+      setIsToday(sessionDate <= today);
+
     }
   }, [chatSession]);
 
-  const handleSave = async () => {
-    await create(user.userId, date);
-    setModalVisible(false);
-    navigation.replace('Reflect');
-  };
-
-  const handleCancel = async () => {
-    await cancel(chatSession.id);
-    setModalVisible(false);
-    navigation.replace('Reflect');
-  };
-
-  const handleReschedule = async () => {
-    await reschedule(user.userId, chatSession.id, date);
-    setModalVisible(false);
-    navigation.replace('Reflect');
-  };
-
-  const handleChatButtonPress = () => {
-    if (user.topics.length === 0) {
-      showAlert(
-        'No topics created',
-        'Please create at least one topic to continue',
-      );
-      return;
+  const handleSave = useCallback(async () => {
+    try {
+      await create(date);
+      setModalVisible(false);
+      navigation.replace('Dashboard');
+    } catch (error) {
+      showAlert('Weeki', 'Oops, I had a problem scheduling our session, please try again later.');
     }
+  }, [date, navigation, create]);
+
+  const handleCancel = useCallback(async () => {
+    try {
+      await cancel(chatSession.id);
+      setModalVisible(false);
+      navigation.replace('Dashboard');
+    } catch (error) {
+      showAlert(
+        'Weeki',
+        'Oops, I had a problem canceling our session, please try again later.',
+      );
+    }
+  }, [chatSession?.id, navigation, cancel]);
+
+  const handleReschedule = useCallback(async () => {
+    try {
+      await reschedule(chatSession.id, date);
+      setModalVisible(false);
+      navigation.replace('Dashboard');
+    } catch (error) {
+      showAlert(
+        'Error',
+        'Oops, I had a problem rescheduling our session, please try again later.',
+      );
+    }
+  }, [chatSession?.id, date, navigation, reschedule]);
+
+  const handleChatButtonPress = useCallback(() => {
+    // Remove setTimeout and directly set modal visibility
     setModalVisible(true);
-  };
+  }, [user.topics]);
 
   const styles = StyleSheet.create({
     chatButtonContainer: {
       position: 'absolute',
       bottom: 20,
       alignSelf: 'center',
+      zIndex: 1, // Ensure button stays above other elements
     },
     chatButton: {
-      width: 100,
-      height: 100,
+      width: 150,
+      height: 150,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: theme.colors.violet_light,
-      borderRadius: 200,
+      backgroundColor: isToday ? theme.colors.green : theme.colors.violet_light,
+      borderRadius: 150, // Half of width/height for perfect circle
+      elevation: 4, // Android shadow
+      shadowColor: '#000', // iOS shadow
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
     },
     buttonText: {
       color: theme.colors.violet_darkest,
       textAlign: 'center',
       fontWeight: 'bold',
-      fontSize: theme.fontSizes.medium,
+      fontSize: theme.fontSizes.large,
     },
     smallButtonText: {
       color: theme.colors.violet_darkest,
       textAlign: 'center',
+      fontSize: theme.fontSizes.medium,
+      marginTop: 4,
+    },
+    smallerButtonText: {
+      color: theme.colors.violet_darkest,
+      textAlign: 'center',
       fontSize: theme.fontSizes.small,
+      marginTop: 4,
     },
   });
 
-  const getButtonText = () => {
+  const getButtonText = useCallback(() => {
     if (!chatSession || Object.keys(chatSession).length === 0) {
-      return 'Some\nDay';
-    } else if (!isToday) {
-      return 'Set';
-    } else {
+      return '';
+    }
+    if (isToday) {
       return 'Now';
     }
-  };
 
-  const getSmallButtonText = () => {
+    const sessionDate = new Date(chatSession.date);
+    return `${sessionDate.getDate()}.${sessionDate.getMonth() + 1}.`;
+  }, [chatSession, isToday]);
+
+  const getSmallButtonText = useCallback(() => {
     if (!chatSession || Object.keys(chatSession).length === 0) {
       return false;
-    } else if (isToday) {
-      return chatSession.time_left + ' min';
-    } else {
-      const sessionDate = new Date(chatSession.date);
-      const formattedDate = `${sessionDate.getDate()}.${sessionDate.getMonth() + 1}.`;
-      return formattedDate;
     }
-  };
+    if (isToday) {
+      return `${chatSession.time_left} min`;
+    }
+  }, [chatSession, isToday]);
+
+  const handleModalClose = useCallback(() => {
+    setModalVisible(false);
+  }, []);
+
+  const handleSubscribe = useCallback(() => {
+    console.log('Subscribe');
+  });
+
+  const handleNavigateToChat = useCallback(() => {
+    setModalVisible(false);
+    navigation.navigate('Chat', {
+      chat_session_id: chatSession.id,
+    });
+  }, [navigation, chatSession?.id]);
 
   return (
     <View style={styles.chatButtonContainer}>
-      <TouchableOpacity
-        style={styles.chatButton}
-        onPress={handleChatButtonPress}
-      >
-        <Text style={styles.buttonText}>{getButtonText()}</Text>
-        {getSmallButtonText() && (
-          <Text style={styles.smallButtonText}>{getSmallButtonText()}</Text>
-        )}
-      </TouchableOpacity>
+      {nextDate !== 'Subscribe' ? (
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={handleChatButtonPress}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonText}>Weeki</Text>
+          {getButtonText() !== '' && (
+            <>
+              <Text style={styles.smallButtonText}>{getButtonText()}</Text>
+              {getSmallButtonText() && (
+                <Text style={styles.smallerButtonText}>
+                  {getSmallButtonText()}
+                </Text>
+              )}
+            </>
+          )}
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={handleSubscribe}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonText}>Weeki</Text>
+          <Text style={styles.smallButtonText}>Subscribe</Text>
+        </TouchableOpacity>
+      )}
 
       <CustomDatePickerModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={handleModalClose}
         date={date}
         onDateChange={setDate}
         onSave={handleSave}
         chatSession={chatSession}
         onCancel={handleCancel}
         onReschedule={handleReschedule}
-        onOpenSession={() => {
-          setModalVisible(false);
-          navigation.navigate('Chat', {
-            chat_session_id: chatSession.id,
-          });
-        }}
+        onOpenSession={handleNavigateToChat}
         isToday={isToday}
+        isAlreadySession={isAlreadySession}
       />
     </View>
   );

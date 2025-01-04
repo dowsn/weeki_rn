@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
+import Text from 'src/components/common/Text';
 import { useUserContext } from 'src/hooks/useUserContext';
 
 const Message = ({ id, sender, date_created, text}) => {
@@ -15,12 +16,10 @@ const Message = ({ id, sender, date_created, text}) => {
 
     messageBubble: {
       width: '100%',
-      padding: theme.spacing.medium,
-      borderRadius: theme.borderRadii.large,
-      backgroundColor: sender === 'assistant' ? theme.colors.mr_week : theme.colors.me,
+      backgroundColor: theme.colors.violet_darkest,
     },
     messageText: {
-      color: 'black',
+      color: sender === 'user' ? theme.colors.yellow_light : theme.colors.violet_light,
       fontSize: theme.fontSizes.medium,
     },
   });

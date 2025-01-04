@@ -13,11 +13,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "fonts": [
-      {
-        "asset": "./assets/fonts/VarelaRound-Regular.ttf"
-      }
-    ],
+"fonts": [
+  {
+    "asset": "./assets/fonts/VarelaRound-Regular.ttf",
+    "family": "VarelaRound-Regular"
+  }
+],
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true,

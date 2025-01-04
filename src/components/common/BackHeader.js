@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { Text } from 'src/components/common/Text';
 import { useUserContext } from 'src/hooks/useUserContext';
 
 function BackHeader({ text, onPress }) {

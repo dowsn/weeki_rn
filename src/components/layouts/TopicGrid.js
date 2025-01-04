@@ -45,7 +45,7 @@ const TopicGrid = ({ data, navigation }) => {
               <TopicBox
                 id={topic.id}
                 title={topic.name}
-                image={topic.image}
+                text={topic.description}
                 navigation={navigation}
                 width={boxWidth}
                 height={boxHeight}

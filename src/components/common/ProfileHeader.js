@@ -1,14 +1,25 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useUserContext } from 'src/hooks/useUserContext';
-import EditProfileView from 'src/screens/Reflect/EditProfileView';
+import { showAlert } from 'src/utils/alert';
 import NormalButton from '../buttons/NormalButton';
 
-const ProfileHeader = ({ navigation }) => {
+const ProfileHeader = ({ navigation, hasExpiredSession }) => {
   const { user, theme } = useUserContext();
+
+  const handleMomentsPress = () => {
+    if (!hasExpiredSession) {
+      showAlert('Weeki', "Here you will be able to review our moments together. Click on me to schedule a first session.");
+      return;
+    }
+          navigation.navigate('OldSessions', { selected_id: null })
+
+  }
+
+
 
   const styles = StyleSheet.create({
     container: {
@@ -53,14 +64,15 @@ const ProfileHeader = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.buttonWrapper}>
           <NormalButton
-            text="You"
-            onPress={() => navigation.navigate('EditProfileView')}
+            text="Present"
+            onPress={() => navigation.navigate('You', { selected_id: null })}
           />
         </View>
         <View style={styles.buttonWrapper}>
           <NormalButton
-            text="Reflect"
-            onPress={() => navigation.navigate('OldSessionsView')}
+            text="Moments"
+            onPress={handleMomentsPress}
+
           />
         </View>
       </View>

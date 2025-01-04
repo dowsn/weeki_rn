@@ -3,7 +3,6 @@ import { useUserContext } from './useUserContext';
 
 export const useLogin = () => {
   const { setUser } = useUserContext();
-
   const { apiCalls, isLoading, error } = useApiCall({
     login: { path: 'login', method: 'POST' },
   });
@@ -13,11 +12,18 @@ export const useLogin = () => {
       const response = await apiCalls.login({ username, password });
 
       if (response.content) {
-        await setUser(response.content);
+        if (response.content.activated == true) {
+            await setUser(response.content);
+        }
+
         return response;
       }
-      throw new Error('Invalid login response');
+
+
+      throw new Error(response.message || 'Login failed');
     } catch (error) {
+      // console.error('Weeki:', "Oops, I can't log you in, please try again.");
+      // Preserve and throw the original error message
       throw error;
     }
   };

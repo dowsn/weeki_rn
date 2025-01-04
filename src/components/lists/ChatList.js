@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Text } from 'src/components/common/Text';
 import FeedSeparator from '../common/FeedSeparator';
 import NoteElement from '../list_elements/NoteElement';
 import Message from '../textboxes/Message';

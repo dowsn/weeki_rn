@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Text from 'src/components/common/Text';
 import { useUserContext } from 'src/hooks/useUserContext';
 
-const TopicBox = ({ id, title, width, height, navigation }) => {
+const TopicBox = ({ id, title, text, width, height, navigation }) => {
   const { theme } = useUserContext();
 
   const styles = StyleSheet.create({
@@ -33,7 +34,7 @@ const TopicBox = ({ id, title, width, height, navigation }) => {
     <TouchableOpacity
       style={styles.container}
       onPress={() =>
-        navigation.navigate('TopicReflectionView', { topicId: id })
+        navigation.navigate('TopicDetail', { text, title, navigation })
       }
     >
       <View style={styles.textContainer}>

@@ -21,7 +21,7 @@ import { showAlert } from 'src/utils/alert';
 const LoginScreen = () => {
   const {theme} = useUserContext();
   const navigation = useNavigation();
-  const { login, isLoading } = useLogin();
+  const { login, isLoading, error } = useLogin();
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -55,9 +55,15 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      await login(username, password);
+      let response = await login(username, password);
+
+      if (response.content.activated == false) {
+        console.log(response.content);
+        navigation.navigate('Activation', { userId: response.content.userId });
+      }
+
     } catch (error) {
-      showAlert('Login Error', error.message || 'An unexpected error occurred');
+      showAlert('Error', error.message || 'An unexpected error occurred');
     }
   };
 
@@ -87,7 +93,7 @@ const LoginScreen = () => {
           secureTextEntry
         />
         <NormalButton
-          text={isLoading ? 'Logging in...' : 'Login'}
+          text={isLoading ? 'Loading...' : 'Login'}
           onPress={handleLogin}
           disabled={isLoading}
         />

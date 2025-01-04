@@ -2,6 +2,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { registerRootComponent } from 'expo';
+import { useFonts } from 'expo-font';
 import React from 'react';
 import { View } from 'react-native';
 import { enableScreens } from 'react-native-screens';
@@ -9,11 +10,10 @@ import ProfileHeader from 'src/components/common/ProfileHeader';
 import WeekiLoading from 'src/components/common/WeekiLoading';
 import { UserProvider } from 'src/contexts/UserContext';
 import { useUserContext } from 'src/hooks/useUserContext';
-import ChatScreen from 'src/screens/Record/ChatScreen';
-import EditProfileView from 'src/screens/Reflect/EditProfileView';
-import ReflectScreen from 'src/screens/Reflect/ReflectScreen';
-import ReflectStackScreen from 'src/screens/Reflect/ReflectStackScreen';
+import SubscriptionScreen from 'src/screens/You/SubscriptionScreen';
+import TopicArchiveScreen from 'src/screens/You/TopicsArchiveScreen';
 import AuthStack from 'src/stacks/AuthStack';
+import DashboardStack from 'src/stacks/DashboardStack';
 
 enableScreens();
 
@@ -44,13 +44,35 @@ const RootNavigator = () => {
   );
 };
 
-const App = () => (
-  <UserProvider>
-    <NavigationContainer>
-      <RootNavigator />
+const App = () => {
+  const [fontsLoaded] = useFonts({
+    'VarelaRound-Regular': require('./assets/fonts/VarelaRound-Regular.ttf'),
+  });
+
+  return (
+    <UserProvider>
+      <AppContent />
+    </UserProvider>
+  );
+};
+
+const AppContent = () => {
+  const { theme } = useUserContext();
+
+  return (
+    <NavigationContainer
+      theme={{
+        colors: {
+          background: theme.colors.violet_darkest,
+        },
+      }}
+    >
+      <View style={{ flex: 1, backgroundColor: theme.colors.violet_darkest }}>
+        <RootNavigator />
+      </View>
     </NavigationContainer>
-  </UserProvider>
-);
+  );
+};
 
 const HeaderWrapper = ({ children, navigation }) => {
   const { theme } = useUserContext();
@@ -72,23 +94,11 @@ const ProtectedRouteWithHeader = ({ children, navigation }) => {
 
 const MainStack = () => (
   <Stack.Navigator>
-    <Stack.Screen name="Reflect" options={{ headerShown: false }}>
+    <Stack.Screen name="Dashboard" options={{ headerShown: false }}>
       {(props) => (
         <ProtectedRouteWithHeader {...props}>
-          <ReflectStackScreen {...props} />
+          <DashboardStack {...props} />
         </ProtectedRouteWithHeader>
-      )}
-    </Stack.Screen>
-    <Stack.Screen
-      name="Chat"
-      component={ChatScreen}
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen name="EditProfileView" options={{ headerShown: false }}>
-      {(props) => (
-        // <ProtectedRouteWithHeader {...props}>
-          <EditProfileView {...props} />
-        // </ProtectedRouteWithHeader>
       )}
     </Stack.Screen>
   </Stack.Navigator>

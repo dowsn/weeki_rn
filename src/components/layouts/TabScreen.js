@@ -1,7 +1,8 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'src/components/common/Text';
 import CustomSafeView from './CustomSafeArea';
 
 const Tab = createMaterialTopTabNavigator();

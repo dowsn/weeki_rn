@@ -1,6 +1,7 @@
 import { useTheme } from '@react-navigation/native';
 import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { TextInput } from 'src/components/common/Text';
 import { useUserContext } from '../../hooks/useUserContext';
 
 const CustomTextInput = ({ placeholder, ...props }) => {

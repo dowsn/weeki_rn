@@ -21,7 +21,8 @@ export const useApiCall = (apiConfig) => {
 
       // Validate required parameters
       for (const [key, value] of Object.entries(params)) {
-        if (!value) {
+        if (value === undefined) {
+          console.log('key', key, 'value', value);
           return handleError(`${key} is required`);
         }
       }
@@ -46,7 +47,8 @@ export const useApiCall = (apiConfig) => {
           message: response.message,
         };
       } catch (err) {
-        let errorMessage = 'An unexpected error occurred';
+        // console.error('API call error2:', err);
+        let errorMessage = err.message;
 
         if (err.message === 'Request timed out') {
           errorMessage =

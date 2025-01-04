@@ -9,9 +9,9 @@ export const useChatSession = () => {
     reschedule: { path: 'chat_sessions', method: 'PUT' },
   });
 
-  const reschedule = async (userId, chatSessionId, date) => {
+  const reschedule = async (chatSessionId, date) => {
     try {
-      const response = await apiCalls.reschedule({ userId, chatSessionId, date });
+      const response = await apiCalls.reschedule({ chatSessionId, date });
 
       console.log('Chat session rescheduled:', response);
 
@@ -42,10 +42,10 @@ export const useChatSession = () => {
     }
   }
 
-  const create = async (userId, date) => {
+  const create = async (date) => {
 
     try {
-      const response = await apiCalls.create({ userId, date });
+      const response = await apiCalls.create({ date });
 
       console.log('Chat session created:', response);
 
