@@ -34,7 +34,7 @@ function YouStack() {
       }}
     >
       <Stack.Screen
-        name="You"
+        name="YourProfile"
         component={YouScreen}
         options={{
           headerShown: false,
