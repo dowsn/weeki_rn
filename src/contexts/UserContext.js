@@ -1,3 +1,5 @@
+// Export the context
+
 import React, { createContext, useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import {
@@ -10,9 +12,11 @@ import {
 } from '../constants/theme';
 import SecurityService from './SecurityService';
 
-export const UserContext = createContext();
+export const UserContext = createContext(undefined); // Initialize with undefined
 
 export const UserProvider = ({ children, initialUser }) => {
+    console.log('UserProvider mounted');
+
   const defaultUser = {
     userId: 0,
     tokens: {
@@ -25,6 +29,7 @@ export const UserProvider = ({ children, initialUser }) => {
   const [loading, setLoading] = useState(true);
   const colorScheme = useColorScheme();
   const [isDark, setIsDark] = useState(colorScheme === 'dark');
+
 
   useEffect(() => {
     const initializeState = async () => {

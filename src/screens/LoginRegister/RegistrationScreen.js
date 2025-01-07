@@ -26,7 +26,7 @@ const RegistrationScreen = () => {
   const { theme } = useUserContext();
   const navigation = useNavigation();
   const { register, isLoading, error } = useRegistration();
-  const [emailReminders, setEmailReminders] = useState(false);
+  const [emailReminders, setEmailReminders] = useState(true);
 
   const [username, setUsername] = React.useState('');
   const [email, setEmail] = React.useState('');

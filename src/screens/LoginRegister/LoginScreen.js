@@ -15,11 +15,9 @@ import CustomTextInput from 'src/components/forms/CustomTextInput';
 import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import SpacingView from 'src/components/layouts/SpacingView';
 import { useLogin } from 'src/hooks/useLogin';
-import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
 
 const LoginScreen = () => {
-  const {theme} = useUserContext();
   const navigation = useNavigation();
   const { login, isLoading, error } = useLogin();
   const [username, setUsername] = React.useState('');

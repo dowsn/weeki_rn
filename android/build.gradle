@@ -8,7 +8,10 @@ buildscript {
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '34')
         kotlinVersion = findProperty('android.kotlinVersion') ?: '1.9.24'
 
-        ndkVersion = "23.1.7779620"  // Change to this specific version
+        ndkVersion = "27.2.12479018"  // Latest stable NDK version
+
+                cmakeVersion = "3.22.1"
+
   // Change this line
 
         // ndkVersion = "28.0.12674087"

@@ -34,3 +34,5 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+android/app/keystore.properties
+android/keystore.properties
