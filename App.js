@@ -5,19 +5,13 @@ import { useFonts } from 'expo-font';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { enableScreens } from 'react-native-screens';
+import WeekiLoading from 'src/components/common/WeekiLoading';
+import { UserProvider } from 'src/contexts/UserContext'; // Add this import
 
 enableScreens();
 const RootStack = createStackNavigator();
 
-const WeekiLoading = () => (
-  <SafeAreaView style={[styles.container, { backgroundColor: 'blue' }]}>
-    <Text style={[styles.text, { color: 'white', fontSize: 24 }]}>
-      Loading...
-    </Text>
-  </SafeAreaView>
-);
-
-// Simple test screens
+// Simple test screens remain the same...
 const AuthScreen = () => (
   <View
     style={{
@@ -53,7 +47,7 @@ const RootNavigator = ({ isAuthenticated, isLoading }) => {
     <View style={{ flex: 1, backgroundColor: 'green' }}>
       <RootStack.Navigator
         screenOptions={{
-          headerTitleStyle: styles.text, // Apply Varela font to headers
+          headerTitleStyle: styles.text,
         }}
       >
         {!isAuthenticated ? (
@@ -97,7 +91,7 @@ const AppContent = ({ isAuthenticated, isLoading }) => {
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Set to true initially
 
   const [fontsLoaded] = useFonts({
     'VarelaRound-Regular': require('./assets/fonts/VarelaRound-Regular.ttf'),
@@ -114,9 +108,11 @@ const App = () => {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: 'red' }]}>
-      <AppContent isAuthenticated={isAuthenticated} isLoading={isLoading} />
-    </View>
+    <UserProvider>
+      <View style={[styles.container, { backgroundColor: 'red' }]}>
+        <AppContent isAuthenticated={isAuthenticated} isLoading={isLoading} />
+      </View>
+    </UserProvider>
   );
 };
 
@@ -130,7 +126,6 @@ const styles = StyleSheet.create({
     fontFamily: 'VarelaRound-Regular',
     fontSize: 24,
   },
-  // Fallback style for when fonts aren't loaded yet
   fallbackText: {
     fontSize: 24,
   },

@@ -21,10 +21,9 @@ export default {
     extra: {
       deepgramApiKey: 'ne',
       eas: {
-        projectId: '721922e4-fff0-4a3a-9cfb-2d5b3f373b2e', // Add this line
+        projectId: '721922e4-fff0-4a3a-9cfb-2d5b3f373b2e',
       },
     },
-    // Add these if you're not already using them
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
@@ -33,6 +32,11 @@ export default {
     updates: {
       fallbackToCacheTimeout: 0,
     },
-    assetBundlePatterns: ['**/*'],
+    assetBundlePatterns: [
+      '**/*',
+      'assets/**/*',
+      'assets/icons/*',
+      'assets/icons/Logo_Violet.png',
+    ],
   },
 };
