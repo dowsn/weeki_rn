@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/common/Text';
 import { useUserContext } from 'src/hooks/useUserContext';
 
@@ -14,6 +14,7 @@ const TextLink = ({ text, onPress, color = null }) => {
       fontWeight: 'bold',
       textAlign: 'center',
       padding: theme.spacing.medium,
+      // The font family will be inherited from the Text component
     },
   });
 
@@ -22,12 +23,6 @@ const TextLink = ({ text, onPress, color = null }) => {
       <Text style={styles.textLink}>{text}</Text>
     </TouchableOpacity>
   );
-};
-
-TextLink.propTypes = {
-  text: PropTypes.string.isRequired,
-  onPress: PropTypes.func.isRequired,
-  color: PropTypes.string,
 };
 
 export default TextLink;

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --clear",
     "tunnel": "expo start --tunnel",
     "tunnel2": "expo start --tunnel --verbose",
     "android": "expo run:android",

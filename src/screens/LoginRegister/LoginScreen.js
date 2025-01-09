@@ -5,6 +5,7 @@ import {
   Image,
   Linking,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -24,6 +25,7 @@ const LoginScreen = () => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [imageError, setImageError] = React.useState(false);
+
 
   const styles = StyleSheet.create({
     container: {
@@ -50,11 +52,15 @@ const LoginScreen = () => {
     footerPart: {
       height: 140,
     },
+    text: {
+      color: 'red'
+    }
+
   });
 
   // Preload the image
   useEffect(() => {
-    Asset.fromModule(require('../../.../assets/icons/Logo_Violet.png'))
+    Asset.fromModule(require('../../../assets/icons/Logo_Violet.png'))
       .downloadAsync()
       .catch((error) => {
         console.error('Failed to preload logo:', error);
@@ -94,13 +100,13 @@ const LoginScreen = () => {
           )}
         </TouchableOpacity>
       </View>
-      <SpacingView style={styles.contentWrapper}>
+       <SpacingView style={styles.contentWrapper}>
         <CustomTextInput
           placeholder="Username"
           onChangeText={handleUsernameChange}
           value={username}
         />
-        <CustomTextInput
+         <CustomTextInput
           placeholder="Password"
           onChangeText={handlePasswordChange}
           value={password}
@@ -117,7 +123,7 @@ const LoginScreen = () => {
           text="Sign Up"
           onPress={() => navigation.navigate('Register')}
         />
-        <TextLink
+         <TextLink
           text="Forgot Password"
           onPress={() => navigation.navigate('ForgotPassword')}
         />

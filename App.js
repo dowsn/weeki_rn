@@ -238,15 +238,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { registerRootComponent } from 'expo';
 import { useFonts } from 'expo-font';
-import React from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import React, { useCallback, useEffect } from 'react';
 import { View } from 'react-native';
 import { enableScreens } from 'react-native-screens';
-import ProfileHeader from 'src/components/common/ProfileHeader';
 import WeekiLoading from 'src/components/common/WeekiLoading';
 import { UserProvider } from 'src/contexts/UserContext';
 import { useUserContext } from 'src/hooks/useUserContext';
-import SubscriptionScreen from 'src/screens/You/SubscriptionScreen';
-import TopicArchiveScreen from 'src/screens/You/TopicsArchiveScreen';
+import LoginScreen from 'src/screens/LoginRegister/LoginScreen';
 import AuthStack from 'src/stacks/AuthStack';
 import DashboardStack from 'src/stacks/DashboardStack';
 
@@ -261,40 +260,63 @@ const RootNavigator = () => {
   if (loading)
     return <WeekiLoading />;
 
-return !user?.userId ? (
-  <Text>{user.userId}</Text>
-) : (
-  <View style={{ flex: 1, backgroundColor: 'yellow', justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Loading...</Text>
-  </View>
-);
-    // <RootStack.Navigator>
-    //   {!user.tokens?.access ? (
-    //     <RootStack.Screen
-    //       name="Auth"
-    //       component={AuthStack}
-    //       options={{ headerShown: false }}
-    //     />
-    //   ) : (
-    //     <RootStack.Screen
-    //       name="Main"
-    //       component={MainStack}
-    //       options={{ headerShown: false }}
-    //     />
-    //   )}
-    // </RootStack.Navigator>
-//   );
+  return (
+    <RootStack.Navigator>
+      {!user.tokens?.access ? (
+        <RootStack.Screen
+          name="Auth"
+          component={AuthStack}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <RootStack.Screen
+          name="Main"
+          component={MainStack}
+          options={{ headerShown: false }}
+        />
+      )}
+    </RootStack.Navigator>
+  );
 };
+
+SplashScreen.preventAutoHideAsync();
 
 const App = () => {
   const [fontsLoaded] = useFonts({
     'VarelaRound-Regular': require('./assets/fonts/VarelaRound-Regular.ttf'),
   });
 
+  useEffect(() => {
+    const prepare = async () => {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+      } catch (e) {
+        console.warn(e);
+      }
+    };
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      try {
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <UserProvider>
-      <AppContent />
-    </UserProvider>
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
+    </View>
   );
 };
 

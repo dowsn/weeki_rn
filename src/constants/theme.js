@@ -61,7 +61,7 @@ export const lightColors = {
 
 // Dark mode colors
 export const darkColors = {
-  dark: baseColors.marineBlue.main,
+  violet_darkest: baseColors.marineBlue.main,
   violet_light: baseColors.marineBlue.light,
   violet_dark: baseColors.marineBlue.dark,
   light: baseColors.moleskin.light,

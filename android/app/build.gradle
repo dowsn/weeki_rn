@@ -125,7 +125,7 @@ android {
         applicationId 'ai.weeki'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
+        versionCode 29
         versionName "1.1.2"
     }
     signingConfigs {

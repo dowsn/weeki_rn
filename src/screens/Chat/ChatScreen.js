@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { Asset } from 'expo-asset';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   Image,
@@ -30,6 +30,10 @@ const ChatScreen = (router) => {
   const { theme, user } = useUserContext();
   const { chat_session_id } = router.route.params;
   const navigation = useNavigation();
+  const scrollViewRef = useRef(null);
+    const inputRef = useRef(null);
+
+
 
   // Add state for image loading
   const [imageError, setImageError] = useState(false);
@@ -41,6 +45,8 @@ const ChatScreen = (router) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(false);
+
 
   // Preload the icon image
   useEffect(() => {
