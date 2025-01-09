@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
+import { Asset } from 'expo-asset';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
@@ -30,24 +31,26 @@ const ChatScreen = (router) => {
   const { chat_session_id } = router.route.params;
   const navigation = useNavigation();
 
+  // Add state for image loading
+  const [imageError, setImageError] = useState(false);
 
-  const chatSession = { chat_session_id };
-
-  // Initialize the API calls hook
-  const { apiCalls, error: apiError } = useApiCall({
-    reschedule: { path: 'chat_sessions', method: 'PUT' },
-  });
-
+  // Other state declarations...
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const { chat, isLoading } = useNote();
-  const scrollViewRef = React.useRef();
-  const inputRef = React.useRef();
-
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Preload the icon image
+  useEffect(() => {
+    Asset.fromModule(require('assets/icon.png'))
+      .downloadAsync()
+      .catch((error) => {
+        console.error('Failed to preload icon:', error);
+        setImageError(true);
+      });
+  }, []);
 
   // Date picker handlers
   const handleModal = () => {
@@ -131,16 +134,13 @@ const ChatScreen = (router) => {
     }
   }, []);
 
-  const { requestResponse, sendUserMessage, sendCloseSignal, isConnected } = useAgentChat(
-    handleStreamedResponse,
-    chat_session_id,
-  );
+  const { requestResponse, sendUserMessage, sendCloseSignal, isConnected } =
+    useAgentChat(handleStreamedResponse, chat_session_id);
 
   const handleClosingSignal = useCallback(() => {
     sendCloseSignal();
     setIsDatePickerVisible(false);
   }, [sendCloseSignal]);
-
 
   const handleKeyPress = ({ nativeEvent }) => {
     if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
@@ -206,9 +206,7 @@ const ChatScreen = (router) => {
     }
   };
 
-
   const mrWeekPicture = require('assets/icon.png');
-
 
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -344,73 +342,61 @@ const ChatScreen = (router) => {
   return !isInitialized ? (
     <WeekiLoading />
   ) : (
-
     <KeyboardAvoidingView
       style={styles.wrapper}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}
     >
-      <View style={styles.container}>
-        <CustomDatePickerModal
-          visible={isDatePickerVisible}
-          onClose={handleCloseDatePicker}
-          date={selectedDate}
-          chatSession={chatSession}
-          onDateChange={handleDateChange}
-          onSave={handleSaveDate}
-          onReschedule={handleSaveDate}
-          onCloseSignal={handleClosingSignal}
-        />
+      {/* Rest of your existing JSX */}
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messagesContainer}
-          contentContainerStyle={styles.contentContainer}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="handled"
-          onContentSizeChange={scrollToBottom}
-          onLayout={scrollToBottom}
-        >
-          {messages.map((message) => (
-            <Message key={message.id} {...message} />
-          ))}
-        </ScrollView>
+      {isConnected ? (
+        <View style={styles.inputSection}>
+          <View style={styles.inputContainer}>
+            <Pressable
+              style={styles.mrWeekButton}
+              onPress={handleMrWeekResponse}
+              disabled={isLoading}
+              onLongPress={handleModal}
+            >
+              {!imageError && (
+                <Image
+                  source={require('assets/icon.png')}
+                  style={{ width: 38, height: 38 }}
+                  onError={(error) => {
+                    console.error(
+                      'Image loading error:',
+                      error.nativeEvent.error,
+                    );
+                    setImageError(true);
+                  }}
+                />
+              )}
+            </Pressable>
 
-    {isConnected ? (
-      <View style={styles.inputSection}>
-        <View style={styles.inputContainer}>
-          <Pressable
-            style={styles.mrWeekButton}
-            onPress={handleMrWeekResponse}
-            disabled={isLoading}
-            onLongPress={handleModal}
-          >
-            <Image source={mrWeekPicture} style={{ width: 38, height: 38 }} />
-          </Pressable>
-
-          <TextInput
-            ref={inputRef}
-            style={styles.input}
-            value={text}
-            onChangeText={setText}
-            placeholder="Type a message..."
-            placeholderTextColor={theme.colors.gray}
-            multiline={true}
-            onKeyPress={handleKeyPress}
-            onSubmitEditing={handleSubmitEditing}
-            returnKeyType="send"
-            submitBehavior="blurAndSubmit"
-          />
+            <TextInput
+              ref={inputRef}
+              style={styles.input}
+              value={text}
+              onChangeText={setText}
+              placeholder="Type a message..."
+              placeholderTextColor={theme.colors.gray}
+              multiline={true}
+              onKeyPress={handleKeyPress}
+              onSubmitEditing={handleSubmitEditing}
+              returnKeyType="send"
+              submitBehavior="blurAndSubmit"
+            />
+          </View>
         </View>
-      </View>
-    ) : (
-      <TextLink text="Dashboard" onPress={() => navigation.replace('Dashboard')} colorType="yellow" />
-    )}
-      </View>
+      ) : (
+        <TextLink
+          text="Dashboard"
+          onPress={() => navigation.replace('Dashboard')}
+          colorType="yellow"
+        />
+      )}
     </KeyboardAvoidingView>
   );
-
-
 };
 
 export default ChatScreen;

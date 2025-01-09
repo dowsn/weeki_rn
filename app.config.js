@@ -37,6 +37,7 @@ export default {
       'assets/**/*',
       'assets/icons/*',
       'assets/icons/Logo_Violet.png',
+      'assets/icons/icon.png'
     ],
   },
 };

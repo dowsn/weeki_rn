@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback } from 'react';
+import { Asset } from 'expo-asset';
+import React, { useCallback, useEffect } from 'react';
 import {
   Image,
   Linking,
@@ -22,6 +23,7 @@ const LoginScreen = () => {
   const { login, isLoading, error } = useLogin();
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [imageError, setImageError] = React.useState(false);
 
   const styles = StyleSheet.create({
     container: {
@@ -31,7 +33,7 @@ const LoginScreen = () => {
     },
     logoContainer: {
       alignItems: 'center',
-      marginTop: 20, // Increased marginTop to move the logo down
+      marginTop: 20,
     },
     mainLogo: {
       width: 120,
@@ -47,19 +49,27 @@ const LoginScreen = () => {
     },
     footerPart: {
       height: 140,
-      // paddingTop: 0,
     },
   });
+
+  // Preload the image
+  useEffect(() => {
+    Asset.fromModule(require('../../.../assets/icons/Logo_Violet.png'))
+      .downloadAsync()
+      .catch((error) => {
+        console.error('Failed to preload logo:', error);
+        setImageError(true);
+      });
+  }, []);
 
   const handleLogin = async () => {
     try {
       let response = await login(username, password);
 
-      if (response.content.activated == false) {
+      if (response.content.activated === false) {
         console.log(response.content);
         navigation.navigate('Activation', { userId: response.content.userId });
       }
-
     } catch (error) {
       showAlert('Error', error.message || 'An unexpected error occurred');
     }
@@ -72,10 +82,16 @@ const LoginScreen = () => {
     <CustomSafeView scrollable keyboardShouldPersistTaps="handled">
       <View style={styles.logoContainer}>
         <TouchableOpacity onPress={() => Linking.openURL('https://weeki.ai')}>
-          <Image
-            source={require('../../../assets/icons/Logo_Violet.png')}
-            style={styles.mainLogo}
-          />
+          {!imageError && (
+            <Image
+              source={require('../../../assets/icons/Logo_Violet.png')}
+              style={styles.mainLogo}
+              onError={(error) => {
+                console.error('Image loading error:', error.nativeEvent.error);
+                setImageError(true);
+              }}
+            />
+          )}
         </TouchableOpacity>
       </View>
       <SpacingView style={styles.contentWrapper}>
