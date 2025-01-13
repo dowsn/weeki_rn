@@ -9,18 +9,15 @@ import {
   View,
 } from 'react-native';
 import TextLink from 'src/components/buttons/TextLink';
+import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import { useUserContext } from 'src/hooks/useUserContext';
 
 const SimpleTextScreen = ({ route }) => {
-  const { title, text, navigation } = route.params;
+  const { title, text, navigation, backText } = route.params;
   const { theme } = useUserContext();
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.violet_darkest,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    },
+
     scrollView: {
       flex: 1,
       flexGrow: 1,
@@ -31,7 +28,7 @@ const SimpleTextScreen = ({ route }) => {
       paddingTop: theme.spacing.large,
       fontSize: theme.fontSizes.medium,
       color: theme.colors.yellow_light,
-      fontWeight: 'bold',
+
       textAlign: 'center',
       marginTop: 24,
       marginBottom: 16,
@@ -44,10 +41,11 @@ const SimpleTextScreen = ({ route }) => {
       marginBottom: 32,
     },
     button: {
-      paddingVertical: 16,
-      marginHorizontal: 16,
-      marginBottom: 24,
-      borderRadius: 8,
+      flexDirection: 'flex-end',
+      // paddingVertical: 16,
+      // marginHorizontal: 16,
+      // marginBottom: 24,
+      // borderRadius: 8,
     },
     buttonText: {
       color: '#fff',
@@ -57,18 +55,18 @@ const SimpleTextScreen = ({ route }) => {
   });
 
   return (
-    <View style={styles.container}>
+    <CustomSafeView>
       <ScrollView style={styles.scrollView}>
         {title && <Text style={styles.title}>{title}</Text>}
         {text && <Text style={styles.text}>{text}</Text>}
       </ScrollView>
 
       <TextLink
-        text="Back"
+        text={backText || 'Back'}
         style={styles.button}
         onPress={() => navigation.goBack()}
       ></TextLink>
-    </View>
+    </CustomSafeView>
   );
 };
 

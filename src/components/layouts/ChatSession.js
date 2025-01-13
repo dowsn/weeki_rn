@@ -27,7 +27,7 @@ const ChatSession = ({
     title: {
       color: theme.colors.yellow_light,
       fontSize: theme.fontSizes.large,
-      fontWeight: 'bold',
+
       textAlign: 'center',
     },
     buttonContainer: {

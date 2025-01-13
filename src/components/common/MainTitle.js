@@ -8,7 +8,7 @@ const MainTitle = ({ title }) => {
   const styles = StyleSheet.create({
     title: {
       fontSize: theme.fontSizes.large,
-      fontWeight: 'bold',
+
       marginBottom: theme.spacing.large,
       color: theme.colors.light,
       textAlign: 'center',

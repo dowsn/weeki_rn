@@ -1,16 +1,17 @@
-// NormalButton.js
 import React, { useCallback, useRef } from 'react';
 import {
   Animated,
   Dimensions,
   StyleSheet,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
-import { Text } from 'src/components/common/Text';
+import Text from 'src/components/common/Text'; // Import your custom Text component
 import { useUserContext } from 'src/hooks/useUserContext';
 import { createStyles } from 'src/styles';
 
 const { width } = Dimensions.get('window');
+// Create animated version of your custom Text component
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
 const NormalButton = ({ text, onPress, colorType = 'yellow' }) => {
@@ -35,6 +36,9 @@ const NormalButton = ({ text, onPress, colorType = 'yellow' }) => {
   const buttonColor = getButtonColor();
 
   const customStyles = StyleSheet.create({
+    container: {
+      width: '100%',
+    },
     button: {
       alignSelf: 'center',
       paddingVertical: theme.spacing.medium,
@@ -49,7 +53,6 @@ const NormalButton = ({ text, onPress, colorType = 'yellow' }) => {
     buttonText: {
       fontSize: theme.fontSizes.medium,
       color: buttonColor,
-      fontWeight: 'bold',
       textAlign: 'center',
     },
   });
@@ -81,24 +84,26 @@ const NormalButton = ({ text, onPress, colorType = 'yellow' }) => {
   }, [animatedValue]);
 
   return (
-    <TouchableWithoutFeedback
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      onPress={onPress}
-    >
-      <Animated.View
-        style={[
-          customStyles.button,
-          { backgroundColor: animatedBackgroundColor },
-        ]}
+    <View style={customStyles.container}>
+      <TouchableWithoutFeedback
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={onPress}
       >
-        <AnimatedText
-          style={[customStyles.buttonText, { color: animatedTextColor }]}
+        <Animated.View
+          style={[
+            customStyles.button,
+            { backgroundColor: animatedBackgroundColor },
+          ]}
         >
-          {text}
-        </AnimatedText>
-      </Animated.View>
-    </TouchableWithoutFeedback>
+          <AnimatedText
+            style={[customStyles.buttonText, { color: animatedTextColor }]}
+          >
+            {text}
+          </AnimatedText>
+        </Animated.View>
+      </TouchableWithoutFeedback>
+    </View>
   );
 };
 

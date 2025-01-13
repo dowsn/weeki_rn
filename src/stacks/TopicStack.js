@@ -37,6 +37,7 @@ function TopicsStack() {
           headerShown: false,
         }}
       />
+
       <Stack.Screen
         name="Character"
         component={SimpleTextScreen}

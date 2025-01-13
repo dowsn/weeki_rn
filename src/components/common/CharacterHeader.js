@@ -7,6 +7,8 @@ import { useUserContext } from 'src/hooks/useUserContext';
 import NormalButton from '../buttons/NormalButton';
 
 const CharacterHeader = ({ navigation, title, text }) => {
+
+  const backText = title
   const { user, theme } = useUserContext();
 
   const styles = StyleSheet.create({
@@ -30,7 +32,7 @@ const CharacterHeader = ({ navigation, title, text }) => {
     username: {
       color: theme.colors.light,
       fontSize: theme.fontSizes.middle,
-      fontWeight: 'bold',
+
       marginRight: theme.spacing.small,
     },
     icon: {
@@ -53,7 +55,7 @@ const CharacterHeader = ({ navigation, title, text }) => {
         <View style={styles.buttonWrapper}>
           <NormalButton
             text="You"
-            onPress={() => navigation.navigate('Character', { title, text, navigation })}
+            onPress={() => navigation.navigate('Character', { title, text, navigation, backText })}
           />
         </View>
       </View>

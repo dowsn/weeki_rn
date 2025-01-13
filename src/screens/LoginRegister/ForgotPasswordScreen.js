@@ -47,7 +47,7 @@ const ForgotPasswordScreen = () => {
       paddingHorizontal: 20,
     },
     footerPart: {
-      height: 140,
+      flexDirection: 'flex-end',
     },
     instructionText: {
       textAlign: 'center',

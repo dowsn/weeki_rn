@@ -21,7 +21,7 @@ const DashboardScreen = ({ navigation }) => {
   const [chatSession, setChatSession] = useState(null);
   const [appState, setAppState] = useState(AppState.currentState);
   const [tokens, setTokens] = useState(0);
-  const [nextDate, setNextDate] = useState("1. 1.");
+  const [nextDate, setNextDate] = useState("");
   const [isAlreadySession, setIsAlreadySession] = useState(false);
   const [hasExpiredSession, setHasExpiredSession] = useState(false);
 

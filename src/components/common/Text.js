@@ -1,3 +1,4 @@
+import { useFonts } from 'expo-font';
 import React from 'react';
 import {
   Platform,
@@ -17,6 +18,9 @@ const defaultTextStyle = {
 };
 
 export const Text = React.forwardRef(({ style, ...props }, ref) => {
+    console.log('Text component rendered with style:', style);
+
+
   const combinedStyle = [
     defaultTextStyle,
     style,

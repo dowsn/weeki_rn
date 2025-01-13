@@ -84,7 +84,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
   }
 
   const onSummaryPress = (text) => {
-    navigation.navigate('Summary', { text: summary, navigation });
+    navigation.navigate('Summary', { text: summary, navigation, backText: 'Moments' });
   }
 
 
@@ -108,7 +108,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
         onSummaryPress={onSummaryPress}
       />
       <TextLink
-        text="Dashboard"
+        text="Focusboard"
         onPress={() => navigation.goBack()}
         color={theme.colors.violet_light}
       />

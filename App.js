@@ -237,10 +237,10 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { registerRootComponent } from 'expo';
+import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import React, { useCallback, useEffect } from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import WeekiLoading from 'src/components/common/WeekiLoading';
 import { UserProvider } from 'src/contexts/UserContext';
@@ -248,6 +248,8 @@ import { useUserContext } from 'src/hooks/useUserContext';
 import LoginScreen from 'src/screens/LoginRegister/LoginScreen';
 import AuthStack from 'src/stacks/AuthStack';
 import DashboardStack from 'src/stacks/DashboardStack';
+import TextLink from './src/components/buttons/TextLink';
+import { FontProvider } from './src/contexts/FontContext';
 
 enableScreens();
 
@@ -257,8 +259,7 @@ const RootStack = createStackNavigator();
 const RootNavigator = () => {
   const { user, loading } = useUserContext();
 
-  if (loading)
-    return <WeekiLoading />;
+  if (loading) return <WeekiLoading />;
 
   return (
     <RootStack.Navigator>
@@ -279,45 +280,17 @@ const RootNavigator = () => {
   );
 };
 
-SplashScreen.preventAutoHideAsync();
-
 const App = () => {
-  const [fontsLoaded] = useFonts({
-    'VarelaRound-Regular': require('./assets/fonts/VarelaRound-Regular.ttf'),
-  });
 
-  useEffect(() => {
-    const prepare = async () => {
-      try {
-        await SplashScreen.preventAutoHideAsync();
-      } catch (e) {
-        console.warn(e);
-      }
-    };
-    prepare();
-  }, []);
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      try {
-        await SplashScreen.hideAsync();
-      } catch (e) {
-        console.warn(e);
-      }
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <UserProvider>
-        <AppContent />
-      </UserProvider>
-    </View>
-  );
+   return (
+     <View style={{ flex: 1 }}>
+       <FontProvider>
+         <UserProvider>
+           <AppContent />
+         </UserProvider>
+       </FontProvider>
+     </View>
+   );
 };
 
 const AppContent = () => {

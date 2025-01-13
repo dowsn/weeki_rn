@@ -5,19 +5,19 @@ export default (theme) =>
   StyleSheet.create({
     h1: {
       fontSize: theme.fontSizes.big,
-      fontWeight: 'bold',
+
       color: theme.colors.text,
       marginBottom: theme.spacing.medium,
     },
     h2: {
       fontSize: 24,
-      fontWeight: 'bold',
+
       color: theme.colors.text,
       marginBottom: theme.spacing.small,
     },
     h3: {
       fontSize: 18,
-      fontWeight: 'bold',
+
       color: theme.colors.text,
       marginBottom: theme.spacing.small,
     },

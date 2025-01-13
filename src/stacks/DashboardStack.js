@@ -2,6 +2,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
 import { useUserContext } from 'src/hooks/useUserContext';
 import ChatScreen from 'src/screens/Chat/ChatScreen';
+import DebugChatScreen from 'src/screens/Chat/DebugChatScreen';
 import DashboardScreen from '../screens/Dashboard/DashboardScreen';
 import OldSessionsStack from './OldSessionsStack';
 import TopicsStack from './TopicStack';
@@ -32,7 +33,7 @@ function DashboardStack() {
       }}
     >
       <Stack.Screen
-        name="Dashboard"
+        name="Focusboard"
         component={DashboardScreen}
         options={{
           headerShown: false,

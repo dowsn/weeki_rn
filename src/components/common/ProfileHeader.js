@@ -12,13 +12,15 @@ const ProfileHeader = ({ navigation, hasExpiredSession }) => {
 
   const handleMomentsPress = () => {
     if (!hasExpiredSession) {
-      showAlert('Weeki', "Here you will be able to review our moments together. Click on me to schedule a first session.");
+      showAlert(
+        'Weeki',
+        'Review our shared moments. Click on me to schedule our first.',
+      );
       return;
     }
           navigation.navigate('OldSessions', { selected_id: null })
 
   }
-
 
 
   const styles = StyleSheet.create({
@@ -42,7 +44,7 @@ const ProfileHeader = ({ navigation, hasExpiredSession }) => {
     username: {
       color: theme.colors.light,
       fontSize: theme.fontSizes.middle,
-      fontWeight: 'bold',
+
       marginRight: theme.spacing.small,
     },
     icon: {

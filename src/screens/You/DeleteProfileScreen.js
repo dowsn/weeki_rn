@@ -52,7 +52,7 @@ const DeleteProfileScreen = () => {
       paddingHorizontal: 20,
     },
     footerPart: {
-      height: 140,
+      flexDirection: 'flex-end',
     },
     reminderContainer: {
       flexDirection: 'row',
@@ -106,7 +106,7 @@ const DeleteProfileScreen = () => {
         />
       </SpacingView>
       <SpacingView spacing="large" style={styles.footerPart}>
-        <TextLink text="Back" onPress={() => navigation.goBack()} />
+        <TextLink text="Update Profile" onPress={() => navigation.goBack()} />
       </SpacingView>
     </CustomSafeView>
   );

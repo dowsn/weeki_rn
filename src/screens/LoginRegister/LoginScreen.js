@@ -16,6 +16,7 @@ import MainTitle from 'src/components/common/MainTitle';
 import CustomTextInput from 'src/components/forms/CustomTextInput';
 import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import SpacingView from 'src/components/layouts/SpacingView';
+import Message from 'src/components/textboxes/Message';
 import { useLogin } from 'src/hooks/useLogin';
 import { showAlert } from 'src/utils/alert';
 
@@ -50,7 +51,7 @@ const LoginScreen = () => {
       paddingHorizontal: 20,
     },
     footerPart: {
-      height: 140,
+      flexDirection: 'flex-end',
     },
     text: {
       color: 'red'
@@ -101,12 +102,12 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
        <SpacingView style={styles.contentWrapper}>
-        <CustomTextInput
+      <CustomTextInput
           placeholder="Username"
           onChangeText={handleUsernameChange}
           value={username}
         />
-         <CustomTextInput
+        <CustomTextInput
           placeholder="Password"
           onChangeText={handlePasswordChange}
           value={password}
@@ -119,11 +120,11 @@ const LoginScreen = () => {
         />
       </SpacingView>
       <SpacingView spacing="large" style={styles.footerPart}>
-        <TextLink
+      <TextLink
           text="Sign Up"
           onPress={() => navigation.navigate('Register')}
         />
-         <TextLink
+       <TextLink
           text="Forgot Password"
           onPress={() => navigation.navigate('ForgotPassword')}
         />

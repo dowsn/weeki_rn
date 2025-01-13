@@ -8,7 +8,7 @@ const Subtitle = ({ title }) => {
   const styles = StyleSheet.create({
     title: {
       fontSize: theme.fontSizes.medium,
-      fontWeight: 'bold',
+
       marginBottom: theme.spacing.medium,
       color: theme.colors.onBackground,
       textAlign: 'center',

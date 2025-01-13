@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import Text from 'src/components/common/Text';
 import { useUserContext } from 'src/hooks/useUserContext';
 
 const Message = ({ id, sender, date_created, text}) => {
 
-  const { user, theme } = useUserContext();
+  const { theme } = useUserContext();
 
   const styles = StyleSheet.create({
     messageContainer: {
@@ -23,6 +23,11 @@ const Message = ({ id, sender, date_created, text}) => {
       fontSize: theme.fontSizes.medium,
     },
   });
+
+  useEffect(() => {
+    console.log('Text style2:', StyleSheet.flatten([styles.messageText])); // for Message
+    console.log('Text style2:', StyleSheet.flatten([styles.textLink])); // for TextLink
+  }, []);
 
   return (
     <View key={id || date_created} style={styles.messageContainer}>

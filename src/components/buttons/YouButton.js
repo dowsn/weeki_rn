@@ -16,7 +16,7 @@ const YouButton = ({
 
   const handleYouButtonPress = useCallback(() => {
     if (!hasExpiredSession) {
-      showAlert('Weeki', 'Here you will be able to look at how I see your character and your topics. Click on me to schedule our first session.');
+      showAlert('Weeki', 'Experience your personality through my lens. Click on me to plan our first moment.');
       return;
     }
     navigation.navigate('Topics');
@@ -48,7 +48,6 @@ const YouButton = ({
     buttonText: {
       color: theme.colors.violet_darkest,
       textAlign: 'center',
-      fontWeight: 'bold',
       fontSize: theme.fontSizes.large,
     },
     smallButtonText: {
@@ -70,8 +69,8 @@ const YouButton = ({
         {next_date != 'Subscribe' && (
           <Text style={styles.smallButtonText}>
             {tokens === 0
-              ? `New sessions ${next_date}`
-              : `${tokens} session${tokens > 1 ? 's' : ''}`}
+              ? `${next_date}`
+              : `${tokens}`}
           </Text>
         )}
       </TouchableOpacity>

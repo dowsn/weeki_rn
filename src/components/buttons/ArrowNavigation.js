@@ -31,7 +31,6 @@ const ArrowNavigation = ({ previous, next, date, onNavigate }) => {
     },
     title: {
       fontSize: 18,
-      fontWeight: 'bold',
       color: theme.colors.yellow_light,
     },
   });

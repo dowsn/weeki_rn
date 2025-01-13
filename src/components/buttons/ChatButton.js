@@ -64,18 +64,34 @@ const ChatButton = ({
     }
   }, [chatSession?.id, navigation, cancel]);
 
-  const handleReschedule = useCallback(async () => {
+const handleReschedule = useCallback(
+  async (selectedDate) => {
     try {
-      await reschedule(chatSession.id, date);
+      // Use the passed date if available, otherwise use state date
+      const dateToUse = selectedDate || date;
+      console.log('Rescheduling with date:', dateToUse);
+
+      // Wait for the reschedule to complete
+      await reschedule(chatSession.id, dateToUse);
+      console.log('Reschedule API call completed');
+
+      // Only close modal and navigate after successful reschedule
       setModalVisible(false);
-      navigation.replace('Dashboard');
+
+      // Add a small delay before navigation to ensure state updates
+      setTimeout(() => {
+        navigation.replace('Dashboard');
+      }, 100);
     } catch (error) {
+      console.error('Reschedule error:', error);
       showAlert(
         'Error',
         'Oops, I had a problem rescheduling our session, please try again later.',
       );
     }
-  }, [chatSession?.id, date, navigation, reschedule]);
+  },
+  [chatSession?.id, date, navigation, reschedule],
+);
 
   const handleChatButtonPress = useCallback(() => {
     // Remove setTimeout and directly set modal visibility
@@ -96,19 +112,10 @@ const ChatButton = ({
       alignItems: 'center',
       backgroundColor: isToday ? theme.colors.green : theme.colors.violet_light,
       borderRadius: 150, // Half of width/height for perfect circle
-      elevation: 4, // Android shadow
-      shadowColor: '#000', // iOS shadow
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
     },
     buttonText: {
       color: theme.colors.violet_darkest,
       textAlign: 'center',
-      fontWeight: 'bold',
       fontSize: theme.fontSizes.large,
     },
     smallButtonText: {

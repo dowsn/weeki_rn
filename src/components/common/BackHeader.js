@@ -30,7 +30,6 @@ function BackHeader({ text, onPress }) {
     text: {
       color: theme.colors.surface,
       fontSize: 27,
-      fontWeight: 'bold',
     },
   });
 

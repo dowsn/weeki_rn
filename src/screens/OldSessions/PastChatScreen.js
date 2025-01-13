@@ -3,6 +3,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import TextLink from 'src/components/buttons/TextLink';
 import { Text } from 'src/components/common/Text';
+import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import Message from 'src/components/textboxes/Message';
 import { useUserContext } from 'src/hooks/useUserContext';
 
@@ -22,21 +23,20 @@ const PastChatScreen = (router) => {
     },
     contentContainer: {
       flexGrow: 1,
-      padding: theme.spacing.medium,
+      // padding: theme.spacing.medium,
       paddingBottom: 80,
       paddingTop: theme.spacing.large + 20,
     }
   });
 
   return (
-    <View style={styles.container}>
+    <CustomSafeView>
       <ScrollView
         ref={scrollViewRef}
         style={styles.messagesContainer}
         contentContainerStyle={styles.contentContainer}
       >
         {messages.map((message) => (
-
           <Message
             key={message.id}
             sender={message.role === 'user' ? 'user' : 'assistant'}
@@ -45,8 +45,8 @@ const PastChatScreen = (router) => {
           />
         ))}
       </ScrollView>
-      <TextLink text="Back" onPress={() => navigation.goBack()} />
-    </View>
+      <TextLink text="Moments" onPress={() => navigation.goBack()} />
+    </CustomSafeView>
   );
 };
 

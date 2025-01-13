@@ -4,7 +4,9 @@ import Text from 'src/components/common/Text';
 import { useUserContext } from 'src/hooks/useUserContext';
 
 const TopicBox = ({ id, title, text, width, height, navigation }) => {
-  const { theme } = useUserContext();
+  const { user, theme } = useUserContext();
+
+  const backText = user.username
 
   const styles = StyleSheet.create({
     container: {
@@ -34,7 +36,7 @@ const TopicBox = ({ id, title, text, width, height, navigation }) => {
     <TouchableOpacity
       style={styles.container}
       onPress={() =>
-        navigation.navigate('TopicDetail', { text, title, navigation })
+        navigation.navigate('TopicDetail', { text, title, navigation, backText })
       }
     >
       <View style={styles.textContainer}>

@@ -62,7 +62,7 @@ const EditProfileScreen = () => {
       paddingHorizontal: 20,
     },
     footerPart: {
-      height: 140,
+      flexDirection: 'flex-end',
     },
     reminderContainer: {
       flexDirection: 'row',
@@ -168,7 +168,7 @@ const EditProfileScreen = () => {
           onPress={() => navigation.navigate('Delete Profile')}
           color={theme.colors.red}
         />
-        <TextLink text="Back" onPress={() => navigation.goBack()} />
+        <TextLink text="Present" onPress={() => navigation.goBack()} />
       </SpacingView>
     </CustomSafeView>
   );

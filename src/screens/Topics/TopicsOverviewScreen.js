@@ -29,10 +29,9 @@ const TopicsOverviewScreen = ({ navigation }) => {
   const { user, setUser, theme } = useUserContext();
   const [topics, setTopics] = useState([]);
   const [oldTopics, setOldTopics] = useState([]);
-  const [character, setCharacter] = useState("");
+  const [character, setCharacter] = useState('');
 
-  const { getTopics, isLoading, error } =
-    useTopics();
+  const { getTopics, isLoading, error } = useTopics();
 
   const fetchTopics = async () => {
     try {
@@ -56,7 +55,6 @@ const TopicsOverviewScreen = ({ navigation }) => {
     }
   };
 
-
   // Initial fetch
   useEffect(() => {
     fetchTopics();
@@ -69,22 +67,30 @@ const TopicsOverviewScreen = ({ navigation }) => {
     },
     scrollView: {
       flex: 1,
+    },
+    contentContainer: {
       flexGrow: 1,
       paddingHorizontal: theme.spacing.small,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-      paddingBottom: theme.spacing.small,
+      paddingBottom: 80, // Add space for the TextLink
+      paddingTop: theme.spacing.small,
     },
   });
 
   return isLoading ? (
     <WeekiLoading />
   ) : (
-    <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <CharacterHeader navigation={navigation} text={character} title={user.username} />
+    <CustomSafeView>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <CharacterHeader
+          navigation={navigation}
+          text={character}
+          title={user.username}
+        />
 
         <TopicGrid data={topics} navigation={navigation} />
-
 
         {oldTopics.length > 0 && (
           <>
@@ -93,15 +99,15 @@ const TopicsOverviewScreen = ({ navigation }) => {
           </>
         )}
         <FlexSpacer />
-
-        {/* dashboard back */}
       </ScrollView>
       <TextLink
-        text="Dashboard"
-        onPress={() => navigation.navigate('Dashboard')}
+        text="Focusboard"
+          onPress={() => {
+            navigation.goBack(); // This will go back to Dashboard
+          }}
         color={theme.colors.violet_light}
       />
-    </View>
+    </CustomSafeView>
   );
 };
 

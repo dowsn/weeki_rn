@@ -30,20 +30,7 @@ const ActivationScreen = () => {
   const [imageError, setImageError] = React.useState(false);
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      paddingHorizontal: 20,
-    },
-    logoContainer: {
-      alignItems: 'center',
-      marginTop: 20,
-    },
-    mainLogo: {
-      width: 120,
-      height: 120,
-      alignSelf: 'center',
-    },
+
     contentWrapper: {
       flex: 1,
       justifyContent: 'center',
@@ -52,16 +39,12 @@ const ActivationScreen = () => {
       paddingHorizontal: 20,
     },
     footerPart: {
-      height: 140,
+      flexDirection: 'flex-end',
     },
-    welcomeText: {
-      textAlign: 'center',
-      marginBottom: 20,
-      fontSize: 16,
-    },
+
     instructionText: {
       textAlign: 'center',
-      marginBottom: 30,
+      marginBottom: theme.spacing.large,
       color: theme.colors.yellow_light,
     },
   });
@@ -103,20 +86,7 @@ const ActivationScreen = () => {
 
   return (
     <CustomSafeView scrollable keyboardShouldPersistTaps="handled">
-      <View style={styles.logoContainer}>
-        <TouchableOpacity onPress={() => Linking.openURL('https://weeki.ai')}>
-          {!imageError && (
-            <Image
-              source={require('../../../assets/icons/Logo_Violet.png')}
-              style={styles.mainLogo}
-              onError={(error) => {
-                console.error('Image loading error:', error.nativeEvent.error);
-                setImageError(true);
-              }}
-            />
-          )}
-        </TouchableOpacity>
-      </View>
+
       <SpacingView style={styles.contentWrapper}>
         <Text style={styles.instructionText}>
           Please enter the activation code sent to your email address
@@ -129,7 +99,7 @@ const ActivationScreen = () => {
           textAlign="center"
         />
         <NormalButton
-          text={isLoading ? 'Loading...' : 'Activate Account'}
+          text={isLoading ? 'Loading...' : 'Activate'}
           onPress={handleActivation}
           disabled={isLoading || activationCode.length < 6}
         />

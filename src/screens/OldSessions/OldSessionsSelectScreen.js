@@ -73,6 +73,9 @@ const OldSessionsSelectScreen = ({ navigation, route }) => {
       color: '#fff',
       fontSize: 18,
     },
+    footerPart: {
+      flexDirection: 'flex-end',
+    },
   });
 
   useEffect(() => {
@@ -130,7 +133,7 @@ const OldSessionsSelectScreen = ({ navigation, route }) => {
           contentContainerStyle={styles.listContainer}
         />
       )}
-      <TextLink text="Back" onPress={() => navigation.goBack()} />
+      <TextLink style={styles.footerPart} text="Moments" onPress={() => navigation.goBack()} />
     </CustomSafeView>
   );
 };

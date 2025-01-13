@@ -20,7 +20,7 @@ const CustomTextInput = ({ placeholder, ...props }) => {
       height: theme.spacing.large * 2,
       fontSize: theme.fontSizes.medium,
       color: theme.colors.onSurface,
-      textAlign: 'center', // Center the text
+      textAlign: 'center',
     },
   });
 
@@ -29,6 +29,14 @@ const CustomTextInput = ({ placeholder, ...props }) => {
       <TextInput
         style={customStyles.textInput}
         autoCapitalize="none"
+        multiline={true}
+        numberOfLines={1}
+        blurOnSubmit={true}
+        onKeyPress={({ nativeEvent }) => {
+          if (nativeEvent.key === 'Enter') {
+            return;
+          }
+        }}
         placeholderTextColor={theme.colors.gray}
         placeholder={placeholder}
         {...props}

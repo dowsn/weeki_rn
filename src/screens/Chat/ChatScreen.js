@@ -1,6 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { Asset } from 'expo-asset';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
   Image,
@@ -30,33 +29,24 @@ const ChatScreen = (router) => {
   const { theme, user } = useUserContext();
   const { chat_session_id } = router.route.params;
   const navigation = useNavigation();
-  const scrollViewRef = useRef(null);
-    const inputRef = useRef(null);
 
+  const chatSession = { chat_session_id };
 
+  // Initialize the API calls hook
+  const { apiCalls, error: apiError } = useApiCall({
+    reschedule: { path: 'chat_sessions', method: 'PUT' },
+  });
 
-  // Add state for image loading
-  const [imageError, setImageError] = useState(false);
-
-  // Other state declarations...
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const { chat, isLoading } = useNote();
+  const scrollViewRef = React.useRef();
+  const inputRef = React.useRef();
+
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isLoading, setIsLoading] = useState(false);
-
-
-  // Preload the icon image
-  useEffect(() => {
-    Asset.fromModule(require('assets/icon.png'))
-      .downloadAsync()
-      .catch((error) => {
-        console.error('Failed to preload icon:', error);
-        setImageError(true);
-      });
-  }, []);
 
   // Date picker handlers
   const handleModal = () => {
@@ -113,6 +103,10 @@ const ChatScreen = (router) => {
     } else if (typeof data === 'string') {
       setMessages((prev) => {
         const isSpecialMessage = data.startsWith('***');
+
+        if (isSpecialMessage) {
+          data = data.replace(/^\*\*\*/, '');
+        }
 
         if (
           !prev.length ||
@@ -353,54 +347,70 @@ const ChatScreen = (router) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}
     >
-      {/* Rest of your existing JSX */}
-
-      {isConnected ? (
-        <View style={styles.inputSection}>
-          <View style={styles.inputContainer}>
-            <Pressable
-              style={styles.mrWeekButton}
-              onPress={handleMrWeekResponse}
-              disabled={isLoading}
-              onLongPress={handleModal}
-            >
-              {!imageError && (
-                <Image
-                  source={require('assets/icon.png')}
-                  style={{ width: 38, height: 38 }}
-                  onError={(error) => {
-                    console.error(
-                      'Image loading error:',
-                      error.nativeEvent.error,
-                    );
-                    setImageError(true);
-                  }}
-                />
-              )}
-            </Pressable>
-
-            <TextInput
-              ref={inputRef}
-              style={styles.input}
-              value={text}
-              onChangeText={setText}
-              placeholder="Type a message..."
-              placeholderTextColor={theme.colors.gray}
-              multiline={true}
-              onKeyPress={handleKeyPress}
-              onSubmitEditing={handleSubmitEditing}
-              returnKeyType="send"
-              submitBehavior="blurAndSubmit"
-            />
-          </View>
-        </View>
-      ) : (
-        <TextLink
-          text="Dashboard"
-          onPress={() => navigation.replace('Dashboard')}
-          colorType="yellow"
+      <View style={styles.container}>
+        <CustomDatePickerModal
+          visible={isDatePickerVisible}
+          onClose={handleCloseDatePicker}
+          date={selectedDate}
+          chatSession={chatSession}
+          onDateChange={handleDateChange}
+          onSave={handleSaveDate}
+          onReschedule={handleSaveDate}
+          onCloseSignal={handleClosingSignal}
         />
-      )}
+
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.contentContainer}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+          onContentSizeChange={scrollToBottom}
+          onLayout={scrollToBottom}
+        >
+          {messages.map((message) => (
+            <Message key={message.id} {...message} />
+          ))}
+        </ScrollView>
+
+        {isConnected ? (
+          <View style={styles.inputSection}>
+            <View style={styles.inputContainer}>
+              <Pressable
+                style={styles.mrWeekButton}
+                onPress={handleMrWeekResponse}
+                disabled={isLoading}
+                onLongPress={handleModal}
+              >
+                <Image
+                  source={mrWeekPicture}
+                  style={{ width: 38, height: 38 }}
+                />
+              </Pressable>
+
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                value={text}
+                onChangeText={setText}
+                placeholder="Type a message..."
+                placeholderTextColor={theme.colors.gray}
+                multiline={true}
+                onKeyPress={handleKeyPress}
+                onSubmitEditing={handleSubmitEditing}
+                returnKeyType="send"
+                submitBehavior="blurAndSubmit"
+              />
+            </View>
+          </View>
+        ) : (
+          <TextLink
+            text="Dashboard"
+            onPress={() => navigation.replace('Dashboard')}
+            colorType="yellow"
+          />
+        )}
+      </View>
     </KeyboardAvoidingView>
   );
 };
