@@ -94,7 +94,7 @@ const TopicsOverviewScreen = ({ navigation }) => {
 
         {oldTopics.length > 0 && (
           <>
-            <CustomTitle user="true">Past</CustomTitle>
+            <CustomTitle user="true">Inactive</CustomTitle>
             <TopicGrid data={oldTopics} navigation={navigation} />
           </>
         )}

@@ -17,9 +17,9 @@ import CustomDatePickerModal from 'src/components/common/CustomDatePickerModal';
 import LoadingAnimation from 'src/components/common/LoadingAnimation';
 import { Text } from 'src/components/common/Text';
 import Message from 'src/components/textboxes/Message';
+import TopicConfirmator from 'src/components/textboxes/TopicConfirmator';
 import { www } from 'src/constants/constants';
 import { useAgentChat } from 'src/hooks/useChatAgent';
-import { useNote } from 'src/hooks/useNote';
 import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
 import { useApiCall } from 'src/utils/hook';
@@ -37,10 +37,20 @@ const ChatScreen = (router) => {
     reschedule: { path: 'chat_sessions', method: 'PUT' },
   });
 
+  const [showTopicOptions, setShowTopicOptions] = useState(false);
+  const [isResponseLoading, setIsResponseLoading] = useState(false);
+
+  const showTopicConfirmator = () => {
+    setShowTopicOptions(true);
+  };
+
+  const hideTopicConfirmator = () => {
+    setShowTopicOptions(false);
+  };
+
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const { chat, isLoading } = useNote();
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
 
@@ -89,52 +99,75 @@ const ChatScreen = (router) => {
     }
   };
 
-  const handleStreamedResponse = useCallback((data) => {
-    if (data.type === 'connection_status' && data.messages) {
-      setMessages(
-        data.messages.map((msg) => ({
-          id: msg.id,
-          text: msg.content,
-          sender: msg.role === 'assistant' ? 'assistant' : 'user',
-          date_created: msg.date_created,
-        })),
-      );
-      setIsInitialized(true);
-    } else if (typeof data === 'string') {
-      setMessages((prev) => {
-        const isSpecialMessage = data.startsWith('***');
+  const handleStreamedResponse = useCallback(
+    (data) => {
+      hideTopicConfirmator();
+      setIsResponseLoading(false);
 
-        if (isSpecialMessage) {
-          data = data.replace(/^\*\*\*/, '');
-        }
+      const { text: responseText, type, messages: messagesData } = data;
 
-        if (
-          !prev.length ||
-          prev[prev.length - 1].sender !== 'assistant' ||
-          isSpecialMessage
-        ) {
-          return [
-            ...prev,
-            {
-              id: Date.now().toString(),
-              sender: 'assistant',
-              text: data,
-              date_created: new Date().toISOString(),
-            },
-          ];
-        }
+      switch (type) {
+        case 'connection_status':
+          if (messagesData) {
+            setMessages(
+              messagesData.map((msg) => ({
+                id: msg.id,
+                text: msg.content,
+                sender: msg.role === 'assistant' ? 'assistant' : 'user',
+                date_created: msg.date_created,
+              })),
+            );
+            setIsInitialized(true);
+          }
+          break;
 
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          ...updated[updated.length - 1],
-          text: updated[updated.length - 1].text + data,
-        };
-        return updated;
-      });
-    }
-  }, []);
+        case 'message':
+        case 'topic':
+          if (typeof responseText === 'string') {
+            setMessages((prev) => {
+              const isSpecialMessage = responseText.startsWith('***');
 
-  const { requestResponse, sendUserMessage, sendCloseSignal, isConnected } =
+              if (isSpecialMessage) {
+                responseText = responseText.replace(/^\*\*\*/, '');
+              }
+
+              if (
+                !prev.length ||
+                prev[prev.length - 1].sender !== 'assistant' ||
+                isSpecialMessage
+              ) {
+                return [
+                  ...prev,
+                  {
+                    id: Date.now().toString(),
+                    sender: 'assistant',
+                    text: responseText,
+                    date_created: new Date().toISOString(),
+                  },
+                ];
+              }
+
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                ...updated[updated.length - 1],
+                text: updated[updated.length - 1].text + responseText,
+              };
+              return updated;
+            });
+          }
+
+          if (type === 'topic') {
+            showTopicConfirmator();
+          }
+
+          break;
+      }
+    },
+    [],
+  );
+
+
+  const { requestResponse, quitTopic, confirmTopic, sendUserMessage, sendCloseSignal, isConnected } =
     useAgentChat(handleStreamedResponse, chat_session_id);
 
   const handleClosingSignal = useCallback(() => {
@@ -151,7 +184,11 @@ const ChatScreen = (router) => {
   };
 
   const handleAddMessage = () => {
-    if (text.trim()) {
+    if (text.trim() && !isResponseLoading) {
+
+      hideTopicConfirmator();
+
+
       const isFollowUp =
         messages.length > 0 && messages[messages.length - 1].sender === 'user';
 
@@ -180,9 +217,12 @@ const ChatScreen = (router) => {
   };
 
   const handleMrWeekResponse = () => {
-    if (messages[messages.length - 1]?.sender === 'assistant') {
-      return;
+
+    if (messages[messages.length - 1]?.sender === 'assistant' &&
+      messages[messages.length - 1]?.text === 'loading...') {
+    return; // Already showing loading
     }
+
 
     // Get consecutive user messages from bottom until we hit an assistant message
     const userMessages = [];
@@ -197,9 +237,23 @@ const ChatScreen = (router) => {
       }
     }
 
-    const query = userMessages.join('\n');
+    const query = userMessages.join(''); // Combine all user messages, before \n
 
     if (query.trim() && isConnected) {
+      hideTopicConfirmator();
+      setIsResponseLoading(true);
+
+      // Add loading message that will be replaced by the response
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        sender: 'assistant',
+        text: 'loading...',
+        date_created: new Date().toISOString(),
+      },
+    ]);
+
       requestResponse(query);
     } else if (!isConnected) {
       showAlert('Error', 'Not connected to chat service');
@@ -237,7 +291,7 @@ const ChatScreen = (router) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, showTopicOptions]);
 
   const getBottomPadding = () => {
     const TAB_BAR_HEIGHT = 60;
@@ -269,6 +323,11 @@ const ChatScreen = (router) => {
       flex: 1,
       backgroundColor: theme.colors.violet_darkest, // Match keyboard color
     },
+
+    disabledInput: {
+  backgroundColor: theme.colors.gray,
+    },
+
     container: {
       flex: 1,
       backgroundColor: theme.colors.violet_darkest,
@@ -371,6 +430,13 @@ const ChatScreen = (router) => {
           {messages.map((message) => (
             <Message key={message.id} {...message} />
           ))}
+
+          {showTopicOptions && (
+  <Topic_Confirmator
+    onConfirm={confirmTopic}
+    onSkip={quitTopic}
+  />
+)}
         </ScrollView>
 
         {isConnected ? (
@@ -379,7 +445,8 @@ const ChatScreen = (router) => {
               <Pressable
                 style={styles.mrWeekButton}
                 onPress={handleMrWeekResponse}
-                disabled={isLoading}
+                  disabled={isResponseLoading}
+                  disabled={isResponseLoading}
                 onLongPress={handleModal}
               >
                 <Image
@@ -390,7 +457,10 @@ const ChatScreen = (router) => {
 
               <TextInput
                 ref={inputRef}
-                style={styles.input}
+                style={[
+                styles.input,
+                isResponseLoading && styles.disabledInput
+              ]}
                 value={text}
                 onChangeText={setText}
                 placeholder="Type a message..."
@@ -400,6 +470,7 @@ const ChatScreen = (router) => {
                 onSubmitEditing={handleSubmitEditing}
                 returnKeyType="send"
                 submitBehavior="blurAndSubmit"
+                editable={!isResponseLoading} // Disable input while loading
               />
             </View>
           </View>

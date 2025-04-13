@@ -1,13 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 export default class SecurityService {
   static async getTokens() {
     try {
+      // Using Expo SecureStore
       const [access, refresh] = await Promise.all([
-        AsyncStorage.getItem('access_token'),
-        AsyncStorage.getItem('refresh_token'),
+        SecureStore.getItemAsync('access_token'),
+        SecureStore.getItemAsync('refresh_token'),
       ]);
-
       if (!access && !refresh) {
         return null;
       }
@@ -19,16 +20,33 @@ export default class SecurityService {
     }
   }
 
+  // static async getTokens() {
+  //   try {
+  //     const [access, refresh] = await Promise.all([
+  //       AsyncStorage.getItem('access_token'),
+  //       AsyncStorage.getItem('refresh_token'),
+  //     ]);
+
+  //     if (!access && !refresh) {
+  //       return null;
+  //     }
+
+  //     return { access, refresh };
+  //   } catch (error) {
+  //     console.error('Error getting tokens:', error);
+  //     return null;
+  //   }
+  // }
+
   static async setTokens({ access, refresh }) {
     try {
+      // Using Expo SecureStore
       const promises = [];
-
       if (access) {
-        promises.push(AsyncStorage.setItem('access_token', access));
+        promises.push(SecureStore.setItemAsync('access_token', access));
       }
-
       if (refresh) {
-        promises.push(AsyncStorage.setItem('refresh_token', refresh));
+        promises.push(SecureStore.setItemAsync('refresh_token', refresh));
       }
 
       await Promise.all(promises);
@@ -39,9 +57,35 @@ export default class SecurityService {
     }
   }
 
+  // static async setTokens({ access, refresh }) {
+  //   try {
+  //     const promises = [];
+
+  //     if (access) {
+  //       promises.push(AsyncStorage.setItem('access_token', access));
+  //     }
+
+  //     if (refresh) {
+  //       promises.push(AsyncStorage.setItem('refresh_token', refresh));
+  //     }
+
+  //     await Promise.all(promises);
+  //     return true;
+  //   } catch (error) {
+  //     console.error('Error setting tokens:', error);
+  //     return false;
+  //   }
+  // }
+
   static async removeTokens() {
     try {
-      await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
+      // Using Expo SecureStore
+      await Promise.all([
+        SecureStore.deleteItemAsync('access_token'),
+        SecureStore.deleteItemAsync('refresh_token'),
+      ]);
+
+
     } catch (error) {
       console.error('Error removing tokens:', error);
     }

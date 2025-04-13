@@ -46,6 +46,8 @@ const OldSessionsScreen = ({ navigation, route }) => {
 
       } = response.content;
 
+
+
       console.log(response.content.selected)
 
       const { title: newTitle, id: newSessionId } = selected;

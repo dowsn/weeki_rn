@@ -1,12 +1,15 @@
 import { useTheme } from '@react-navigation/native';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { TextInput } from 'src/components/common/Text';
+import {
+  Platform,
+  StyleSheet,
+  TextInput as RNTextInput,
+  View,
+} from 'react-native';
 import { useUserContext } from '../../hooks/useUserContext';
 
 const CustomTextInput = ({ placeholder, ...props }) => {
   const { theme } = useUserContext();
-  const { colors } = useTheme();
 
   const customStyles = StyleSheet.create({
     container: {
@@ -14,29 +17,33 @@ const CustomTextInput = ({ placeholder, ...props }) => {
       borderWidth: 1,
       borderRadius: theme.borderRadii.large * 2,
       backgroundColor: theme.colors.yellow_light,
-      justifyContent: 'center',
+      overflow: 'hidden',
     },
     textInput: {
       height: theme.spacing.large * 2,
       fontSize: theme.fontSizes.medium,
       color: theme.colors.onSurface,
       textAlign: 'center',
+      ...Platform.select({
+        ios: {
+          paddingTop: 0,
+          paddingBottom: 0,
+          paddingHorizontal: 0,
+          height: theme.spacing.large * 2,
+        },
+      }),
     },
   });
 
+  // Use the platform-native TextInput directly instead of the custom one
+  // This gives more direct control over the component's behavior
   return (
     <View style={customStyles.container}>
-      <TextInput
+      <RNTextInput
         style={customStyles.textInput}
         autoCapitalize="none"
-        multiline={true}
-        numberOfLines={1}
+        multiline={false}
         blurOnSubmit={true}
-        onKeyPress={({ nativeEvent }) => {
-          if (nativeEvent.key === 'Enter') {
-            return;
-          }
-        }}
         placeholderTextColor={theme.colors.gray}
         placeholder={placeholder}
         {...props}
