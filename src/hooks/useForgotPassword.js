@@ -4,7 +4,11 @@ import { useUserContext } from './useUserContext';
 export const useForgotPassword = () => {
   const { setUser } = useUserContext();
   const { apiCalls, isLoading, error } = useApiCall({
-    resetPassword: { path: 'reset_password', method: 'POST' },
+    resetPassword: {
+      path: 'reset_password',
+      method: 'POST',
+      authenticationRequired: false,
+    },
   });
 
   const resetPassword = async (email) => {

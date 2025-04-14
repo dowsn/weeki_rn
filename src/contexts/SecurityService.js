@@ -84,8 +84,6 @@ export default class SecurityService {
         SecureStore.deleteItemAsync('access_token'),
         SecureStore.deleteItemAsync('refresh_token'),
       ]);
-
-
     } catch (error) {
       console.error('Error removing tokens:', error);
     }
@@ -94,23 +92,56 @@ export default class SecurityService {
   // Add these new methods for user data management
   static async getUserData() {
     try {
-      const userData = await AsyncStorage.getItem('user_data');
-      return userData ? JSON.parse(userData) : null;
+      // Get public data from AsyncStorage
+      const publicData = await AsyncStorage.getItem('user_public_data');
+      const publicUserData = publicData ? JSON.parse(publicData) : {};
+
+      // Get sensitive data from secure storage
+      const sensitiveData = await SecureStore.getItemAsync(
+        'user_sensitive_data',
+      );
+      const sensitiveUserData = sensitiveData ? JSON.parse(sensitiveData) : {};
+
+      // Merge the data
+      return { ...publicUserData, ...sensitiveUserData };
     } catch (error) {
-      console.error('Error getting user data:', error);
+      console.error('Error retrieving user data:', error);
       return null;
     }
   }
 
   static async setUserData(userData) {
-    try {
-      await AsyncStorage.setItem('user_data', JSON.stringify(userData));
-      return true;
-    } catch (error) {
-      console.error('Error setting user data:', error);
-      return false;
+    // Remove any sensitive fields before storage in AsyncStorage
+    const { email, ...publicUserData } = userData;
+
+    // Store public data in AsyncStorage for quick access
+    await AsyncStorage.setItem(
+      'user_public_data',
+      JSON.stringify(publicUserData),
+    );
+
+    // Store sensitive data in secure storage
+    if (email ) {
+      const sensitiveData = { email };
+      await SecureStore.setItemAsync(
+        'user_sensitive_data',
+        JSON.stringify(sensitiveData),
+      );
     }
+
+    return true;
   }
+
+  // static async setUserData(userData) {
+  //   try {
+  //     console.log('Setting user data:', userData);
+  //     await AsyncStorage.setItem('user_data', JSON.stringify(userData));
+  //     return true;
+  //   } catch (error) {
+  //     console.error('Error setting user data:', error);
+  //     return false;
+  //   }
+  // }
 
   // Method for theme storage
   static async secureStore(key, value) {
@@ -132,14 +163,20 @@ export default class SecurityService {
 
   static async clearAll() {
     try {
-      await AsyncStorage.multiRemove([
-        'access_token',
-        'refresh_token',
-        'user_data',
-        '@isDark',
+      // Clear AsyncStorage data
+      await AsyncStorage.multiRemove(['user_public_data', '@theme:isDark']);
+
+      // Clear secure storage
+      await Promise.all([
+        SecureStore.deleteItemAsync('access_token'),
+        SecureStore.deleteItemAsync('refresh_token'),
+        SecureStore.deleteItemAsync('user_sensitive_data'),
       ]);
+
+      return true;
     } catch (error) {
       console.error('Error clearing all data:', error);
+      return false;
     }
   }
 }

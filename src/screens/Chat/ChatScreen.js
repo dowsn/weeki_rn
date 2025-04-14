@@ -432,7 +432,7 @@ const ChatScreen = (router) => {
           ))}
 
           {showTopicOptions && (
-  <Topic_Confirmator
+  <TopicConfirmator
     onConfirm={confirmTopic}
     onSkip={quitTopic}
   />

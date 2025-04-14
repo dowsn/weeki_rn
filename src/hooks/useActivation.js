@@ -5,8 +5,16 @@ export const useActivation = () => {
   const { setUser } = useUserContext();
 
   const { apiCalls, isLoading, error } = useApiCall({
-    activate: { path: 'activate_profile', method: 'POST' },
-    sendEMail: { path: 'send_activation_code', method: 'POST' },
+    activate: {
+      path: 'activate_profile',
+      method: 'POST',
+      authenticationRequired: false,
+    },
+    sendEMail: {
+      path: 'send_activation_code',
+      method: 'POST',
+      authenticationRequired: false,
+    },
   });
 
   const activate = async (userId, activationCode) => {

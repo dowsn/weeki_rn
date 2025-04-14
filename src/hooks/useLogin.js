@@ -4,7 +4,7 @@ import { useUserContext } from './useUserContext';
 export const useLogin = () => {
   const { setUser } = useUserContext();
   const { apiCalls, isLoading, error } = useApiCall({
-    login: { path: 'login', method: 'POST' },
+    login: { path: 'login', method: 'POST', authenticationRequired: false },
   });
 
   const login = async (username, password) => {

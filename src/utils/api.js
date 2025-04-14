@@ -61,13 +61,19 @@ const refreshTokens = async (refreshToken) => {
   }
 };
 
-export const fetchFromApi = async (endpoint, options = {}) => {
+export const fetchFromApi = async (
+  endpoint,
+  options = {},
+  authenticationRequired = true,
+) => {
   const {
     method = 'GET',
     body = null,
     headers = {},
-    requiresAuth = true,
+    requiresAuth = authenticationRequired,
   } = options;
+
+  console.log('Starting fetchFromApi with requiresAuth:', requiresAuth);
 
   // Check if the token is expired
   const isTokenExpired = (token) => {
@@ -93,10 +99,17 @@ export const fetchFromApi = async (endpoint, options = {}) => {
   };
 
   try {
-    // let tokens = requiresAuth ? await SecurityService.getTokens() : null;
+    // Initialize tokens to null explicitly
+    let tokens = null;
+    console.log('Initial tokens value:', tokens);
 
     if (requiresAuth) {
-      const tokens = await SecurityService.getTokens();
+      console.log('Authentication required, fetching tokens');
+      tokens = await SecurityService.getTokens();
+      console.log(
+        'Got tokens from SecurityService, access token exists:',
+        !!tokens?.access,
+      );
 
       // Proactively refresh token if it's expired or will expire soon
       if (tokens?.refresh && isTokenExpired(tokens.access)) {
@@ -105,89 +118,106 @@ export const fetchFromApi = async (endpoint, options = {}) => {
           const newTokens = await refreshTokens(tokens.refresh);
           await SecurityService.setTokens(newTokens);
           tokens.access = newTokens.access;
+          console.log('Token refreshed successfully');
         } catch (error) {
-          // Handle refresh failure
+          console.error('Failed to refresh token:', error);
           await SecurityService.clearAll();
           throw new Error('Authentication failed');
         }
       }
+    } else {
+      console.log('Authentication not required, tokens will remain null');
     }
 
-    const fetchOptions = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(tokens?.access ? { Authorization: `Bearer ${tokens.access}` } : {}),
+    console.log('Tokensllll2');
+    console.log(
+      'Tokens before constructing fetchOptions:',
+      tokens === null
+        ? 'null'
+        : tokens === undefined
+          ? 'undefined'
+          : 'object with access: ' + !!tokens?.access,
+    );
+
+    // Step by step construction of headers to identify exactly where it fails
+    try {
+      console.log('Building content-type header');
+      const contentTypeHeader = { 'Content-Type': 'application/json' };
+
+      console.log('Building auth header part');
+      const authPart = tokens?.access
+        ? { Authorization: `Bearer ${tokens.access}` }
+        : {};
+      console.log(
+        'Auth part:',
+        Object.keys(authPart).length > 0 ? 'Has auth header' : 'No auth header',
+      );
+
+      console.log('Building combined headers');
+      const combinedHeaders = {
+        ...contentTypeHeader,
+        ...authPart,
         ...headers,
-      },
-    };
+      };
+      console.log('Headers built successfully');
 
-    // Handle URL and query parameters
-    let url = `${globalUrl}${endpoint}`;
+      const fetchOptions = {
+        method,
+        headers: combinedHeaders,
+      };
 
-    // Remove any user ID injection from the body
-    // Let the token be the sole means of authentication
-    let requestBody = body;
-    if (body && typeof body === 'object') {
-      // Create a copy without userId (if it exists)
-      const { userId, ...restBody } = body;
-      requestBody = restBody;
-    }
+      console.log('Fetch options:', fetchOptions);
 
-    // For GET requests, append query parameters to URL
-    if (method === 'GET' && requestBody) {
-      const queryParams = new URLSearchParams();
-      Object.entries(requestBody).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          queryParams.append(key, value);
-        }
-      });
-      const queryString = queryParams.toString();
-      if (queryString) {
-        url += `?${queryString}`;
+      // Continue with the rest of your function
+      // Handle URL and query parameters
+      let url = `${globalUrl}${endpoint}`;
+
+      // Remove any user ID injection from the body
+      let requestBody = body;
+      if (body && typeof body === 'object') {
+        const { userId, ...restBody } = body;
+        requestBody = restBody;
       }
-    } else if (requestBody && method !== 'GET') {
-      // For non-GET requests, add body to fetchOptions
-      fetchOptions.body = JSON.stringify(requestBody);
+
+      // For GET requests, append query parameters to URL
+      if (method === 'GET' && requestBody) {
+        const queryParams = new URLSearchParams();
+        Object.entries(requestBody).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            queryParams.append(key, value);
+          }
+        });
+        const queryString = queryParams.toString();
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+      } else if (requestBody && method !== 'GET') {
+        // For non-GET requests, add body to fetchOptions
+        fetchOptions.body = JSON.stringify(requestBody);
+      }
+
+      console.log(`Making ${method} request to: ${url}`);
+      let response = await fetch(url, fetchOptions);
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        const errorMessage =
+          responseData.detail ||
+          responseData.message ||
+          responseData.error ||
+          `Request failed with status ${response.status}`;
+        throw new Error(errorMessage);
+      }
+
+      return responseData;
+    } catch (innerError) {
+      console.error(
+        'Error during fetchOptions construction or request:',
+        innerError,
+      );
+      throw innerError;
     }
-
-    console.log(`Making ${method} request to: ${url}`);
-    // console.log('Request headers:', fetchOptions.headers);
-    let response = await fetch(url, fetchOptions);
-
-    // console.log(response);
-    // // Handle 401 with token refresh
-    // if (response.status === 401 && tokens?.refresh) {
-    //   console.log('Token refresh failed:', response.status);
-    //   try {
-    //     console.log('Attempting token refresh due to 401');
-    //     const newTokens = await refreshTokens(tokens.refresh);
-    //     await SecurityService.setTokens(newTokens);
-
-    //     // Retry original request with new token
-    //     fetchOptions.headers.Authorization = `Bearer ${newTokens.access}`;
-    //     console.log('Retrying original request with new token');
-    //     response = await fetch(url, fetchOptions);
-    //   } catch (refreshError) {
-    //     console.error('Token refresh failed:', refreshError);
-    //     await SecurityService.clearAll();
-    //     throw new Error('Authentication failed');
-    //   }
-    // }
-
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      // Enhanced error handling to capture API error messages
-      const errorMessage =
-        responseData.detail ||
-        responseData.message ||
-        responseData.error ||
-        `Request failed with status ${response.status}`;
-      throw new Error(errorMessage);
-    }
-
-    return responseData;
   } catch (error) {
     console.error('API Error:', error);
     throw error;

@@ -92,6 +92,8 @@ export const UserProvider = ({ children, initialUser }) => {
     }
   };
 
+
+
   const toggleTheme = async () => {
     const newTheme = !isDark;
     setIsDark(newTheme);

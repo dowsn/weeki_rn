@@ -14,8 +14,10 @@ export const useApiCall = (apiConfig) => {
   };
 
   const createApiCall =
-    (path, method) =>
-    async (params = {}) => {
+    (path, method, authenticationRequired = true) =>
+      async (params = {}) => {
+
+      console.log('API call2:', authenticationRequired);
       setIsLoading(true);
       setError(null);
 
@@ -32,8 +34,9 @@ export const useApiCall = (apiConfig) => {
           method,
           body: params,
           user,
-          setUser, // For token refresh handling
-        });
+          setUser,
+          // For token refresh handling
+        }, authenticationRequired);
 
         setIsLoading(false);
 
@@ -72,7 +75,11 @@ export const useApiCall = (apiConfig) => {
 
   const apiCalls = {};
   for (const [key, config] of Object.entries(apiConfig)) {
-    apiCalls[key] = createApiCall(config.path, config.method);
+    apiCalls[key] = createApiCall(
+      config.path,
+      config.method,
+      config.authenticationRequired !== undefined ? config.authenticationRequired : true,
+    );
   }
 
   return { apiCalls, isLoading, error };

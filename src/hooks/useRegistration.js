@@ -3,7 +3,7 @@ import { useUserContext } from './useUserContext';
 
 export const useRegistration = () => {
   const { apiCalls, isLoading, error } = useApiCall({
-    register: { path: 'register', method: 'POST' },
+    register: { path: 'register', method: 'POST', authenticationRequired: false },
   });
 
   const register = async (username, password, email, reminder) => {
