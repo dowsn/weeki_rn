@@ -87,7 +87,7 @@ const DashboardScreen = ({ navigation }) => {
       />
       <YouButton
         navigation={navigation}
-        username={user.username}
+        username={user?.username}
         tokens={tokens}
         next_date={nextDate}
         hasExpiredSession={hasExpiredSession}

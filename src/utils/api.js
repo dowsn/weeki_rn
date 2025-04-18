@@ -1,7 +1,8 @@
 import SecurityService from 'src/contexts/SecurityService';
 import { globalUrl } from '../constants/constants';
 
-const refreshTokens = async (refreshToken) => {
+// Extract the refreshTokens function from fetchFromApi to be used elsewhere
+export const refreshTokens = async (refreshToken) => {
   if (!refreshToken) {
     console.error('No refresh token provided');
     throw new Error('No refresh token available');
@@ -122,7 +123,7 @@ export const fetchFromApi = async (
         } catch (error) {
           console.error('Failed to refresh token:', error);
           await SecurityService.clearAll();
-          throw new Error('Authentication failed');
+          // throw new Error('Authentication failed');
         }
       }
     } else {

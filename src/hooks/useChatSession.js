@@ -25,6 +25,8 @@ export const useChatSession = () => {
     }
   }
 
+
+
   const cancel = async (chatSessionId) => {
     try {
       console.log('Cancelling chat session:', chatSessionId);

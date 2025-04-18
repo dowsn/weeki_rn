@@ -23,6 +23,9 @@ const CustomDatePickerModal = ({
   onCloseSignal = () => {
     console.log('onCloseSignal');
   },
+  onEndSignal = () => {
+    console.log('onEndSignal');
+  }
 }) => {
   const { theme } = useUserContext();
   const [showDatePicker, setShowDatePicker] = React.useState(false);
@@ -35,10 +38,9 @@ const CustomDatePickerModal = ({
     }
   }, [visible]);
 
-  const handleClose = () => {
-    setShowDatePicker(false);
-    onClose();
-  };
+
+
+
 
   const handleAndroidDateConfirm = async (event, selectedDate) => {
     if (isProcessing) return;
@@ -94,8 +96,8 @@ const CustomDatePickerModal = ({
   };
 
   const onEndSession = () => {
-    onCloseSignal();
-    onClose();
+     onEndSignal();
+     onClose();
   };
 
   const styles = StyleSheet.create({
@@ -144,7 +146,10 @@ const CustomDatePickerModal = ({
               {Object.keys(chatSession).length === 1 && (
                 <TextLink
                   text="Focusboard"
-                  onPress={onSave}
+                  onPress={() => {
+                    onSave();
+                    onCloseSignal();
+                  }}
                   color={theme.colors.violet_light}
                 />
               )}

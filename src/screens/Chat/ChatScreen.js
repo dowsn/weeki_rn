@@ -40,12 +40,26 @@ const ChatScreen = (router) => {
   const [showTopicOptions, setShowTopicOptions] = useState(false);
   const [isResponseLoading, setIsResponseLoading] = useState(false);
 
-  const showTopicConfirmator = () => {
-    setShowTopicOptions(true);
-  };
+    const showTopicConfirmator = () => {
+      setShowTopicOptions(true);
+    };
+
+
 
   const hideTopicConfirmator = () => {
     setShowTopicOptions(false);
+  };
+
+  const shouldShowTopicConfirmator = (text) => {
+    return (
+      text &&
+      typeof text === 'string' &&
+      text
+        .toLowerCase()
+        .includes(
+          'do you want to explore this topic further? do you want to save it? or do you want to leave the exploration of the topic and go on with the conversation.',
+        )
+    );
   };
 
   const [text, setText] = useState('');
@@ -64,6 +78,8 @@ const ChatScreen = (router) => {
   };
 
   const handleDateChange = (date) => {
+        console.log('handleSaveDte');
+
     setSelectedDate(date);
   };
 
@@ -72,17 +88,60 @@ const ChatScreen = (router) => {
   };
 
   const handleSaveDate = async () => {
+    console.log("handleSaveDate")
     await handleReschedule();
     setIsDatePickerVisible(false);
     navigation.replace('Dashboard');
   };
 
+
+
+
+
   // Reschedule functionality
   const handleReschedule = async () => {
     try {
+
+
+        // Check what type of object selectedDate is
+        console.log(
+          'Selected date type:',
+          typeof selectedDate,
+          selectedDate instanceof Date ? 'Date object' : 'Not a Date',
+        );
+
+        // Use the correct date - handle the case if it's an event object
+        let dateToUse;
+
+        if (selectedDate instanceof Date) {
+          // It's a proper Date object
+          dateToUse = selectedDate;
+        } else if (
+          selectedDate &&
+          typeof selectedDate === 'object' &&
+          (selectedDate.nativeEvent || selectedDate._targetInst)
+        ) {
+          // It's an event object, use the state date instead
+          console.log('Event object detected, using state date');
+          dateToUse = date;
+        } else {
+          // Default to state date
+          dateToUse = date;
+        }
+
+        // Make sure dateToUse is a valid Date
+        if (!(dateToUse instanceof Date)) {
+          dateToUse = new Date();
+        }
+
+        // Convert to ISO string for backend
+        const formattedDate = dateToUse.toISOString().split('T')[0];
+         console.log('Using formatted date:', formattedDate);
+
+
       const response = await apiCalls.reschedule({
         chatSessionId: chat_session_id,
-        date: selectedDate,
+        date: formattedDate,
       });
 
       console.log('Chat session rescheduled:', response);
@@ -99,81 +158,116 @@ const ChatScreen = (router) => {
     }
   };
 
-  const handleStreamedResponse = useCallback(
-    (data) => {
-      hideTopicConfirmator();
-      setIsResponseLoading(false);
 
-      const { text: responseText, type, messages: messagesData } = data;
 
-      switch (type) {
-        case 'connection_status':
-          if (messagesData) {
-            setMessages(
-              messagesData.map((msg) => ({
-                id: msg.id,
-                text: msg.content,
-                sender: msg.role === 'assistant' ? 'assistant' : 'user',
-                date_created: msg.date_created,
-              })),
-            );
-            setIsInitialized(true);
-          }
-          break;
+  const handleStreamedResponse = useCallback((data) => {
+    hideTopicConfirmator();
+    setIsResponseLoading(false);
 
-        case 'message':
-        case 'topic':
-          if (typeof responseText === 'string') {
-            setMessages((prev) => {
-              const isSpecialMessage = responseText.startsWith('***');
+    const { text: responseText, type, messages: messagesData } = data;
 
-              if (isSpecialMessage) {
-                responseText = responseText.replace(/^\*\*\*/, '');
-              }
+    switch (type) {
+      case 'connection_status':
+        if (messagesData) {
+          setMessages(
+            messagesData.map((msg) => ({
+              id: msg.id,
+              text: msg.content,
+              sender: msg.role === 'assistant' ? 'assistant' : 'user',
+              date_created: msg.date_created,
+            })),
+          );
 
-              if (
-                !prev.length ||
-                prev[prev.length - 1].sender !== 'assistant' ||
-                isSpecialMessage
-              ) {
-                return [
-                  ...prev,
-                  {
-                    id: Date.now().toString(),
-                    sender: 'assistant',
-                    text: responseText,
-                    date_created: new Date().toISOString(),
-                  },
-                ];
-              }
 
-              const updated = [...prev];
-              updated[updated.length - 1] = {
-                ...updated[updated.length - 1],
-                text: updated[updated.length - 1].text + responseText,
-              };
-              return updated;
-            });
-          }
 
-          if (type === 'topic') {
+          setIsInitialized(true);
+
+          const lastMessage = messagesData[messagesData.length - 1];
+
+          console.log('Last message:', lastMessage);
+          console.log('Last message content:', lastMessage.content);
+          console.log('role:', lastMessage.role);
+
+          if (
+            shouldShowTopicConfirmator(lastMessage.content) &&
+            lastMessage.role == 'assistant'
+          ) {
+            console.log('Showing topic confirmator');
             showTopicConfirmator();
           }
+        }
+        break;
 
-          break;
-      }
-    },
-    [],
-  );
+      case 'message':
+      case 'topic':
+        if (typeof responseText === 'string') {
+          setMessages((prev) => {
+            const isSpecialMessage = responseText.startsWith('***');
+            let processedText = isSpecialMessage
+              ? responseText.replace(/^\*\*\*/, '')
+              : responseText;
+
+            if (
+              !prev.length ||
+              prev[prev.length - 1].sender !== 'assistant' ||
+              isSpecialMessage
+            ) {
+              return [
+                ...prev,
+                {
+                  id: Date.now().toString(),
+                  sender: 'assistant',
+                  text: processedText,
+                  date_created: new Date().toISOString(),
+                },
+              ];
+            }
+
+            const updated = [...prev];
+            const lastMessage = updated[updated.length - 1];
+
+            // If the last message is the loading placeholder, replace it completely
+            if (
+              lastMessage.text === '...'
+            ) {
+              updated[updated.length - 1] = {
+                ...lastMessage,
+                text: processedText,
+              };
+            } else {
+              // Otherwise append to the existing message text
+              updated[updated.length - 1] = {
+                ...lastMessage,
+                text: lastMessage.text + processedText,
+              };
+            }
+            return updated;
+          });
+        }
+
+        if (type === 'topic') {
+          showTopicConfirmator();
+        }
+
+        break;
+    }
+  }, []);
 
 
-  const { requestResponse, quitTopic, confirmTopic, sendUserMessage, sendCloseSignal, isConnected } =
+  const { requestResponse, quitTopic, confirmTopic, sendUserMessage, sendCloseSignal, sendEndSignal, isConnected } =
     useAgentChat(handleStreamedResponse, chat_session_id);
 
   const handleClosingSignal = useCallback(() => {
     sendCloseSignal();
     setIsDatePickerVisible(false);
   }, [sendCloseSignal]);
+
+  const handleEndSignal = useCallback(() => {
+    sendEndSignal();
+    setIsDatePickerVisible(false);
+  }, [sendEndSignal]);
+
+
 
   const handleKeyPress = ({ nativeEvent }) => {
     if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
@@ -219,7 +313,7 @@ const ChatScreen = (router) => {
   const handleMrWeekResponse = () => {
 
     if (messages[messages.length - 1]?.sender === 'assistant' &&
-      messages[messages.length - 1]?.text === 'loading...') {
+      messages[messages.length - 1]?.text === '...') {
     return; // Already showing loading
     }
 
@@ -249,7 +343,7 @@ const ChatScreen = (router) => {
       {
         id: Date.now().toString(),
         sender: 'assistant',
-        text: 'loading...',
+        text: '...',
         date_created: new Date().toISOString(),
       },
     ]);
@@ -325,21 +419,39 @@ const ChatScreen = (router) => {
     },
 
     disabledInput: {
-  backgroundColor: theme.colors.gray,
+      backgroundColor: theme.colors.gray,
     },
 
     container: {
       flex: 1,
       backgroundColor: theme.colors.violet_darkest,
     },
+
+      dashboardLinkContainer: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 40 : 30,
+    width: '100%',
+    alignItems: 'center',
+    paddingBottom: 10,
+  },
+
     messagesContainer: {
       flex: 1,
     },
     contentContainer: {
       flexGrow: 1,
       padding: theme.spacing.medium,
-      paddingBottom: getBottomPadding(),
-      paddingTop: theme.spacing.large + 20, // Increased padding
+      paddingBottom: getBottomPadding() + 20, // Add extra padding at bottom
+      paddingTop: Platform.OS === 'ios' ? 90 : 60, // Increased top padding
+    },
+    statusBarOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: Platform.OS === 'ios' ? 50 : 40,
+      backgroundColor: theme.colors.violet_darkest,
+      zIndex: 1,
     },
     floatingControls: {
       position: 'absolute',
@@ -369,7 +481,7 @@ const ChatScreen = (router) => {
       backgroundColor: theme.colors.violet_darkest,
       borderTopWidth: 1,
       borderTopColor: 'rgba(0, 0, 0, 0.1)',
-      paddingBottom: Platform.OS === 'ios' ? 0 : 16, // Increased padding
+      paddingBottom: Platform.OS === 'ios' ? 30 : 20, // Increased bottom padding
     },
     inputContainer: {
       paddingHorizontal: theme.spacing.medium,
@@ -407,6 +519,8 @@ const ChatScreen = (router) => {
       keyboardVerticalOffset={0}
     >
       <View style={styles.container}>
+        <View style={styles.statusBarOverlay} />
+
         <CustomDatePickerModal
           visible={isDatePickerVisible}
           onClose={handleCloseDatePicker}
@@ -416,6 +530,9 @@ const ChatScreen = (router) => {
           onSave={handleSaveDate}
           onReschedule={handleSaveDate}
           onCloseSignal={handleClosingSignal}
+          onOpenSession={handleCloseDatePicker}
+          onEndSignal={handleEndSignal}
+          isToday={true}
         />
 
         <ScrollView
@@ -432,11 +549,12 @@ const ChatScreen = (router) => {
           ))}
 
           {showTopicOptions && (
-  <TopicConfirmator
-    onConfirm={confirmTopic}
-    onSkip={quitTopic}
-  />
-)}
+            <TopicConfirmator
+              key="topic-confirmator"
+              onConfirm={confirmTopic}
+              onSkip={quitTopic}
+            />
+          )}
         </ScrollView>
 
         {isConnected ? (
@@ -445,8 +563,7 @@ const ChatScreen = (router) => {
               <Pressable
                 style={styles.mrWeekButton}
                 onPress={handleMrWeekResponse}
-                  disabled={isResponseLoading}
-                  disabled={isResponseLoading}
+                disabled={isResponseLoading}
                 onLongPress={handleModal}
               >
                 <Image
@@ -458,9 +575,9 @@ const ChatScreen = (router) => {
               <TextInput
                 ref={inputRef}
                 style={[
-                styles.input,
-                isResponseLoading && styles.disabledInput
-              ]}
+                  styles.input,
+                  isResponseLoading && styles.disabledInput,
+                ]}
                 value={text}
                 onChangeText={setText}
                 placeholder="Type a message..."
@@ -475,11 +592,13 @@ const ChatScreen = (router) => {
             </View>
           </View>
         ) : (
-          <TextLink
-            text="Dashboard"
-            onPress={() => navigation.replace('Dashboard')}
-            colorType="yellow"
-          />
+          <View style={styles.dashboardLinkContainer}>
+            <TextLink
+              text="Dashboard"
+              onPress={() => navigation.replace('Dashboard')}
+              colorType="yellow"
+            />
+          </View>
         )}
       </View>
     </KeyboardAvoidingView>

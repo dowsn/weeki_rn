@@ -67,21 +67,47 @@ const ChatButton = ({
 const handleReschedule = useCallback(
   async (selectedDate) => {
     try {
-      // Use the passed date if available, otherwise use state date
-      const dateToUse = selectedDate || date;
-      console.log('Rescheduling with date:', dateToUse);
+      // Check what type of object selectedDate is
+      console.log(
+        'Selected date type:',
+        typeof selectedDate,
+        selectedDate instanceof Date ? 'Date object' : 'Not a Date',
+      );
+
+      // Use the correct date - handle the case if it's an event object
+      let dateToUse;
+
+      if (selectedDate instanceof Date) {
+        // It's a proper Date object
+        dateToUse = selectedDate;
+      } else if (
+        selectedDate &&
+        typeof selectedDate === 'object' &&
+        (selectedDate.nativeEvent || selectedDate._targetInst)
+      ) {
+        // It's an event object, use the state date instead
+        console.log('Event object detected, using state date');
+        dateToUse = date;
+      } else {
+        // Default to state date
+        dateToUse = date;
+      }
+
+      // Make sure dateToUse is a valid Date
+      if (!(dateToUse instanceof Date)) {
+        dateToUse = new Date();
+      }
+
+      // Convert to ISO string for backend
+      const formattedDate = dateToUse.toISOString().split('T')[0];
+      console.log('Using formatted date:', formattedDate);
 
       // Wait for the reschedule to complete
-      await reschedule(chatSession.id, dateToUse);
-      console.log('Reschedule API call completed');
+      await reschedule(chatSession.id, formattedDate); // Send formatted string
 
       // Only close modal and navigate after successful reschedule
       setModalVisible(false);
-
-      // Add a small delay before navigation to ensure state updates
-      setTimeout(() => {
-        navigation.replace('Dashboard');
-      }, 100);
+      navigation.replace('Dashboard');
     } catch (error) {
       console.error('Reschedule error:', error);
       showAlert(

@@ -44,7 +44,6 @@ const TopicConfirmator = ({ onConfirm, onSkip }) => {
             <Text style={styles.linkText}>skip</Text>
           </TouchableOpacity>
           <Text style={styles.messageText}>
-            {' '}
             this topic or talk about it further:
           </Text>
         </View>
