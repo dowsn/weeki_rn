@@ -271,6 +271,12 @@ const CustomDatePickerModal = ({
                         colorType="yellow"
                       />
                     )}
+                    {/* Add the Close button here */}
+                    <NormalButton
+                      text="Close"
+                      onPress={() => setShowDatePicker(false)}
+                      colorType="violet"
+                    />
                   </>
                 )}
               </View>

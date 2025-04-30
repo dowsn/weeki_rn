@@ -200,6 +200,7 @@ const ChatScreen = (router) => {
 
       case 'message':
       case 'topic':
+
         if (typeof responseText === 'string') {
           setMessages((prev) => {
             const isSpecialMessage = responseText.startsWith('***');
@@ -207,10 +208,12 @@ const ChatScreen = (router) => {
               ? responseText.replace(/^\*\*\*/, '')
               : responseText;
 
+
             if (
               !prev.length ||
               prev[prev.length - 1].sender !== 'assistant' ||
               isSpecialMessage
+              // prev[prev.length - 1].text === '...'
             ) {
               return [
                 ...prev,
@@ -310,6 +313,7 @@ const ChatScreen = (router) => {
     }
   };
 
+
   const handleMrWeekResponse = () => {
 
     if (messages[messages.length - 1]?.sender === 'assistant' &&
@@ -359,6 +363,60 @@ const ChatScreen = (router) => {
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   };
+
+  const handleConfirmTopic = useCallback(() => {
+    // Add loading indicator for confirm action
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        sender: 'assistant',
+        text: '...',
+        date_created: new Date().toISOString(),
+      },
+    ]);
+
+    // Hide the topic options
+    hideTopicConfirmator();
+
+    // Set loading state
+    setIsResponseLoading(true);
+
+    // Call the existing confirm function from the hook
+    confirmTopic();
+
+    // Scroll to bottom
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  }, [confirmTopic, hideTopicConfirmator]);
+
+  const handleQuitTopic = useCallback(() => {
+    // Add loading indicator for quit action
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        sender: 'assistant',
+        text: '...',
+        date_created: new Date().toISOString(),
+      },
+    ]);
+
+    // Hide the topic options
+    hideTopicConfirmator();
+
+    // Set loading state
+    setIsResponseLoading(true);
+
+    // Call the existing quit function from the hook
+    quitTopic();
+
+    // Scroll to bottom
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  }, [quitTopic, hideTopicConfirmator]);
 
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener(
@@ -551,8 +609,8 @@ const ChatScreen = (router) => {
           {showTopicOptions && (
             <TopicConfirmator
               key="topic-confirmator"
-              onConfirm={confirmTopic}
-              onSkip={quitTopic}
+              onConfirm={handleConfirmTopic}
+              onSkip={handleQuitTopic}
             />
           )}
         </ScrollView>

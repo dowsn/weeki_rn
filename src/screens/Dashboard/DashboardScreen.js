@@ -31,7 +31,12 @@ const DashboardScreen = ({ navigation }) => {
     try {
       const response = await getDashboard();
       if (response.error) {
-        showAlert('Weeki', response.message);
+        if (response.message == 'Authentication required') {
+          setUser(null);
+          showAlert('Weeki', "Please log in again.");
+        } else {
+              showAlert('Weeki', response.message);
+        }
       } else {
         let receivedTopics = response.content.topics;
         setChatSession(response.content.chat_session);

@@ -183,7 +183,6 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
     websocketRef.current.send(
       JSON.stringify({ type: 'end', query: 'end' }),
     );
-    websocketRef.current.close(1000, 'Intentional close');
   }, []);
 
   useEffect(() => {

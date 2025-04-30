@@ -177,6 +177,6 @@ export default class SecurityService {
     } catch (error) {
       console.error('Error clearing all data:', error);
       return false;
-    }
+``    }
   }
 }
