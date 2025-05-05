@@ -263,7 +263,7 @@ const RootNavigator = () => {
 
   return (
     <RootStack.Navigator>
-      {!user.tokens?.access ? (
+      {!user || !user.tokens?.access ? (
         <RootStack.Screen
           name="Auth"
           component={AuthStack}
@@ -324,7 +324,7 @@ const ProtectedRouteWithHeader = ({ children, navigation }) => {
   const { user, loading } = useUserContext();
 
   if (loading) return <WeekiLoading />;
-  if (!user.tokens?.access) return <AuthStack />;
+  if (!user || !user.tokens?.access) return <AuthStack />;
 
   return <HeaderWrapper navigation={navigation}>{children}</HeaderWrapper>;
 };
