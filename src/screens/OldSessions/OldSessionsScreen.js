@@ -19,6 +19,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
   const [date, setDate] = useState('');
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
+  const [character, setCharacter] = useState('');
   const [previousId, setPreviousId] = useState(null);
   const [nextId, setNextId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,6 +56,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
       setMessages(newMessages[0]);
       setTitle(newTitle);
       setSummary(response.content.selected.summary);
+      setCharacter(response.content.selected.character);
       setChatSessionId(newSessionId);
       setPreviousId(newPrevious);
       setDate(new Date(response.content.selected.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
@@ -85,9 +87,14 @@ const OldSessionsScreen = ({ navigation, route }) => {
 
   }
 
-  const onSummaryPress = (text) => {
-    navigation.navigate('Summary', { text: summary, navigation, backText: 'Moments' });
-  }
+  const onSummaryPress = () => {
+    const combinedText = `Summary:\n${summary}\n\nCharacter:\n${character}`;
+    navigation.navigate('Summary', {
+      text: combinedText,
+      navigation,
+      backText: 'Moments',
+    });
+  };
 
 
   return (

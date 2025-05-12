@@ -178,8 +178,6 @@ const ChatScreen = (router) => {
             })),
           );
 
-
-
           setIsInitialized(true);
 
           const lastMessage = messagesData[messagesData.length - 1];
@@ -200,7 +198,6 @@ const ChatScreen = (router) => {
 
       case 'message':
       case 'topic':
-
         if (typeof responseText === 'string') {
           setMessages((prev) => {
             const isSpecialMessage = responseText.startsWith('***');
@@ -208,13 +205,27 @@ const ChatScreen = (router) => {
               ? responseText.replace(/^\*\*\*/, '')
               : responseText;
 
+            // Check if there's a loading message to replace
+            const lastMessageIndex = prev.length - 1;
+            const hasLoadingMessage =
+              lastMessageIndex >= 0 &&
+              prev[lastMessageIndex].sender === 'assistant' &&
+              prev[lastMessageIndex].text === '...';
 
-            if (
+            if (hasLoadingMessage) {
+              // Always replace the loading message
+              const updated = [...prev];
+              updated[lastMessageIndex] = {
+                ...updated[lastMessageIndex],
+                text: processedText,
+              };
+              return updated;
+            } else if (
               !prev.length ||
               prev[prev.length - 1].sender !== 'assistant' ||
               isSpecialMessage
-              // prev[prev.length - 1].text === '...'
             ) {
+              // Create a new message if needed
               return [
                 ...prev,
                 {
@@ -224,27 +235,16 @@ const ChatScreen = (router) => {
                   date_created: new Date().toISOString(),
                 },
               ];
-            }
-
-            const updated = [...prev];
-            const lastMessage = updated[updated.length - 1];
-
-            // If the last message is the loading placeholder, replace it completely
-            if (
-              lastMessage.text === '...'
-            ) {
-              updated[updated.length - 1] = {
-                ...lastMessage,
-                text: processedText,
-              };
             } else {
-              // Otherwise append to the existing message text
+              // Append to the existing message
+              const updated = [...prev];
+              const lastMessage = updated[updated.length - 1];
               updated[updated.length - 1] = {
                 ...lastMessage,
                 text: lastMessage.text + processedText,
               };
+              return updated;
             }
-            return updated;
           });
         }
 
