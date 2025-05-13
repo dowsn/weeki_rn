@@ -31,6 +31,7 @@ const ChatScreen = (router) => {
   const navigation = useNavigation();
 
   const chatSession = { chat_session_id };
+  const [topicNames, setTopicNames] = useState("");
 
   // Initialize the API calls hook
   const { apiCalls, error: apiError } = useApiCall({
@@ -164,7 +165,7 @@ const ChatScreen = (router) => {
     hideTopicConfirmator();
     setIsResponseLoading(false);
 
-    const { text: responseText, type, messages: messagesData } = data;
+    const { topics , text: responseText, type, messages: messagesData } = data;
 
     switch (type) {
       case 'connection_status':
@@ -198,6 +199,7 @@ const ChatScreen = (router) => {
 
       case 'message':
       case 'topic':
+        setTopicNames(topics);
         if (typeof responseText === 'string') {
           setMessages((prev) => {
             const isSpecialMessage = responseText.startsWith('***');
@@ -249,7 +251,7 @@ const ChatScreen = (router) => {
         }
 
         if (type === 'topic') {
-          showTopicConfirmator();
+          `showTopicConfirmator`();
         }
 
         break;

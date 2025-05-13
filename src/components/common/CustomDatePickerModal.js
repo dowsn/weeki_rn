@@ -20,6 +20,8 @@ const CustomDatePickerModal = ({
   onOpenSession,
   isToday,
   isAlreadySession = false,
+  text = "",
+
   onCloseSignal = () => {
     console.log('onCloseSignal');
   },
@@ -115,6 +117,15 @@ const CustomDatePickerModal = ({
       alignItems: 'center',
       paddingHorizontal: 20,
     },
+
+    topicText: {
+      color: theme.colors.violet_light,
+      fontSize: theme.fontSizes.small,
+      textAlign: 'center',
+      marginBottom: 2,
+      width: '100%',
+    },
+
     buttonContainer: {
       width: '100%',
       flex: 1,
@@ -182,6 +193,24 @@ const CustomDatePickerModal = ({
     >
       <CustomSafeView>
         <View style={styles.contentContainer}>
+          {text !== '' && (
+            <View style={styles.topicContainer}>
+              <Text style={styles.topicText}>Current topics:</Text>
+              {text
+                .split(', ')
+                .slice(0, 5)
+                .map((topic, index) => (
+                  <Text
+                    key={index}
+                    style={[
+                      styles.topicText
+                    ]}
+                  >
+                    {topic}
+                  </Text>
+                ))}
+            </View>
+          )}
           <View style={styles.buttonContainer}>
             {!showDatePicker ? (
               <>
