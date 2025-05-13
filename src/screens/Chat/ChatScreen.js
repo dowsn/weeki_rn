@@ -593,6 +593,7 @@ const ChatScreen = (router) => {
           onOpenSession={handleCloseDatePicker}
           onEndSignal={handleEndSignal}
           isToday={true}
+          text={topics}
         />
 
         <ScrollView
