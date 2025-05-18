@@ -31,7 +31,7 @@ const ChatScreen = (router) => {
   const navigation = useNavigation();
 
   const chatSession = { chat_session_id };
-  const [topicNames, setTopicNames] = useState("");
+  const [topicNames, setTopicNames] = useState("No current topics");
 
   // Initialize the API calls hook
   const { apiCalls, error: apiError } = useApiCall({
@@ -41,9 +41,9 @@ const ChatScreen = (router) => {
   const [showTopicOptions, setShowTopicOptions] = useState(false);
   const [isResponseLoading, setIsResponseLoading] = useState(false);
 
-    const showTopicConfirmator = () => {
-      setShowTopicOptions(true);
-    };
+  const showTopicConfirmator = () => {
+    setShowTopicOptions(true);
+  };
 
 
 
@@ -251,7 +251,7 @@ const ChatScreen = (router) => {
         }
 
         if (type === 'topic') {
-          `showTopicConfirmator`();
+          showTopicConfirmator();
         }
 
         break;
@@ -593,7 +593,7 @@ const ChatScreen = (router) => {
           onOpenSession={handleCloseDatePicker}
           onEndSignal={handleEndSignal}
           isToday={true}
-          text={topics}
+          text={topicNames}
         />
 
         <ScrollView

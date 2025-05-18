@@ -84,7 +84,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
 
   const onChatPress = (text) => {
     navigation.navigate('Chat', { messages, navigation });
-
+``
   }
 
   const onSummaryPress = () => {

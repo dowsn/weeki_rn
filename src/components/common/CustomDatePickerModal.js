@@ -2,6 +2,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import React from 'react';
 import UseEffect from 'react';
 import { Dimensions, Modal, Platform, StyleSheet, View } from 'react-native';
+import Text from 'src/components/common/Text'; // Import your custom Text component
 import { useUserContext } from '../../hooks/useUserContext';
 import NormalButton from '../buttons/NormalButton';
 import TextLink from '../buttons/TextLink';
@@ -33,6 +34,8 @@ const CustomDatePickerModal = ({
   const [showDatePicker, setShowDatePicker] = React.useState(false);
   const screenWidth = Dimensions.get('window').width;
   const [isProcessing, setIsProcessing] = React.useState(false);
+
+  const noTopics = text === 'No current topics';
 
   React.useEffect(() => {
     if (!visible) {
@@ -195,20 +198,21 @@ const CustomDatePickerModal = ({
         <View style={styles.contentContainer}>
           {text !== '' && (
             <View style={styles.topicContainer}>
-              <Text style={styles.topicText}>Current topics:</Text>
-              {text
-                .split(', ')
-                .slice(0, 5)
-                .map((topic, index) => (
-                  <Text
-                    key={index}
-                    style={[
-                      styles.topicText
-                    ]}
-                  >
-                    {topic}
-                  </Text>
-                ))}
+              {noTopics ? (
+                <Text style={styles.topicText}>{text}</Text>
+              ) : (
+                <>
+                  <Text style={styles.topicText}>Current topics:</Text>
+                  {text
+                    .split(', ')
+                    .slice(0, 5)
+                    .map((topic, index) => (
+                      <Text key={index} style={styles.topicText}>
+                        {topic}
+                      </Text>
+                    ))}
+                </>
+              )}
             </View>
           )}
           <View style={styles.buttonContainer}>
