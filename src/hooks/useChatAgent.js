@@ -98,6 +98,14 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
       ws.onopen = () => {
         console.log('WebSocket connection established successfully');
         setIsConnected(true);
+
+        setTimeout(() => {
+          ws.send(
+            JSON.stringify({
+              type: 'connection_ready',
+            }),
+          );
+        }, 100); // Small delay to ensure component is fully mounted
       };
 
       ws.onmessage = (event) => {
@@ -108,19 +116,52 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
             case 'connection_status':
               onStreamedResponse(data);
               break;
+            case 'new_message':
+              console.log('Starting new message stream');
+              onStreamedResponse(data);
+              break;
+
+            case 'timer_paused':
+              console.log('Timer paused:', data.message);
+              onStreamedResponse(data);
+              break;
+            case 'timer_resumed':
+              console.log('Timer resumed:', data.message);
+              onStreamedResponse(data);
+              break;
+
+            case 'stream_complete':
+              console.log('Stream completed');
+              // Check for topic confirmator text and pass to handler
+              onStreamedResponse({
+                ...data,
+                type: 'stream_complete'
+              });
+              break;
+            case 'status':
+              console.log('Status:', data.message);
+              break;
+            case 'automatic_message':
+              console.log('Automatic message:', data.message);
+              onStreamedResponse(data);
+              break;
+            case 'stream_completed':
+              console.log('Stream completed:', data.message);
+              onStreamedResponse(data);
+              break;
             case 'message':
             // case 'token':
             case 'topic':
-              console.log('`Received data`:', data);
-              if (data.text) {
-                console.log('Received message:', data.text);
+              if (data.text !== undefined) {
                 onStreamedResponse(data);
               }
               break;
             case 'error':
-              console.log('hee')
+              console.log('hee');
               showAlert('Error', data.error);
               break;
+            default:
+              console.log('Unknown message type:', data.type, data);
           }
         } catch (err) {
           console.error('Failed to parse message:', err);
@@ -128,6 +169,8 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
       };
 
       ws.onclose = (event) => {
+        console.log('WebSocket closed with code:', event.code); // Add logging
+
         setIsConnected(false);
 
         // Check if the close was due to token expiration (code 4001)
@@ -156,6 +199,36 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
     }
   }, [user?.userId, chat_session_id, onStreamedResponse]);
 
+  // Add these functions to your useAgentChat hook (paste-3.txt)
+
+  // Add these two functions before the return statement:
+
+  const sendPauseSignal = useCallback(() => {
+    if (
+      !websocketRef.current ||
+      websocketRef.current.readyState !== WebSocket.OPEN
+    ) {
+      console.log('Cannot send pause signal - WebSocket not connected');
+      return;
+    }
+
+    console.log('Sending pause signal to backend');
+    websocketRef.current.send(JSON.stringify({ type: 'pause', query: '' }));
+  }, []);
+
+  const sendResumeSignal = useCallback(() => {
+    if (
+      !websocketRef.current ||
+      websocketRef.current.readyState !== WebSocket.OPEN
+    ) {
+      console.log('Cannot send resume signal - WebSocket not connected');
+      return;
+    }
+
+    console.log('Sending resume signal to backend');
+    websocketRef.current.send(JSON.stringify({ type: 'resume', query: '' }));
+  }, []);
+
   const sendCloseSignal = useCallback(() => {
     if (
       !websocketRef.current ||
@@ -180,9 +253,7 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
     }
 
     intentionalClose.current = true;
-    websocketRef.current.send(
-      JSON.stringify({ type: 'end', query: 'end' }),
-    );
+    websocketRef.current.send(JSON.stringify({ type: 'end', query: 'end' }));
   }, []);
 
   useEffect(() => {
@@ -256,6 +327,8 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
     confirmTopic,
     sendCloseSignal,
     sendEndSignal,
+    sendPauseSignal, // ✅ Add this
+    sendResumeSignal,
     isConnected,
   };
 };

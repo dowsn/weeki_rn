@@ -1,6 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import { set } from 'date-fns';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  AppState,
   Dimensions,
   Image,
   Keyboard,
@@ -30,8 +32,11 @@ const ChatScreen = (router) => {
   const { chat_session_id } = router.route.params;
   const navigation = useNavigation();
 
+  const [appState, setAppState] = useState(AppState.currentState);
+  const appStateRef = useRef(AppState.currentState);
+
   const chatSession = { chat_session_id };
-  const [topicNames, setTopicNames] = useState("No current topics");
+  const [topicNames, setTopicNames] = useState('None');
 
   // Initialize the API calls hook
   const { apiCalls, error: apiError } = useApiCall({
@@ -44,8 +49,6 @@ const ChatScreen = (router) => {
   const showTopicConfirmator = () => {
     setShowTopicOptions(true);
   };
-
-
 
   const hideTopicConfirmator = () => {
     setShowTopicOptions(false);
@@ -68,6 +71,8 @@ const ChatScreen = (router) => {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollViewRef = React.useRef();
   const inputRef = React.useRef();
+  const scrollTimeoutRef = useRef(null);
+
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -79,7 +84,7 @@ const ChatScreen = (router) => {
   };
 
   const handleDateChange = (date) => {
-        console.log('handleSaveDte');
+    console.log('handleSaveDte');
 
     setSelectedDate(date);
   };
@@ -89,56 +94,49 @@ const ChatScreen = (router) => {
   };
 
   const handleSaveDate = async () => {
-    console.log("handleSaveDate")
+    console.log('handleSaveDate');
     await handleReschedule();
     setIsDatePickerVisible(false);
     navigation.replace('Dashboard');
   };
 
-
-
-
-
   // Reschedule functionality
   const handleReschedule = async () => {
     try {
+      // Check what type of object selectedDate is
+      console.log(
+        'Selected date type:',
+        typeof selectedDate,
+        selectedDate instanceof Date ? 'Date object' : 'Not a Date',
+      );
 
+      // Use the correct date - handle the case if it's an event object
+      let dateToUse;
 
-        // Check what type of object selectedDate is
-        console.log(
-          'Selected date type:',
-          typeof selectedDate,
-          selectedDate instanceof Date ? 'Date object' : 'Not a Date',
-        );
+      if (selectedDate instanceof Date) {
+        // It's a proper Date object
+        dateToUse = selectedDate;
+      } else if (
+        selectedDate &&
+        typeof selectedDate === 'object' &&
+        (selectedDate.nativeEvent || selectedDate._targetInst)
+      ) {
+        // It's an event object, use the state date instead
+        console.log('Event object detected, using state date');
+        dateToUse = date;
+      } else {
+        // Default to state date
+        dateToUse = date;
+      }
 
-        // Use the correct date - handle the case if it's an event object
-        let dateToUse;
+      // Make sure dateToUse is a valid Date
+      if (!(dateToUse instanceof Date)) {
+        dateToUse = new Date();
+      }
 
-        if (selectedDate instanceof Date) {
-          // It's a proper Date object
-          dateToUse = selectedDate;
-        } else if (
-          selectedDate &&
-          typeof selectedDate === 'object' &&
-          (selectedDate.nativeEvent || selectedDate._targetInst)
-        ) {
-          // It's an event object, use the state date instead
-          console.log('Event object detected, using state date');
-          dateToUse = date;
-        } else {
-          // Default to state date
-          dateToUse = date;
-        }
-
-        // Make sure dateToUse is a valid Date
-        if (!(dateToUse instanceof Date)) {
-          dateToUse = new Date();
-        }
-
-        // Convert to ISO string for backend
-        const formattedDate = dateToUse.toISOString().split('T')[0];
-         console.log('Using formatted date:', formattedDate);
-
+      // Convert to ISO string for backend
+      const formattedDate = dateToUse.toISOString().split('T')[0];
+      console.log('Using formatted date:', formattedDate);
 
       const response = await apiCalls.reschedule({
         chatSessionId: chat_session_id,
@@ -159,16 +157,15 @@ const ChatScreen = (router) => {
     }
   };
 
-
-
   const handleStreamedResponse = useCallback((data) => {
-    hideTopicConfirmator();
+
     setIsResponseLoading(false);
 
-    const { topics , text: responseText, type, messages: messagesData } = data;
+    const { topics, text: responseText, type, messages: messagesData } = data;
 
     switch (type) {
       case 'connection_status':
+        setIsInitialized(true);
         if (messagesData) {
           setMessages(
             messagesData.map((msg) => ({
@@ -179,16 +176,18 @@ const ChatScreen = (router) => {
             })),
           );
 
-          setIsInitialized(true);
+          setTopicNames(topics || 'None');
 
           const lastMessage = messagesData[messagesData.length - 1];
 
           console.log('Last message:', lastMessage);
           console.log('Last message content:', lastMessage.content);
           console.log('role:', lastMessage.role);
+          console.log('topics:', topics);
 
           if (
-            shouldShowTopicConfirmator(lastMessage.content) &&
+            (shouldShowTopicConfirmator(lastMessage.content) ||
+             topics === 'No current topics') &&
             lastMessage.role == 'assistant'
           ) {
             console.log('Showing topic confirmator');
@@ -196,71 +195,152 @@ const ChatScreen = (router) => {
           }
         }
         break;
+      case 'new_message':
+        // Create new message with "..." as initial content
 
+          console.log('Adding initial loading message');
+           setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            sender: 'assistant',
+            text: '...', // Start with loading dots instead of empty text
+            date_created: new Date().toISOString(),
+          },
+        ]);
+
+        break;
+      case 'stream_complete':
+          setMessages((prev) => {
+            const lastMessage = prev[prev.length - 1];
+            if (
+              shouldShowTopicConfirmator(lastMessage.text) ||
+              topics === 'No current topics'
+            ) {
+              setTimeout(() => showTopicConfirmator(), 100);
+            }
+            return prev; // Return unchanged state
+          });
       case 'message':
-      case 'topic':
+      case 'automatic_message':
+      case 'topic': // Both types update message content the same way
+
+        if (type == 'message') {
+          hideTopicConfirmator();
+        }
+        // Process regular message content
         setTopicNames(topics);
         if (typeof responseText === 'string') {
           setMessages((prev) => {
-            const isSpecialMessage = responseText.startsWith('***');
-            let processedText = isSpecialMessage
-              ? responseText.replace(/^\*\*\*/, '')
-              : responseText;
+            const updated = [...prev];
+            const lastMessage = updated[updated.length - 1];
 
-            // Check if there's a loading message to replace
-            const lastMessageIndex = prev.length - 1;
-            const hasLoadingMessage =
-              lastMessageIndex >= 0 &&
-              prev[lastMessageIndex].sender === 'assistant' &&
-              prev[lastMessageIndex].text === '...';
+            // If the current text is "..." (loading state), replace it entirely
+            // Otherwise, append to existing text
+            const newText =
+              lastMessage.text === '...'
+                ? responseText
+                : lastMessage.text + responseText;
 
-            if (hasLoadingMessage) {
-              // Always replace the loading message
-              const updated = [...prev];
-              updated[lastMessageIndex] = {
-                ...updated[lastMessageIndex],
-                text: processedText,
-              };
-              return updated;
-            } else if (
-              !prev.length ||
-              prev[prev.length - 1].sender !== 'assistant' ||
-              isSpecialMessage
-            ) {
-              // Create a new message if needed
-              return [
-                ...prev,
-                {
-                  id: Date.now().toString(),
-                  sender: 'assistant',
-                  text: processedText,
-                  date_created: new Date().toISOString(),
-                },
-              ];
-            } else {
-              // Append to the existing message
-              const updated = [...prev];
-              const lastMessage = updated[updated.length - 1];
-              updated[updated.length - 1] = {
-                ...lastMessage,
-                text: lastMessage.text + processedText,
-              };
-              return updated;
-            }
+            updated[updated.length - 1] = {
+              ...lastMessage,
+              text: newText,
+            };
+            return updated;
           });
-        }
 
-        if (type === 'topic') {
-          showTopicConfirmator();
-        }
+          if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+          }
 
+          // Immediate scroll without animation for responsiveness
+          scrollViewRef.current?.scrollToEnd({ animated: false });
+
+          // Set timeout for final smooth scroll (will be cleared if more characters come)
+          scrollTimeoutRef.current = setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+          }, 100);
+
+          // Check for topic confirmator
+          if (type === 'topic') {
+            // Updated since we need to check if the current message already contains the phrase for
+            // showing topic confirmator
+
+          }
+
+
+
+
+
+
+        }
         break;
     }
   }, []);
 
+  const {
+    requestResponse,
+    quitTopic,
+    confirmTopic,
+    sendUserMessage,
+    sendCloseSignal,
+    sendEndSignal,
+    sendPauseSignal,
+    sendResumeSignal,
+    isConnected,
+  } = useAgentChat(handleStreamedResponse, chat_session_id);
 
-  const { requestResponse, quitTopic, confirmTopic, sendUserMessage, sendCloseSignal, sendEndSignal, isConnected } =
-    useAgentChat(handleStreamedResponse, chat_session_id);
+
+  useEffect(() => {
+  if (isDatePickerVisible && isConnected) {
+    console.log('Modal opened - pausing timer');
+    sendPauseSignal();
+  } else if (!isDatePickerVisible && isConnected && appState === 'active') {
+    console.log('Modal closed - resuming timer (app is active)');
+    sendResumeSignal();
+  }
+  }, [isDatePickerVisible, isConnected, appState, sendPauseSignal, sendResumeSignal]);
+
+   useEffect(() => {
+     const handleAppStateChange = (nextAppState) => {
+       console.log(
+         'App state changed:',
+         appStateRef.current,
+         '->',
+         nextAppState,
+       );
+
+       if (
+         appStateRef.current.match(/inactive|background/) &&
+         nextAppState === 'active'
+       ) {
+         console.log('App has come to the foreground - resuming timer');
+         if (isConnected) {
+           sendResumeSignal();
+         }
+       } else if (
+         appStateRef.current === 'active' &&
+         nextAppState.match(/inactive|background/)
+       ) {
+         console.log('App has gone to the background - pausing timer');
+         if (isConnected) {
+           sendPauseSignal();
+         }
+       }
+
+       appStateRef.current = nextAppState;
+       setAppState(nextAppState);
+     };
+
+     const subscription = AppState.addEventListener(
+       'change',
+       handleAppStateChange,
+     );
+
+     return () => {
+       subscription?.remove();
+     };
+   }, [isConnected, sendPauseSignal, sendResumeSignal]);
 
   const handleClosingSignal = useCallback(() => {
     sendCloseSignal();
@@ -271,8 +351,6 @@ const ChatScreen = (router) => {
     sendEndSignal();
     setIsDatePickerVisible(false);
   }, [sendEndSignal]);
-
-
 
   const handleKeyPress = ({ nativeEvent }) => {
     if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
@@ -286,7 +364,6 @@ const ChatScreen = (router) => {
     if (text.trim() && !isResponseLoading) {
 
       hideTopicConfirmator();
-
 
       const isFollowUp =
         messages.length > 0 && messages[messages.length - 1].sender === 'user';
@@ -315,20 +392,19 @@ const ChatScreen = (router) => {
     }
   };
 
-
   const handleMrWeekResponse = () => {
-
-    if (messages[messages.length - 1]?.sender === 'assistant' &&
-      messages[messages.length - 1]?.text === '...') {
-    return; // Already showing loading
+    if (
+      messages[messages.length - 1]?.sender === 'assistant' &&
+      messages[messages.length - 1]?.text === '...'
+    ) {
+      return; // Already showing loading
     }
-
 
     // Get consecutive user messages from bottom until we hit an assistant message
     const userMessages = [];
     for (let i = messages.length - 1; i >= 0; i--) {
       const message = messages[i];
-      if (message.sender === 'assistant') {
+      if (message.sender === 'assistant' && showTopicOptions == false) {
         // can't respond two times in row
         break;
       }
@@ -337,22 +413,24 @@ const ChatScreen = (router) => {
       }
     }
 
-    const query = userMessages.join(''); // Combine all user messages, before \n
+    const query = userMessages.join(' '); // Combine all user messages, before \n
 
     if (query.trim() && isConnected) {
       hideTopicConfirmator();
       setIsResponseLoading(true);
 
+      console.log('Adding this');
+
       // Add loading message that will be replaced by the response
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        sender: 'assistant',
-        text: '...',
-        date_created: new Date().toISOString(),
-      },
-    ]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          sender: 'assistant',
+          text: '...',
+          date_created: new Date().toISOString(),
+        },
+      ]);
 
       requestResponse(query);
     } else if (!isConnected) {
@@ -367,6 +445,15 @@ const ChatScreen = (router) => {
   };
 
   const handleConfirmTopic = useCallback(() => {
+    if (
+      messages[messages.length - 1]?.sender === 'assistant' &&
+      messages[messages.length - 1]?.text === '...'
+    ) {
+      return; // Already showing loading
+    }
+
+    console.log('Adding topic');
+
     // Add loading indicator for confirm action
     setMessages((prev) => [
       ...prev,
@@ -394,6 +481,15 @@ const ChatScreen = (router) => {
   }, [confirmTopic, hideTopicConfirmator]);
 
   const handleQuitTopic = useCallback(() => {
+
+    if (
+      messages[messages.length - 1]?.sender === 'assistant' &&
+      messages[messages.length - 1]?.text === '...'
+    ) {
+      return; // Already showing loading
+    }
+
+    console.log('Adding quit topic');
     // Add loading indicator for quit action
     setMessages((prev) => [
       ...prev,
@@ -444,8 +540,12 @@ const ChatScreen = (router) => {
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, showTopicOptions]);
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []); // Add this useEffect at the end of your useEffects
 
   const getBottomPadding = () => {
     const TAB_BAR_HEIGHT = 60;
@@ -487,13 +587,13 @@ const ChatScreen = (router) => {
       backgroundColor: theme.colors.violet_darkest,
     },
 
-      dashboardLinkContainer: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 40 : 30,
-    width: '100%',
-    alignItems: 'center',
-    paddingBottom: 10,
-  },
+    dashboardLinkContainer: {
+      position: 'absolute',
+      bottom: Platform.OS === 'ios' ? 40 : 30,
+      width: '100%',
+      alignItems: 'center',
+      paddingBottom: 10,
+    },
 
     messagesContainer: {
       flex: 1,
@@ -597,7 +697,7 @@ const ChatScreen = (router) => {
         />
 
         <ScrollView
-          ref={scrollViewRef}
+         ref={scrollViewRef}
           style={styles.messagesContainer}
           contentContainerStyle={styles.contentContainer}
           keyboardDismissMode="on-drag"

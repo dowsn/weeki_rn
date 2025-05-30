@@ -35,7 +35,9 @@ const CustomDatePickerModal = ({
   const screenWidth = Dimensions.get('window').width;
   const [isProcessing, setIsProcessing] = React.useState(false);
 
-  const noTopics = text === 'No current topics';
+  const noTopics = text === 'No current topics' || text === '' || text === 'None';
+
+
 
   React.useEffect(() => {
     if (!visible) {
@@ -120,15 +122,29 @@ const CustomDatePickerModal = ({
       alignItems: 'center',
       paddingHorizontal: 20,
     },
-
+    topicContainer: {
+      width: '100%',
+      marginTop: 20,
+      marginBottom: 10,
+      padding: 15,
+      borderRadius: 10,
+      backgroundColor: theme.colors.violet_dark,
+      alignItems: 'center',
+    },
     topicText: {
       color: theme.colors.violet_light,
-      fontSize: theme.fontSizes.small,
+      fontSize: theme.fontSizes.medium,
       textAlign: 'center',
-      marginBottom: 2,
+      marginBottom: 4,
       width: '100%',
     },
-
+    topicTitle: {
+      color: theme.colors.violet_light,
+      fontSize: theme.fontSizes.large,
+      textAlign: 'center',
+      marginBottom: 8,
+      width: '100%',
+    },
     buttonContainer: {
       width: '100%',
       flex: 1,
@@ -202,13 +218,13 @@ const CustomDatePickerModal = ({
                 <Text style={styles.topicText}>{text}</Text>
               ) : (
                 <>
-                  <Text style={styles.topicText}>Current topics:</Text>
+                  <Text style={styles.topicTitle}>Current topics</Text>
                   {text
                     .split(', ')
-                    .slice(0, 5)
+                    .slice(0, 3)
                     .map((topic, index) => (
                       <Text key={index} style={styles.topicText}>
-                        {topic}
+                        • {topic}
                       </Text>
                     ))}
                 </>

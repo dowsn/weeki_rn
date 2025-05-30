@@ -7,11 +7,6 @@ const Message = ({ id, sender, date_created, text}) => {
 
   const { theme } = useUserContext();
 
-  const cleanedText =
-    text && text.startsWith('***')
-      ? text.substring(3) // Remove the first 3 characters ("***")
-      : text;
-
   const styles = StyleSheet.create({
     messageContainer: {
       width: '100%',
@@ -37,7 +32,7 @@ const Message = ({ id, sender, date_created, text}) => {
   return (
     <View key={id || date_created} style={styles.messageContainer}>
       <View style={styles.messageBubble}>
-        <Text style={styles.messageText}>{cleanedText}</Text>
+        <Text style={styles.messageText}>{text}</Text>
       </View>
     </View>
   );

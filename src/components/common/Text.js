@@ -18,7 +18,6 @@ const defaultTextStyle = {
 };
 
 export const Text = React.forwardRef(({ style, ...props }, ref) => {
-    console.log('Text component rendered with style:', style);
 
 
   const combinedStyle = [
