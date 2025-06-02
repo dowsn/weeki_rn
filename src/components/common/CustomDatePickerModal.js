@@ -104,7 +104,7 @@ const CustomDatePickerModal = ({
 
   const onEndSession = () => {
      onEndSignal();
-     onClose();
+    //  onClose();
   };
 
   const styles = StyleSheet.create({

@@ -70,6 +70,8 @@ const ChatScreen = (router) => {
   const [messages, setMessages] = useState([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollViewRef = React.useRef();
+  const [isEnding, setIsEnding] = useState(false);
+
   const inputRef = React.useRef();
   const scrollTimeoutRef = useRef(null);
 
@@ -291,15 +293,28 @@ const ChatScreen = (router) => {
   } = useAgentChat(handleStreamedResponse, chat_session_id);
 
 
-  useEffect(() => {
+useEffect(() => {
   if (isDatePickerVisible && isConnected) {
     console.log('Modal opened - pausing timer');
     sendPauseSignal();
-  } else if (!isDatePickerVisible && isConnected && appState === 'active') {
+  } else if (
+    !isDatePickerVisible &&
+    isConnected &&
+    appState === 'active' &&
+    !isEnding
+  ) {
+    // ← Add !isEnding check
     console.log('Modal closed - resuming timer (app is active)');
     sendResumeSignal();
   }
-  }, [isDatePickerVisible, isConnected, appState, sendPauseSignal, sendResumeSignal]);
+}, [
+  isDatePickerVisible,
+  isConnected,
+  appState,
+  isEnding,
+  sendPauseSignal,
+  sendResumeSignal,
+]);
 
    useEffect(() => {
      const handleAppStateChange = (nextAppState) => {
@@ -342,15 +357,22 @@ const ChatScreen = (router) => {
      };
    }, [isConnected, sendPauseSignal, sendResumeSignal]);
 
-  const handleClosingSignal = useCallback(() => {
-    sendCloseSignal();
-    setIsDatePickerVisible(false);
-  }, [sendCloseSignal]);
+const handleClosingSignal = useCallback(() => {
+  setIsEnding(true); // ← Add this flag too
+  sendCloseSignal();
+  setIsDatePickerVisible(false);
+}, [sendCloseSignal]);
 
-  const handleEndSignal = useCallback(() => {
-    sendEndSignal();
+const handleEndSignal = useCallback(() => {
+  setIsEnding(true);
+  sendEndSignal();
+  // Don't close modal immediately - let it close after a small delay
+  setTimeout(() => {
     setIsDatePickerVisible(false);
-  }, [sendEndSignal]);
+  }, 50); // Small delay to ensure flag is set
+}, [sendEndSignal]);
+
+
 
   const handleKeyPress = ({ nativeEvent }) => {
     if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {

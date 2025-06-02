@@ -244,6 +244,8 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
     websocketRef.current.close(1000, 'Intentional close');
   }, []);
 
+
+
   const sendEndSignal = useCallback(() => {
     if (
       !websocketRef.current ||
@@ -254,6 +256,7 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
 
     intentionalClose.current = true;
     websocketRef.current.send(JSON.stringify({ type: 'end', query: 'end' }));
+    // websocketRef.current.close(1000, 'Session ended'); // ← Add this line
   }, []);
 
   useEffect(() => {
