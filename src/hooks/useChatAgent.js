@@ -129,6 +129,10 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
               console.log('Timer resumed:', data.message);
               onStreamedResponse(data);
               break;
+            case 'processing_end':
+              console.log('Session end processing:', data.message);
+              onStreamedResponse(data);
+              break;
 
             case 'stream_complete':
               console.log('Stream completed');

@@ -212,6 +212,19 @@ const ChatScreen = (router) => {
         ]);
 
         break;
+      case 'processing_end':
+        // Show processing indicator - same as new_message but for end processing
+        console.log('Session end processing started');
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            sender: 'assistant',
+            text: '...', // Start with loading dots
+            date_created: new Date().toISOString(),
+          },
+        ]);
+        break;
       case 'stream_complete':
           setMessages((prev) => {
             const lastMessage = prev[prev.length - 1];
@@ -223,6 +236,7 @@ const ChatScreen = (router) => {
             }
             return prev; // Return unchanged state
           });
+          break;
       case 'message':
       case 'automatic_message':
       case 'topic': // Both types update message content the same way

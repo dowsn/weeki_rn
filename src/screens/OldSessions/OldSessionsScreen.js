@@ -88,7 +88,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
   }
 
   const onSummaryPress = () => {
-    const combinedText = `Summary:\n${summary}\n\nCharacter:\n${character}`;
+    const combinedText = `Summary:\n${summary}`;
     navigation.navigate('Summary', {
       text: combinedText,
       navigation,
@@ -111,7 +111,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
         onNavigate={handleNavigation}
       />
       <ChatSession
-        title={title}
+        title={character}
         isLoading={isLoading}
         onChatPress={onChatPress}
         onSummaryPress={onSummaryPress}
