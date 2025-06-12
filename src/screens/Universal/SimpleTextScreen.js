@@ -13,7 +13,7 @@ import CustomSafeView from 'src/components/layouts/CustomSafeArea';
 import { useUserContext } from 'src/hooks/useUserContext';
 
 const SimpleTextScreen = ({ route }) => {
-  const { title, text, navigation, backText } = route.params;
+  const { title, text, textPrefix, segments, navigation, backText } = route.params;
   const { theme } = useUserContext();
 
   const styles = StyleSheet.create({
@@ -40,6 +40,27 @@ const SimpleTextScreen = ({ route }) => {
       lineHeight: 24,
       marginBottom: 32,
     },
+    textPrefix: {
+      paddingTop: theme.spacing.large,
+      color: theme.colors.violet_light,
+      fontSize: theme.fontSizes.small,
+      lineHeight: 24,
+      fontWeight: 'bold',
+    },
+    segmentLabel: {
+      color: theme.colors.violet_light,
+      fontSize: theme.fontSizes.small,
+      lineHeight: 24,
+      fontWeight: 'bold',
+    },
+    segmentContent: {
+      color: theme.colors.yellow_light,
+      fontSize: theme.fontSizes.small,
+      lineHeight: 24,
+    },
+    segmentContainer: {
+      marginBottom: theme.spacing.medium,
+    },
     button: {
       flexDirection: 'flex-end',
       // paddingVertical: 16,
@@ -58,7 +79,24 @@ const SimpleTextScreen = ({ route }) => {
     <CustomSafeView>
       <ScrollView style={styles.scrollView}>
         {title && <Text style={styles.title}>{title}</Text>}
-        {text && <Text style={styles.text}>{text}</Text>}
+        {segments ? (
+          <View style={{ paddingTop: theme.spacing.large }}>
+            {segments.map((segment, index) => (
+              <View key={index} style={styles.segmentContainer}>
+                <Text style={styles.segmentLabel}>{segment.label}</Text>
+                <Text style={styles.segmentContent}>{segment.content}</Text>
+              </View>
+            ))}
+          </View>
+        ) : textPrefix && text ? (
+          <Text style={styles.text}>
+            <Text style={styles.textPrefix}>{textPrefix}</Text>
+            {'\n'}
+            {text}
+          </Text>
+        ) : (
+          text && <Text style={styles.text}>{text}</Text>
+        )}
       </ScrollView>
 
       <TextLink

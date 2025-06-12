@@ -84,13 +84,14 @@ const OldSessionsScreen = ({ navigation, route }) => {
 
   const onChatPress = (text) => {
     navigation.navigate('Chat', { messages, navigation });
-``
-  }
+  };
 
   const onSummaryPress = () => {
-    const combinedText = `Summary:\n${summary}`;
     navigation.navigate('Summary', {
-      text: combinedText,
+      segments: [
+        { label: 'Summary:', content: summary },
+        { label: 'You:', content: character }
+      ],
       navigation,
       backText: 'Moments',
     });
@@ -111,7 +112,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
         onNavigate={handleNavigation}
       />
       <ChatSession
-        title={character}
+        title={title}
         isLoading={isLoading}
         onChatPress={onChatPress}
         onSummaryPress={onSummaryPress}
@@ -124,9 +125,5 @@ const OldSessionsScreen = ({ navigation, route }) => {
     </CustomSafeView>
   );
 };
-
-const styles = StyleSheet.create({
-  // Add any additional styles here
-});
 
 export default OldSessionsScreen;
