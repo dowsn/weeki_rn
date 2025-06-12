@@ -3,7 +3,9 @@
     "allow": [
       "Bash(./gradlew:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(./.claude/commands/android-push)"
     ],
     "deny": []
   }
