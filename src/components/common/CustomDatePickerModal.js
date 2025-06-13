@@ -79,11 +79,9 @@ const CustomDatePickerModal = ({
         onDateChange(currentDate);
       }
       setIsProcessing(false);
-    }
-
-    setShowDatePicker(false);
-
-    if (event.type === 'dismissed') {
+      setShowDatePicker(false);
+    } else if (event.type === 'dismissed') {
+      setShowDatePicker(false);
       onClose();
     }
   };
