@@ -229,8 +229,9 @@ const ChatScreen = (router) => {
           setMessages((prev) => {
             const lastMessage = prev[prev.length - 1];
             if (
-              shouldShowTopicConfirmator(lastMessage.text) ||
-              topics === 'No current topics'
+              (shouldShowTopicConfirmator(lastMessage.text) ||
+               topics === 'No current topics') &&
+              lastMessage.sender === 'assistant'
             ) {
               setTimeout(() => showTopicConfirmator(), 100);
             }
