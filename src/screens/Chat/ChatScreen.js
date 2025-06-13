@@ -729,6 +729,7 @@ const handleEndSignal = useCallback(() => {
           onOpenSession={handleCloseDatePicker}
           onEndSignal={handleEndSignal}
           isToday={true}
+          fromChatScreen={true}
           text={topicNames}
         />
 

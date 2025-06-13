@@ -22,6 +22,7 @@ const CustomDatePickerModal = ({
   isToday,
   isAlreadySession = false,
   text = "",
+  fromChatScreen = false,
 
   onCloseSignal = () => {
     console.log('onCloseSignal');
@@ -128,7 +129,6 @@ const CustomDatePickerModal = ({
       marginBottom: 10,
       padding: 15,
       borderRadius: 10,
-      backgroundColor: theme.colors.violet_dark,
       alignItems: 'center',
     },
     topicText: {
@@ -171,7 +171,7 @@ const CustomDatePickerModal = ({
     <SpacingView spacing="large" style={styles.footerPart}>
       {!showDatePicker && (
         <>
-          {chatSession && Object.keys(chatSession).length > 0 && isToday ? (
+          {chatSession && Object.keys(chatSession).length > 0 && fromChatScreen ? (
             <TextLink
               text={chatSession.time_left === 60 ? 'Start' : 'Continue'}
               onPress={onOpenSession}
@@ -246,7 +246,7 @@ const CustomDatePickerModal = ({
               <>
                 {chatSession && Object.keys(chatSession).length > 0 ? (
                   <>
-                    {isToday && (
+                    {fromChatScreen && (
                       <NormalButton
                         text="Focusboard"
                         onPress={() => {
