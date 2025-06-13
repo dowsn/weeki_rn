@@ -171,19 +171,35 @@ const CustomDatePickerModal = ({
     <SpacingView spacing="large" style={styles.footerPart}>
       {!showDatePicker && (
         <>
-          {chatSession && Object.keys(chatSession).length > 0 ? (
+          {chatSession && Object.keys(chatSession).length > 0 && isToday ? (
+            <TextLink
+              text={chatSession.time_left === 60 ? 'Start' : 'Continue'}
+              onPress={onOpenSession}
+              color={theme.colors.green}
+            />
+          ) : (
             <>
-              {Object.keys(chatSession).length === 1 && (
-                <TextLink
-                  text="Focusboard"
-                  onPress={() => {
-                    onSave();
-                    onCloseSignal();
-                  }}
-                  color={theme.colors.violet_light}
-                />
-              )}
-              {Object.keys(chatSession).length > 1 && (
+              {chatSession && Object.keys(chatSession).length > 0 ? (
+                <>
+                  {Object.keys(chatSession).length === 1 && (
+                    <TextLink
+                      text="Focusboard"
+                      onPress={() => {
+                        onSave();
+                        onCloseSignal();
+                      }}
+                      color={theme.colors.violet_light}
+                    />
+                  )}
+                  {Object.keys(chatSession).length > 1 && (
+                    <TextLink
+                      text="Focusboard"
+                      onPress={onClose}
+                      color={theme.colors.violet_light}
+                    />
+                  )}
+                </>
+              ) : (
                 <TextLink
                   text="Focusboard"
                   onPress={onClose}
@@ -191,12 +207,6 @@ const CustomDatePickerModal = ({
                 />
               )}
             </>
-          ) : (
-            <TextLink
-              text="Focusboard"
-              onPress={onClose}
-              color={theme.colors.violet_light}
-            />
           )}
         </>
       )}
@@ -238,11 +248,12 @@ const CustomDatePickerModal = ({
                   <>
                     {isToday && (
                       <NormalButton
-                        text={
-                          chatSession.time_left === 60 ? 'Start' : 'Continue'
-                        }
-                        onPress={onOpenSession}
-                        colorType="green"
+                        text="Focusboard"
+                        onPress={() => {
+                          onSave();
+                          onCloseSignal();
+                        }}
+                        colorType="violet"
                       />
                     )}
                     <NormalButton
