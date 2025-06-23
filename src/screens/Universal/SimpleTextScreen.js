@@ -58,6 +58,17 @@ const SimpleTextScreen = ({ route }) => {
       fontSize: theme.fontSizes.small,
       lineHeight: 24,
     },
+    segmentLabelYou: {
+      color: theme.colors.violet_light,
+      fontSize: theme.fontSizes.small,
+      lineHeight: 24,
+      fontWeight: 'bold',
+    },
+    segmentContentYou: {
+      color: theme.colors.violet_light,
+      fontSize: theme.fontSizes.small,
+      lineHeight: 24,
+    },
     segmentContainer: {
       marginBottom: theme.spacing.medium,
     },
@@ -83,8 +94,8 @@ const SimpleTextScreen = ({ route }) => {
           <View style={{ paddingTop: theme.spacing.large }}>
             {segments.map((segment, index) => (
               <View key={index} style={styles.segmentContainer}>
-                <Text style={styles.segmentLabel}>{segment.label}</Text>
-                <Text style={styles.segmentContent}>{segment.content}</Text>
+                <Text style={segment.label === 'You:' ? styles.segmentLabelYou : styles.segmentLabel}>{segment.label}</Text>
+                <Text style={segment.label === 'You:' ? styles.segmentContentYou : styles.segmentContent}>{segment.content}</Text>
               </View>
             ))}
           </View>

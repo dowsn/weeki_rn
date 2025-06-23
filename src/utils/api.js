@@ -203,6 +203,10 @@ export const fetchFromApi = async (
       const responseData = await response.json();
 
       if (!response.ok) {
+        // Logout on any API error
+        console.log('API error occurred, logging out');
+        await SecurityService.clearAll();
+        
         const errorMessage =
           responseData.detail ||
           responseData.message ||

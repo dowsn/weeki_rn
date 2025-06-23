@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react';
 import {
   Image,
   Linking,
+  Platform,
   StyleSheet,
   Switch,
   TouchableOpacity,
@@ -18,6 +19,7 @@ import SpacingView from 'src/components/layouts/SpacingView';
 import { useUpdateProfile } from 'src/hooks/useUpdateProfile';
 import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
+import { APP_STORE_URL, PLAY_STORE_URL } from 'src/constants/constants';
 
 const EditProfileScreen = () => {
   const { theme, user, setUser, logout } = useUserContext();
@@ -118,6 +120,21 @@ const EditProfileScreen = () => {
     [],
   );
 
+  const handleSubscription = useCallback(async () => {
+    const url = Platform.OS === 'ios' ? APP_STORE_URL : PLAY_STORE_URL;
+    
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        showAlert('Error', 'Unable to open store link');
+      }
+    } catch (error) {
+      showAlert('Error', 'Failed to open subscription link');
+    }
+  }, []);
+
 
   return (
     <CustomSafeView scrollable keyboardShouldPersistTaps="handled">
@@ -159,7 +176,7 @@ const EditProfileScreen = () => {
         <NormalButton
           text={'Subscription'}
           colorType="violet"
-          onPress={() => navigation.navigate('Subscription')}
+          onPress={handleSubscription}
         />
       </SpacingView>
       <SpacingView spacing="large" style={styles.footerPart}>

@@ -1,9 +1,13 @@
-export const host = 'weeki-lukasmeinhart.replit.app';
-// export const host = '601caa67-8426-4032-a919-d2f6227a5865-00-1xpunr8l2i4gj.janeway.replit.dev';
+// export const host = 'weeki-lukasmeinhart.replit.app';
+export const host = '601caa67-8426-4032-a919-d2f6227a5865-00-1xpunr8l2i4gj.janeway.replit.dev';
 export const www =
   `https://${host}/`;
 
 export const ASSISTANT_PROFILE_PICTURE = "";
+
+// Store URLs
+export const APP_STORE_URL = 'https://apps.apple.com/app/your-app-id';
+export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.yourcompany.weeki';
 
 export const globalUrl = `${www}api/`;
 const baseUrl = `${www}`;

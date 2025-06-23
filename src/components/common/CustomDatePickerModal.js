@@ -1,6 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React from 'react';
-import UseEffect from 'react';
 import { Dimensions, Modal, Platform, StyleSheet, View } from 'react-native';
 import Text from 'src/components/common/Text'; // Import your custom Text component
 import { useUserContext } from '../../hooks/useUserContext';
@@ -36,7 +35,7 @@ const CustomDatePickerModal = ({
   const screenWidth = Dimensions.get('window').width;
   const [isProcessing, setIsProcessing] = React.useState(false);
 
-  const noTopics = text === 'No current topics' || text === '' || text === 'None';
+  const noTopics = text === 'No current topics' || text === '' || text === 'No Current Topics';
 
 
 
@@ -252,6 +251,13 @@ const CustomDatePickerModal = ({
                           onCloseSignal();
                         }}
                         colorType="violet"
+                      />
+                    )}
+                    {!fromChatScreen && isToday && (
+                      <NormalButton
+                        text={chatSession.time_left === 60 ? 'Start' : 'Continue'}
+                        onPress={onOpenSession}
+                        colorType="green"
                       />
                     )}
                     <NormalButton

@@ -89,7 +89,7 @@ const OldSessionsScreen = ({ navigation, route }) => {
   const onSummaryPress = () => {
     navigation.navigate('Summary', {
       segments: [
-        { label: 'Summary:', content: summary },
+        { label: '', content: summary },
         { label: 'You:', content: character }
       ],
       navigation,

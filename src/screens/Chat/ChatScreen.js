@@ -36,7 +36,7 @@ const ChatScreen = (router) => {
   const appStateRef = useRef(AppState.currentState);
 
   const chatSession = { chat_session_id };
-  const [topicNames, setTopicNames] = useState('None');
+  const [topicNames, setTopicNames] = useState('No Current Topics');
 
   // Initialize the API calls hook
   const { apiCalls, error: apiError } = useApiCall({
@@ -95,41 +95,27 @@ const ChatScreen = (router) => {
     setIsDatePickerVisible(false);
   };
 
-  const handleSaveDate = async () => {
-    console.log('handleSaveDate');
-    await handleReschedule();
+  const handleSaveDate = async (date) => {
+    console.log('handleSaveDate', date);
+    if (date) {
+      setSelectedDate(date);
+    }
+    await handleReschedule(date);
     setIsDatePickerVisible(false);
     navigation.replace('Dashboard');
   };
 
   // Reschedule functionality
-  const handleReschedule = async () => {
+  const handleReschedule = async (passedDate) => {
     try {
-      // Check what type of object selectedDate is
+      // Use passed date if available, otherwise fall back to selectedDate
+      const dateToUse = passedDate || selectedDate;
+      
       console.log(
         'Selected date type:',
-        typeof selectedDate,
-        selectedDate instanceof Date ? 'Date object' : 'Not a Date',
+        typeof dateToUse,
+        dateToUse instanceof Date ? 'Date object' : 'Not a Date',
       );
-
-      // Use the correct date - handle the case if it's an event object
-      let dateToUse;
-
-      if (selectedDate instanceof Date) {
-        // It's a proper Date object
-        dateToUse = selectedDate;
-      } else if (
-        selectedDate &&
-        typeof selectedDate === 'object' &&
-        (selectedDate.nativeEvent || selectedDate._targetInst)
-      ) {
-        // It's an event object, use the state date instead
-        console.log('Event object detected, using state date');
-        dateToUse = date;
-      } else {
-        // Default to state date
-        dateToUse = date;
-      }
 
       // Make sure dateToUse is a valid Date
       if (!(dateToUse instanceof Date)) {
@@ -178,7 +164,7 @@ const ChatScreen = (router) => {
             })),
           );
 
-          setTopicNames(topics || 'None');
+          setTopicNames(topics || 'No Current Topics');
 
           const lastMessage = messagesData[messagesData.length - 1];
 
