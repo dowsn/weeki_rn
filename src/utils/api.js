@@ -123,7 +123,7 @@ export const fetchFromApi = async (
         } catch (error) {
           console.error('Failed to refresh token:', error);
           await SecurityService.clearAll();
-          // throw new Error('Authentication failed');
+          throw new Error('Authentication failed');
         }
       }
     } else {
