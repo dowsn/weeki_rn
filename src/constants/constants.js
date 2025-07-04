@@ -1,5 +1,5 @@
 // export const host = 'weeki-lukasmeinhart.replit.app';
-export const host = '601caa67-8426-4032-a919-d2f6227a5865-00-1xpunr8l2i4gj.janeway.replit.dev';
+export const host = 'weeki-production.up.railway.app';
 export const www =
   `https://${host}/`;
 
