@@ -37,15 +37,24 @@ export const useActivation = () => {
 
   const sendEmail = async (userId) => {
     try {
+      console.log('🔍 ACTIVATION HOOK: sendEmail called with userId:', userId);
+      console.log('🔍 ACTIVATION HOOK: userId type:', typeof userId);
+      console.log('🔍 ACTIVATION HOOK: userId is undefined?', userId === undefined);
+      console.log('🔍 ACTIVATION HOOK: About to call apiCalls.sendEMail with params:', { userId });
+      
       const response = await apiCalls.sendEMail({ userId });
+      
+      console.log('🔍 ACTIVATION HOOK: sendEmail API response:', response);
 
       if (response.content) {
+        console.log('✅ ACTIVATION HOOK: sendEmail success, returning response');
         return response;
       }
 
+      console.log('❌ ACTIVATION HOOK: sendEmail no content in response');
       throw new Error(response.message || 'Login failed');
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ ACTIVATION HOOK: sendEmail error:', error);
       // Preserve and throw the original error message
       throw error;
     }
