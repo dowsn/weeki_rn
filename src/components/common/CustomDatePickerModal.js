@@ -64,23 +64,35 @@ const CustomDatePickerModal = ({
         try {
           onDateChange(selectedDate);
 
+          // Close the date picker immediately to prevent double-appear
+          setShowDatePicker(false);
+
+          // Wait a bit before executing the save/reschedule to ensure UI updates
+          await new Promise(resolve => setTimeout(resolve, 100));
+
           if (chatSession && Object.keys(chatSession).length > 0) {
             await onReschedule(selectedDate);
           } else {
             await onSave(selectedDate);
           }
+          
+          // Close the modal after successful operation
+          onClose();
         } catch (error) {
           console.error('Date selection error:', error);
+          // Re-open date picker on error
+          setShowDatePicker(true);
+        } finally {
           setIsProcessing(false);
-          return;
         }
       } else {
         onDateChange(currentDate);
+        setShowDatePicker(false);
+        setIsProcessing(false);
       }
-      setIsProcessing(false);
-      setShowDatePicker(false);
     } else if (event.type === 'dismissed') {
       setShowDatePicker(false);
+      setIsProcessing(false);
       onClose();
     }
   };
