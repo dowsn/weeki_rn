@@ -11,12 +11,15 @@ const YouButton = ({
   tokens = 4,
   next_date = 'unavailable',
   hasExpiredSession = true,
+  onWeekiTrigger,
 }) => {
   const { user, theme } = useUserContext();
 
   const handleYouButtonPress = useCallback(() => {
     if (!hasExpiredSession) {
-      showAlert('Weeki', 'Experience your personality through my lens. Click on me to plan our first moment.');
+      if (onWeekiTrigger) {
+        onWeekiTrigger();
+      }
       return;
     }
     navigation.navigate('Topics');

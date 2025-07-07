@@ -19,7 +19,7 @@ export const useActivation = () => {
 
   const activate = async (userId, activationCode) => {
     try {
-      const response = await apiCalls.activate({ userId, activationCode });
+      const response = await apiCalls.activate({ first_user_id: userId, activationCode });
       if (response.content) {
         if (response.content.activated == true) {
           await setUser(response.content);
@@ -40,9 +40,9 @@ export const useActivation = () => {
       console.log('🔍 ACTIVATION HOOK: sendEmail called with userId:', userId);
       console.log('🔍 ACTIVATION HOOK: userId type:', typeof userId);
       console.log('🔍 ACTIVATION HOOK: userId is undefined?', userId === undefined);
-      console.log('🔍 ACTIVATION HOOK: About to call apiCalls.sendEMail with params:', { userId });
+      console.log('🔍 ACTIVATION HOOK: About to call apiCalls.sendEMail with params:', { first_user_id: userId });
       
-      const response = await apiCalls.sendEMail({ userId });
+      const response = await apiCalls.sendEMail({ first_user_id: userId });
       
       console.log('🔍 ACTIVATION HOOK: sendEmail API response:', response);
 

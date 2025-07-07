@@ -1,5 +1,5 @@
 import { set } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { AppState, StyleSheet, Text } from 'react-native';
 import YouButton from 'src/components/buttons/YouButton';
 import ProfileHeader from 'src/components/common/ProfileHeader';
@@ -26,6 +26,14 @@ const DashboardScreen = ({ navigation }) => {
   const [hasExpiredSession, setHasExpiredSession] = useState(false);
 
   const { getDashboard, isLoading, error } = useDashboard();
+  const chatButtonRef = useRef(null);
+
+  // Callback function to trigger the Weeki button
+  const triggerWeekiButton = () => {
+    if (chatButtonRef.current) {
+      chatButtonRef.current.triggerPress();
+    }
+  };
 
   const fetchTopics = async () => {
     try {
@@ -89,6 +97,7 @@ const DashboardScreen = ({ navigation }) => {
       <ProfileHeader
         navigation={navigation}
         hasExpiredSession={hasExpiredSession}
+        onWeekiTrigger={triggerWeekiButton}
       />
       <YouButton
         navigation={navigation}
@@ -96,8 +105,10 @@ const DashboardScreen = ({ navigation }) => {
         tokens={tokens}
         next_date={nextDate}
         hasExpiredSession={hasExpiredSession}
+        onWeekiTrigger={triggerWeekiButton}
       />
       <ChatButton
+        ref={chatButtonRef}
         chatSession={chatSession}
         next_date={nextDate}
         navigation={navigation}

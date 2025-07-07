@@ -82,7 +82,7 @@ const RegistrationScreen = () => {
       );
       console.log('🔍 REGISTRATION SCREEN: Register response:', response);
       console.log('🔍 REGISTRATION SCREEN: response.content (userId):', response.content);
-      
+
       if (response.content) {
         console.log('🔍 REGISTRATION SCREEN: Navigating to Activation with userId:', response.content);
         navigation.navigate('Activation', { userId: response.content });
@@ -93,7 +93,7 @@ const RegistrationScreen = () => {
     } catch (error) {
       console.error('❌ REGISTRATION SCREEN: Error occurred:', error);
       // Error is handled in the hook
-      showAlert('Error', error.message);
+      showAlert('Error',  error.message);
     }
   };
 

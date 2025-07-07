@@ -23,10 +23,10 @@ const ActivationScreen = () => {
   const { theme } = useUserContext();
   const navigation = useNavigation();
   const route = useRoute();
-  
+
   console.log('🔍 ACTIVATION SCREEN: Route object:', route);
   console.log('🔍 ACTIVATION SCREEN: Route params:', route.params);
-  
+
   const { userId } = route.params;
   console.log('🔍 ACTIVATION SCREEN: Extracted userId from route params:', userId);
   console.log('🔍 ACTIVATION SCREEN: userId type:', typeof userId);

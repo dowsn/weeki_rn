@@ -9,6 +9,8 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
   const websocketRef = useRef(null);
   const { user } = useUserContext();
   const [isConnected, setIsConnected] = useState(false);
+  const [displayConnectionState, setDisplayConnectionState] = useState(false);
+  const connectionStateTimeoutRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const intentionalClose = useRef(false);
 
@@ -98,6 +100,15 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
       ws.onopen = () => {
         console.log('WebSocket connection established successfully');
         setIsConnected(true);
+        
+        // Clear any pending timeout
+        if (connectionStateTimeoutRef.current) {
+          clearTimeout(connectionStateTimeoutRef.current);
+          connectionStateTimeoutRef.current = null;
+        }
+        
+        // Immediately show connected state
+        setDisplayConnectionState(true);
 
         setTimeout(() => {
           ws.send(
@@ -176,6 +187,22 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
         console.log('WebSocket closed with code:', event.code); // Add logging
 
         setIsConnected(false);
+        
+        // Add delay before updating display state (unless intentionally closing)
+        if (!intentionalClose.current) {
+          // Clear any existing timeout
+          if (connectionStateTimeoutRef.current) {
+            clearTimeout(connectionStateTimeoutRef.current);
+          }
+          
+          // Set a 3-second delay before showing disconnected state
+          connectionStateTimeoutRef.current = setTimeout(() => {
+            setDisplayConnectionState(false);
+          }, 3000);
+        } else {
+          // If intentionally closing, update immediately
+          setDisplayConnectionState(false);
+        }
 
         // Check if the close was due to token expiration (code 4001)
         if (event.code === 4001) {
@@ -269,6 +296,9 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
+      if (connectionStateTimeoutRef.current) {
+        clearTimeout(connectionStateTimeoutRef.current);
+      }
       if (websocketRef.current) {
         websocketRef.current.close(1000, 'Component unmounting');
       }
@@ -337,5 +367,6 @@ export const useAgentChat = (onStreamedResponse, chat_session_id) => {
     sendPauseSignal, // ✅ Add this
     sendResumeSignal,
     isConnected,
+    displayConnectionState,
   };
 };

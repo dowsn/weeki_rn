@@ -110,7 +110,7 @@ const ChatScreen = (router) => {
     try {
       // Use passed date if available, otherwise fall back to selectedDate
       const dateToUse = passedDate || selectedDate;
-      
+
       console.log(
         'Selected date type:',
         typeof dateToUse,
@@ -291,6 +291,7 @@ const ChatScreen = (router) => {
     sendPauseSignal,
     sendResumeSignal,
     isConnected,
+    displayConnectionState,
   } = useAgentChat(handleStreamedResponse, chat_session_id);
 
 
@@ -384,7 +385,7 @@ const handleEndSignal = useCallback(() => {
   };
 
   const handleAddMessage = () => {
-    if (text.trim() && !isResponseLoading) {
+    if (text.trim() && !isResponseLoading && displayConnectionState) {
 
       hideTopicConfirmator();
 
@@ -438,7 +439,7 @@ const handleEndSignal = useCallback(() => {
 
     const query = userMessages.join(' '); // Combine all user messages, before \n
 
-    if (query.trim() && isConnected) {
+    if (query.trim() && displayConnectionState) {
       hideTopicConfirmator();
       setIsResponseLoading(true);
 
@@ -456,8 +457,9 @@ const handleEndSignal = useCallback(() => {
       ]);
 
       requestResponse(query);
-    } else if (!isConnected) {
-      showAlert('Error', 'Not connected to chat service');
+    } else if (!displayConnectionState) {
+      // Don't show alert - button should be disabled
+      return;
     }
   };
 
@@ -742,49 +744,39 @@ const handleEndSignal = useCallback(() => {
           )}
         </ScrollView>
 
-        {isConnected ? (
-          <View style={styles.inputSection}>
-            <View style={styles.inputContainer}>
-              <Pressable
-                style={styles.mrWeekButton}
-                onPress={handleMrWeekResponse}
-                disabled={isResponseLoading}
-                onLongPress={handleModal}
-              >
-                <Image
-                  source={mrWeekPicture}
-                  style={{ width: 38, height: 38 }}
-                />
-              </Pressable>
-
-              <TextInput
-                ref={inputRef}
-                style={[
-                  styles.input,
-                  isResponseLoading && styles.disabledInput,
-                ]}
-                value={text}
-                onChangeText={setText}
-                placeholder="Type a message..."
-                placeholderTextColor={theme.colors.gray}
-                multiline={true}
-                onKeyPress={handleKeyPress}
-                onSubmitEditing={handleSubmitEditing}
-                returnKeyType="send"
-                submitBehavior="blurAndSubmit"
-                editable={!isResponseLoading} // Disable input while loading
+        <View style={styles.inputSection}>
+          <View style={styles.inputContainer}>
+            <Pressable
+              style={styles.mrWeekButton}
+              onPress={handleMrWeekResponse}
+              disabled={isResponseLoading || !displayConnectionState}
+              onLongPress={handleModal}
+            >
+              <Image
+                source={mrWeekPicture}
+                style={{ width: 38, height: 38 }}
               />
-            </View>
-          </View>
-        ) : (
-          <View style={styles.dashboardLinkContainer}>
-            <TextLink
-              text="Dashboard"
-              onPress={() => navigation.replace('Dashboard')}
-              colorType="yellow"
+            </Pressable>
+
+            <TextInput
+              ref={inputRef}
+              style={[
+                styles.input,
+                (isResponseLoading || !displayConnectionState) && styles.disabledInput,
+              ]}
+              value={text}
+              onChangeText={setText}
+              placeholder="Type a message..."
+              placeholderTextColor={theme.colors.gray}
+              multiline={true}
+              onKeyPress={handleKeyPress}
+              onSubmitEditing={handleSubmitEditing}
+              returnKeyType="send"
+              submitBehavior="blurAndSubmit"
+              editable={!isResponseLoading && displayConnectionState} // Disable input while loading or disconnected
             />
           </View>
-        )}
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
