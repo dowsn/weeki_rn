@@ -73,18 +73,27 @@ const RegistrationScreen = () => {
 
   const handleRegistration = async () => {
     try {
+      console.log('🔍 REGISTRATION SCREEN: Starting registration...');
       const response = await register(
         username,
         password,
         email,
         emailReminders,
       );
+      console.log('🔍 REGISTRATION SCREEN: Register response:', response);
+      console.log('🔍 REGISTRATION SCREEN: response.content (userId):', response.content);
+
       if (response.content) {
+        console.log('🔍 REGISTRATION SCREEN: Navigating to Activation with userId:', response.content);
         navigation.navigate('Activation', { userId: response.content });
+        console.log('🔍 REGISTRATION SCREEN: Navigation completed');
+      } else {
+        console.log('❌ REGISTRATION SCREEN: No content in response, not navigating');
       }
     } catch (error) {
+      console.error('❌ REGISTRATION SCREEN: Error occurred:', error);
       // Error is handled in the hook
-      showAlert('Error', error.message);
+      showAlert('Error',  error.message);
     }
   };
 

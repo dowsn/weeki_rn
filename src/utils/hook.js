@@ -17,17 +17,21 @@ export const useApiCall = (apiConfig) => {
     (path, method, authenticationRequired = true) =>
       async (params = {}) => {
 
-      console.log('API call2:', authenticationRequired);
+      console.log('🔍 API call starting:', { path, method, authenticationRequired });
+      console.log('🔍 API call params received:', params);
       setIsLoading(true);
       setError(null);
 
       // Validate required parameters
       for (const [key, value] of Object.entries(params)) {
         if (value === undefined) {
-          console.log('key', key, 'value', value);
+          console.log('❌ VALIDATION FAILED - key:', key, 'value:', value);
+          console.log('❌ Params object:', params);
           return handleError(`${key} is required`);
         }
       }
+
+      console.log('✅ Parameter validation passed:', params);
 
       try {
         const response = await fetchFromApi(path, {

@@ -23,7 +23,14 @@ const ActivationScreen = () => {
   const { theme } = useUserContext();
   const navigation = useNavigation();
   const route = useRoute();
+
+  console.log('🔍 ACTIVATION SCREEN: Route object:', route);
+  console.log('🔍 ACTIVATION SCREEN: Route params:', route.params);
+
   const { userId } = route.params;
+  console.log('🔍 ACTIVATION SCREEN: Extracted userId from route params:', userId);
+  console.log('🔍 ACTIVATION SCREEN: userId type:', typeof userId);
+  console.log('🔍 ACTIVATION SCREEN: userId is undefined?', userId === undefined);
 
   const { activate, sendEmail, isLoading, error } = useActivation();
   const [activationCode, setActivationCode] = React.useState('');
@@ -69,9 +76,12 @@ const ActivationScreen = () => {
 
   const handleResendCode = useCallback(async () => {
     try {
-      console.log('userId', userId);
+      console.log('🔍 ACTIVATION SCREEN: handleResendCode called with userId:', userId);
+      console.log('🔍 ACTIVATION SCREEN: About to call sendEmail with userId:', userId);
       let response = await sendEmail(userId);
+      console.log('🔍 ACTIVATION SCREEN: sendEmail response:', response);
     } catch (error) {
+      console.error('❌ ACTIVATION SCREEN: handleResendCode error:', error);
       showAlert('Error', error.message);
     }
   }, [userId]);

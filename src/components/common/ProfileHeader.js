@@ -7,15 +7,14 @@ import { useUserContext } from 'src/hooks/useUserContext';
 import { showAlert } from 'src/utils/alert';
 import NormalButton from '../buttons/NormalButton';
 
-const ProfileHeader = ({ navigation, hasExpiredSession }) => {
+const ProfileHeader = ({ navigation, hasExpiredSession, onWeekiTrigger }) => {
   const { user, theme } = useUserContext();
 
   const handleMomentsPress = () => {
     if (!hasExpiredSession) {
-      showAlert(
-        'Weeki',
-        'Review our shared moments. Click on me to schedule our first.',
-      );
+      if (onWeekiTrigger) {
+        onWeekiTrigger();
+      }
       return;
     }
           navigation.navigate('OldSessions', { selected_id: null })

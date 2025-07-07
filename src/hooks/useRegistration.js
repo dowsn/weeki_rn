@@ -1,5 +1,4 @@
 import { useApiCall } from 'src/utils/hook';
-import { useUserContext } from './useUserContext';
 
 export const useRegistration = () => {
   const { apiCalls, isLoading, error } = useApiCall({
@@ -8,6 +7,7 @@ export const useRegistration = () => {
 
   const register = async (username, password, email, reminder) => {
     try {
+      console.log('🔍 REGISTRATION: Starting registration with params:', { username, email, reminder });
       const response = await apiCalls.register({
         username,
         password,
@@ -15,13 +15,18 @@ export const useRegistration = () => {
         reminder
       });
 
+      console.log('🔍 REGISTRATION: API response received:', response);
+      console.log('🔍 REGISTRATION: response.content:', response.content);
+
       if (response.content) {
+        console.log('✅ REGISTRATION: Success! Returning response with content:', response.content);
         return response
       }
 
+      console.log('❌ REGISTRATION: No content in response, throwing error');
       throw new Error(response.message || 'Login failed');
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ REGISTRATION: Error occurred:', error);
       // Preserve and throw the original error message
       throw error;
     }

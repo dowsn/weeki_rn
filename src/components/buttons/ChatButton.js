@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from 'src/components/common/Text';
 import { useChatSession } from '../../hooks/useChatSession';
@@ -6,12 +6,12 @@ import { useUserContext } from '../../hooks/useUserContext';
 import { showAlert } from '../../utils/alert';
 import CustomDatePickerModal from '../common/CustomDatePickerModal';
 
-const ChatButton = ({
+const ChatButton = forwardRef(({
   chatSession,
   navigation,
   nextDate,
   isAlreadySession,
-}) => {
+}, ref) => {
   const { user, theme } = useUserContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -123,6 +123,11 @@ const handleReschedule = useCallback(
     // Remove setTimeout and directly set modal visibility
     setModalVisible(true);
   }, [user.topics]);
+
+  // Expose the handleChatButtonPress function to parent components
+  useImperativeHandle(ref, () => ({
+    triggerPress: handleChatButtonPress
+  }), [handleChatButtonPress]);
 
   const styles = StyleSheet.create({
     chatButtonContainer: {
@@ -240,6 +245,6 @@ const handleReschedule = useCallback(
       />
     </View>
   );
-};
+});
 
 export default ChatButton;
